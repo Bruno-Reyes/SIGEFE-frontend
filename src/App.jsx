@@ -1,4 +1,4 @@
-import "primereact/resources/themes/viva-light/theme.css";
+import "primereact/resources/themes/bootstrap4-light-purple/theme.css";
 import "primereact/resources/primereact.min.css"; //core css
 import "primeicons/primeicons.css"; //icons
 import "primeflex/primeflex.css"; // flex

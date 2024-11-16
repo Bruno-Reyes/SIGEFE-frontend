@@ -5,6 +5,8 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 
+import axios from 'axios'
+
 export const RegistroConvocatoria = () => {
   const [formValues, setFormValues] = useState({
     nombreConvocatoria: '',
@@ -21,6 +23,7 @@ export const RegistroConvocatoria = () => {
     e.preventDefault();
     // Lógica para enviar el formulario (ej. API)
     console.log('Datos de la convocatoria:', formValues);
+    axios.post()
   };
 
   return (

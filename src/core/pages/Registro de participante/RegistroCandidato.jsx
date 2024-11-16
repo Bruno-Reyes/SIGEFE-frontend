@@ -117,10 +117,6 @@ export const RegistroCandidato = () => {
               <InputText id="nacionalidad" value={formValues.nacionalidad} onChange={(e) => handleInputChange(e, 'nacionalidad')} required />
             </div>
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="nacionalidad">Nacionalidad</label>
-              <InputText id="nacionalidad" value={formValues.nacionalidad} onChange={(e) => handleInputChange(e, 'nacionalidad')} required />
-            </div>
-            <div className="p-field p-col-12 p-md-6">
               <label htmlFor="tallaPlayera">Talla de Playera</label>
               <InputText id="tallaPlayera" value={formValues.tallaPlayera} onChange={(e) => handleInputChange(e, 'tallaPlayera')} required />
             </div>

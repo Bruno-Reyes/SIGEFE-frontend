@@ -35,20 +35,20 @@ export const RegistroConvocatoria = () => {
         
         <form onSubmit={handleSubmit} className="p-fluid">
           <div className="p-field p-grid p-my-2">
-            <label htmlFor="nombreConvocatoria" className="p-col-12 p-md-4">Nombre de la Convocatoria</label>
+            <label htmlFor="nombreConvocatoria" className="p-col-12 p-md-4">Lugar de la Convocatoria</label>
             <div className="p-col-12 p-md-8">
               <InputText
                 id="nombreConvocatoria"
                 value={formValues.nombreConvocatoria}
                 onChange={(e) => handleInputChange(e, 'nombreConvocatoria')}
-                placeholder="Ingresa el nombre de la convocatoria"
+                placeholder="Ingresa el lugar de la convocatoria"
                 required
               />
             </div>
           </div>
 
           <div className="p-field p-grid p-my-2">
-            <label htmlFor="fechaRegistro" className="p-col-12 p-md-4">Fecha de Registro</label>
+            <label htmlFor="fechaRegistro" className="p-col-12 p-md-4">Fecha Límite de Registro</label>
             <div className="p-col-12 p-md-8">
               <Calendar
                 id="fechaRegistro"

@@ -5,10 +5,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "primeicons/primeicons.css"; //icons
 import "primeflex/primeflex.css"; // flex
 
-// Login
 import Login from "./modules/ALC000_sistema_base/components/Login";
-import { RegistroConvocatoria } from "./core/pages/Registro de convocatoria/RegistroConvocatoria.jsx";
-import { RegistroCandidato } from "./core/pages/Registro de participante/RegistroCandidato.jsx";
+import { RegistroConvocatoria } from "./modules/ALC100_captacion/components/RegistroConvocatoria.jsx";
+import { RegistroCandidato } from "./modules/ALC100_captacion/components/RegistroCandidato.jsx";  
 
 
 

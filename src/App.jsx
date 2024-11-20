@@ -9,8 +9,6 @@ import Login from "./modules/ALC000_sistema_base/components/Login";
 import { RegistroConvocatoria } from "./modules/ALC100_captacion/components/RegistroConvocatoria.jsx";
 import { RegistroCandidato } from "./modules/ALC100_captacion/components/RegistroCandidato.jsx";  
 
-
-
 function App() {
   return (
     <Router>

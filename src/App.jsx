@@ -8,6 +8,7 @@ import "primeflex/primeflex.css"; // flex
 import Login from "./modules/ALC000_sistema_base/components/Login";
 import { RegistroConvocatoria } from "./modules/ALC100_captacion/components/RegistroConvocatoria.jsx";
 import { RegistroCandidato } from "./modules/ALC100_captacion/components/RegistroCandidato.jsx";  
+import Dashboard from "./modules/ALC000_sistema_base/components/home";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           }}
         >
           <Route path="/" element={<Login />} />
+          <Route path="/home" element={<Dashboard />} />
           <Route path="/registro-convocatoria" element={<RegistroConvocatoria />} />
           <Route path="/registro-candidato" element={<RegistroCandidato />} />
           <Route path="*" element={<Login />} />

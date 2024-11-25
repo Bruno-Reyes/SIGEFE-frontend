@@ -1,12 +1,19 @@
+import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+import axios from "axios";
+import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
+
 function Login() {
+  const navigate = useNavigate();
+  const toast = useRef(null);
+
   const formik = useFormik({
     initialValues: {
       username: "",
@@ -18,11 +25,33 @@ function Login() {
         .min(6, "La contraseña debe tener 6 caracteres")
         .required("La contraseña es obligatoria"),
     }),
-    onSubmit: (values) => {
-      //Logica para manejar el inicio de sesion
-      // Llamamos hooks con axios
-      console.log("Usuario: ", values.username);
-      console.log("Contraseña: ", values.password);
+    onSubmit: async (values) => {
+      try {
+        console.log(values)
+        const response = await axios.post("http://localhost:8000/api/auth/token/", {
+          email: values.username,
+          password: values.password,
+        });
+
+        const { username, userType } = response.data;
+
+        toast.current.show({
+          severity: "success",
+          summary: "Inicio exitoso",
+          detail: `Bienvenido ${username}`,
+          life: 3000,
+        });
+
+        // Redirigir al dashboard y pasar datos de usuario
+        navigate("/home", { state: { username, userType } });
+      } catch (error) {
+        toast.current.show({
+          severity: "error",
+          summary: "Error de autenticación",
+          detail: "Usuario o contraseña incorrectos",
+          life: 3000,
+        });
+      }
     },
   });
 
@@ -30,6 +59,7 @@ function Login() {
 
   return (
     <div className="grid">
+      <Toast ref={toast} /> {/* Componente para notificaciones */}
       <div className="col">
         <div className="p-3"></div>
       </div>
@@ -38,7 +68,7 @@ function Login() {
           <Card
             title="Inicio de Sesión"
             className="shadow-8 border-round-lg"
-            style={{ width: "25rem  " }}
+            style={{ width: "25rem" }}
             header={header}
           >
             <form onSubmit={formik.handleSubmit} className="p-fluid">
@@ -69,7 +99,7 @@ function Login() {
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  feedback={false} // Desactiva sugerencias de contraseña
+                  feedback={false}
                   placeholder="Ingrese su contraseña"
                   className={`p-inputtext-lg ${formik.touched.password && formik.errors.password ? "p-invalid" : ""}`}
                 />

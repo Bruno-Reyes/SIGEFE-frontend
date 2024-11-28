@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
@@ -8,7 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 
 import axios from 'axios'
 
-export const RegistroConvocatoria = () => {
+const RegistroConvocatoria = () => {
 
   const lugares = [
     {label: 'Aguascalientes', value: 'Aguascalientes'},
@@ -132,3 +131,4 @@ export const RegistroConvocatoria = () => {
   );
 };
 
+export default RegistroConvocatoria;

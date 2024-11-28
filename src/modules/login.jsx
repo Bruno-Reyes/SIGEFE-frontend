@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import { useNavigate } from "react-router";
 import axios from "axios";
 import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
@@ -8,6 +8,8 @@ import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+
+const apiUrl = import.meta.env.VITE_API_URL
 
 
 function Login() {
@@ -27,13 +29,10 @@ function Login() {
     }),
     onSubmit: async (values) => {
       try {
-        console.log(values)
-        const response = await axios.post("http://localhost:8000/api/auth/token/", {
+        const response = await axios.post(apiUrl+"/auth/token/", {
           email: values.username,
           password: values.password,
         });
-
-        const { username, userType } = response.data;
 
         toast.current.show({
           severity: "success",
@@ -42,8 +41,15 @@ function Login() {
           life: 3000,
         });
 
-        // Redirigir al dashboard y pasar datos de usuario
-        navigate("/home", { state: { username, userType } });
+        // Establecer los datos en el localStorage
+        localStorage.setItem("access-token", JSON.stringify(response.data.access));
+        localStorage.setItem("refresh-token", JSON.stringify(response.data.refresh));
+        localStorage.setItem("email", response.data.payload.email);
+        localStorage.setItem("usuario", JSON.stringify(response.data.payload.tipo_usuario));
+        localStorage.setItem("sidebar", true);
+  
+        // Redirigir a la página de inicio
+        window.location.reload()
       } catch (error) {
         toast.current.show({
           severity: "error",

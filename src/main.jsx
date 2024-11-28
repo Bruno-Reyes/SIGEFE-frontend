@@ -1,17 +1,30 @@
-//import { StrictMode } from "react";
+// GlOBAL CONFIGURATIONS (DON'T TOUCH) °°°°°°°°°°°°°°°°°
+import React, {StrictMode} from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { PrimeReactProvider } from "primereact/api";
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import 'primereact/resources/themes/saga-blue/theme.css';  
 import 'primereact/resources/primereact.min.css';          
 import 'primeicons/primeicons.css';                        
 import 'primeflex/primeflex.css';    
-//import './index.css'
 
-import App from './App.jsx'
+// GlOBAL CONFIGURATIONS (DON'T TOUCH) °°°°°°°°°°°°°°°°°
+import { PrivateRoutes } from "./routes/PrivateRoutes";
+import { PublicRoutes } from "./routes/PublicRoutes";
 
-createRoot(document.getElementById("root")).render(
+const root = document.getElementById("root");
+
+ReactDOM.createRoot(root).render(
   <PrimeReactProvider>
-    <App />
-  </PrimeReactProvider>,
+  <BrowserRouter>
+    <Routes>
+      {
+        localStorage.length > 0
+        ? <Route path="/*" element={<PrivateRoutes />} />
+        : <Route path="/*" element={<PublicRoutes />} />
+      }
+        <Route path="*" element={<Navigate to="/login" replace/>} />
+    </Routes>
+  </BrowserRouter>
+  </PrimeReactProvider>
 );

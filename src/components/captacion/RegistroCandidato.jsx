@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
@@ -7,9 +8,36 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { Checkbox } from 'primereact/checkbox';
 import { FileUpload } from 'primereact/fileupload';
+import { Toast } from 'primereact/toast';
+import * as Yup from "yup";
 
 
 const RegistroCandidato = () => {
+  const toast = useRef(null);
+  const formik = useFormik({
+    initialValues: {
+      curp : '',
+      nombres : '',
+      apellido_paterno : '',
+      apellido_materno : '',
+      fecha_nacimiento : '',
+      genero : '',
+      nacionalidad : '',
+      talla_playera : '',
+      talla_pantalon : '',
+      talla_calzado : '',
+      peso : '',
+      estatura : '',
+      banco : '',
+    },
+    validationSchema: Yup.object({
+      curp : Yup.string().required('El CURP es obligatorio'),
+    }),
+    onSubmit: (values) => {
+      console.log(values);
+    },
+  });
+
   const [formValues, setFormValues] = useState({
     // Información personal
     curp: '', nombres: '', apellidoPaterno: '', apellidoMaterno: '',
@@ -29,6 +57,20 @@ const RegistroCandidato = () => {
     // Preferencias de Participación
     estadoParticipacion: '', cicloEscolar: '', medioInformacion: '', municipioServicio: ''
   });
+
+  const bancos = [
+    { label: 'BBVA', value: 'BBVA' },
+    { label: 'Banamex', value: 'Banamex' },
+    { label: 'Santander', value: 'Santander' },
+    { label: 'HSBC', value: 'HSBC' },
+    { label: 'Banorte', value: 'Banorte' },
+    { label: 'Scotiabank', value: 'Scotiabank' },
+    { label: 'Inbursa', value: 'Inbursa' },
+    { label: 'Banco Azteca', value: 'Banco Azteca' },
+    { label: 'BanCoppel', value: 'BanCoppel' },
+    { label: 'Banco del Bajío', value: 'Banco del Bajío' },
+    { label: 'Otro', value: 'Otro' },
+  ];
 
   const nivelesEducativos = [
     { label: 'Inicial', value: 'Inicial' },
@@ -72,18 +114,14 @@ const RegistroCandidato = () => {
     setFormValues({ ...formValues, [field]: e.target ? e.target.value : e.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Datos del candidato:', formValues);
-  };
-
   return (
     <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
+      <Toast ref={toast} /> {/* Componente para notificaciones */}
       <div className="p-card p-p-4 p-shadow-3 p-mb-4" style={{ width: '90%' }}>
         <h2>Registro de Candidato</h2>
         <Divider />
 
-        <form onSubmit={handleSubmit} className="p-fluid">
+        <form onSubmit={formik.handleSubmit} className="p-fluid">
 
           {/* Información Personal */}
           <h3>Información Personal</h3>
@@ -136,10 +174,6 @@ const RegistroCandidato = () => {
               <label htmlFor="estatura">Estatura (cm)</label>
               <InputNumber id="estatura" value={formValues.estatura} onChange={(e) => handleInputChange(e, 'estatura')} required mode="decimal" minFractionDigits={2} />
             </div>
-            <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="edad">Edad</label>
-              <InputNumber id="edad" value={formValues.edad} onChange={(e) => handleInputChange(e, 'edad')} required />
-            </div>
           </div>
 
           {/* Datos Bancarios */}
@@ -148,25 +182,17 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="banco">Banco</label>
-              <Dropdown id="banco" value={formValues.banco} options={[{label: 'Bancomer', value: 'Bancomer'}, {label: 'Otro', value: 'Otro'}]} onChange={(e) => handleInputChange(e, 'banco')} placeholder="Selecciona el banco" required />
+              <Dropdown id="banco" value={formValues.banco} options={bancos} onChange={(e) => handleInputChange(e, 'banco')} placeholder="Selecciona el banco" required />
             </div>
-            {formValues.banco === 'Bancomer' && (
               <div className="p-field p-col-12 p-md-6">
-                <label htmlFor="cuentaBancaria">Cuenta Bancaria (solo en caso de Bancomer)</label>
-                <InputText id="cuentaBancaria" value={formValues.cuentaBancaria} onChange={(e) => handleInputChange(e, 'cuentaBancaria')} required />
+                <label htmlFor="cuentaBancaria">Cuenta Bancaria</label>
+                <InputNumber id="cuentaBancaria" value={formValues.cuentaBancaria} onValueChange={(e) => handleInputChange(e, 'cuentaBancaria')} useGrouping={false} />
               </div>
-            )}
-
-            {formValues.banco === 'Otro' && (
-              <div className="p-field p-col-12 p-md-6">
-                <label htmlFor="clabe">CLABE (Banco diferente a Bancomer)</label>
-                <InputText id="clabe" value={formValues.clabe} onChange={(e) => handleInputChange(e, 'clabe')} required />
-              </div>
-            )}
           </div>
+          <Divider />
 
           {/* Información de Contacto */}
-          <Divider />
+          
           <h3>Información de Contacto</h3>
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">

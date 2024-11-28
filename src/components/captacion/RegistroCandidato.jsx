@@ -9,7 +9,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { FileUpload } from 'primereact/fileupload';
 
 
-export const RegistroCandidato = () => {
+const RegistroCandidato = () => {
   const [formValues, setFormValues] = useState({
     // Información personal
     curp: '', nombres: '', apellidoPaterno: '', apellidoMaterno: '',
@@ -312,3 +312,5 @@ export const RegistroCandidato = () => {
     </div>
   );
 };
+
+export default RegistroCandidato;

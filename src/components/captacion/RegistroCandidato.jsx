@@ -10,6 +10,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { FileUpload } from 'primereact/fileupload';
 import { Toast } from 'primereact/toast';
 import * as Yup from "yup";
+import { Schemas } from '../../tools/validationSchemas';
 
 
 const RegistroCandidato = () => {
@@ -22,19 +23,47 @@ const RegistroCandidato = () => {
       apellido_materno : '',
       fecha_nacimiento : '',
       genero : '',
-      nacionalidad : '',
       talla_playera : '',
       talla_pantalon : '',
       talla_calzado : '',
       peso : '',
       estatura : '',
       banco : '',
+      clabe : '',
+      nivel_estudios : '',
+      nivel_estudios_deseado : '',
+      experiencia_ciencia : '',
+      experiencia_arte : '',
+      interes_comunitario : '',
+      razones_interes : '',
+      profesion_interes : '',
+      interes_incorporacion : '',
+      codigo_postal : '',
+      estado : '',
+      colonia : '',
+      municipio : '',
+      localidad : '',
+      calle : '',
+      numero_exterior : '',
+      numero_interior : '',
+      estado_deseado : '',
+      municipio_deseado : '',
+      certificado_estudios : '',
+      identificacion_oficial : '',
+      estado_cuenta_bancario : '',
     },
     validationSchema: Yup.object({
-      curp : Yup.string().required('El CURP es obligatorio'),
+      curp : Schemas.CURP,
+      nombres : Schemas.nombres,
+      apellido_paterno : Schemas.apellidos,
+      apellido_materno : Schemas.apellidos,
+      fecha_nacimiento : Yup.date().required("La fecha de nacimiento es obligatoria"),
+      genero : Yup.string().required("El género es obligatorio"),
+      talla_playera : Yup.string().required("La talla de playera es obligatoria"),
     }),
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log(values);
+      // Eliminar espacios al inicio y final de las cadenas
     },
   });
 
@@ -121,58 +150,124 @@ const RegistroCandidato = () => {
         <h2>Registro de Candidato</h2>
         <Divider />
 
-        <form onSubmit={formik.handleSubmit} className="p-fluid">
+        <form onSubmit={formik.handleSubmit} className="p-fluid" autoComplete='off'>
 
           {/* Información Personal */}
           <h3>Información Personal</h3>
           <div className="p-grid">
+
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="curp">CURP</label>
-              <InputText id="curp" value={formValues.curp} onChange={(e) => handleInputChange(e, 'curp')} required />
+              <InputText 
+              id="curp" 
+              className={`p-inputtext-lg ${formik.touched.curp && formik.errors.curp ? "p-invalid" : ""}`}
+              value={formik.values.curp} 
+              onChange={formik.handleChange} 
+              />
+              {formik.touched.curp && formik.errors.curp ? (
+                  <small className="p-error">{formik.errors.curp}</small>
+                ) : null}
             </div>
+
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="nombres">Nombre(s)</label>
-              <InputText id="nombres" value={formValues.nombres} onChange={(e) => handleInputChange(e, 'nombres')} required />
+              <InputText 
+              id="nombres" 
+              className={`p-inputtext-lg ${formik.touched.nombres && formik.errors.nombres ? "p-invalid" : ""}`}
+              value={formik.values.nombres} 
+              onChange={formik.handleChange} 
+              />
+              {formik.touched.nombres && formik.errors.nombres ? (
+                  <small className="p-error">{formik.errors.nombres}</small>
+                ) : null}
             </div>
+
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="apellidoPaterno">Apellido Paterno</label>
-              <InputText id="apellidoPaterno" value={formValues.apellidoPaterno} onChange={(e) => handleInputChange(e, 'apellidoPaterno')} required />
+              <label htmlFor="apellido_paterno">Apellido Paterno</label>
+              <InputText
+              id="apellido_paterno"
+              className={`p-inputtext-lg ${formik.touched.apellido_paterno && formik.errors.apellido_paterno ? "p-invalid" : ""}`} 
+              value={formik.values.apellido_paterno} 
+              onChange={formik.handleChange}
+              />
+              {formik.touched.apellido_paterno && formik.errors.apellido_paterno ? (
+                <small className="p-error">{formik.errors.apellido_paterno}</small>
+              ) : null}
             </div>
+
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="apellidoMaterno">Apellido Materno</label>
-              <InputText id="apellidoMaterno" value={formValues.apellidoMaterno} onChange={(e) => handleInputChange(e, 'apellidoMaterno')} required />
+              <label htmlFor="apellido_materno">Apellido Materno</label>
+              <InputText
+              id="apellido_materno"
+              className={`p-inputtext-lg ${formik.touched.apellido_materno && formik.errors.apellido_materno ? "p-invalid" : ""}`} 
+              value={formik.values.apellido_materno} 
+              onChange={formik.handleChange}
+              />
+              {formik.touched.apellido_materno && formik.errors.apellido_materno ? (
+                <small className="p-error">{formik.errors.apellido_materno}</small>
+              ) : null}
             </div>
+
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="fechaNacimiento">Fecha de Nacimiento</label>
-              <Calendar id="fechaNacimiento" value={formValues.fechaNacimiento} onChange={(e) => handleInputChange(e, 'fechaNacimiento')} showIcon required />
+              <label htmlFor="fecha_nacimiento">Fecha de Nacimiento</label>
+              <Calendar 
+              id="fecha_nacimiento" 
+              className={`p-inputtext-lg ${formik.touched.fecha_nacimiento && formik.errors.fecha_nacimiento ? "p-invalid" : ""}`} 
+              value={formik.values.fecha_nacimiento} 
+              onChange={formik.handleChange} 
+              showIcon  
+              />
             </div>
+
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="genero">Género</label>
-              <Dropdown id="genero" value={formValues.genero} options={[{label: 'Masculino', value: 'M'}, {label: 'Femenino', value: 'F'}]} onChange={(e) => handleInputChange(e, 'genero')} placeholder="Selecciona el género" required />
+              <Dropdown 
+              id="genero" value={formik.values.genero} 
+              className={`p-inputtext-lg ${formik.touched.genero && formik.errors.genero ? "p-invalid" : ""}`} 
+              options={[{label: 'Masculino', value: 'M'}, {label: 'Femenino', value: 'F'}, {label: 'Otro', value: 'O'}]} 
+              onChange={formik.handleChange} 
+              placeholder="Selecciona el género"  />
             </div>
+
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="nacionalidad">Nacionalidad</label>
-              <InputText id="nacionalidad" value={formValues.nacionalidad} onChange={(e) => handleInputChange(e, 'nacionalidad')} required />
+              <InputText 
+              id="nacionalidad" 
+              className={`p-inputtext-lg ${formik.touched.nacionalidad && formik.errors.nacionalidad ? "p-invalid" : ""}`} 
+              value={formik.values.nacionalidad} 
+              onChange={formik.handleChange}
+              />
+              {formik.touched.nacionalidad && formik.errors.nacionalidad ? (
+                <small className="p-error">{formik.errors.nacionalidad}</small>
+              ) : null}
             </div>
+
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="tallaPlayera">Talla de Playera</label>
-              <InputText id="tallaPlayera" value={formValues.tallaPlayera} onChange={(e) => handleInputChange(e, 'tallaPlayera')} required />
+              <label htmlFor="talla_playera">Talla de Playera</label>
+              <InputText
+              id="talla_playera"
+              className={`p-inputtext-lg ${formik.touched.talla_playera && formik.errors.talla_playera ? "p-invalid" : ""}`} 
+              value={formik.values.talla_playera} 
+              onChange={formik.handleChange}  />
+              {formik.touched.talla_playera && formik.errors.talla_playera ? (
+                <small className="p-error">{formik.errors.talla_playera}</small>
+              ) : null}
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="tallaPantalon">Talla de Pantalón</label>
-              <InputText id="tallaPantalon" value={formValues.tallaPantalon} onChange={(e) => handleInputChange(e, 'tallaPantalon')} required />
+              <InputText id="tallaPantalon" value={formValues.tallaPantalon} onChange={(e) => handleInputChange(e, 'tallaPantalon')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="tallaCalzado">Talla de Calzado</label>
-              <InputText id="tallaCalzado" value={formValues.tallaCalzado} onChange={(e) => handleInputChange(e, 'tallaCalzado')} required />
+              <InputText id="tallaCalzado" value={formValues.tallaCalzado} onChange={(e) => handleInputChange(e, 'tallaCalzado')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="peso">Peso (kg)</label>
-              <InputNumber id="peso" value={formValues.peso} onChange={(e) => handleInputChange(e, 'peso')} required mode="decimal" minFractionDigits={2} />
+              <InputNumber id="peso" value={formValues.peso} onChange={(e) => handleInputChange(e, 'peso')}  mode="decimal" minFractionDigits={2} />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="estatura">Estatura (cm)</label>
-              <InputNumber id="estatura" value={formValues.estatura} onChange={(e) => handleInputChange(e, 'estatura')} required mode="decimal" minFractionDigits={2} />
+              <InputNumber id="estatura" value={formValues.estatura} onChange={(e) => handleInputChange(e, 'estatura')}  mode="decimal" minFractionDigits={2} />
             </div>
           </div>
 
@@ -182,7 +277,7 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="banco">Banco</label>
-              <Dropdown id="banco" value={formValues.banco} options={bancos} onChange={(e) => handleInputChange(e, 'banco')} placeholder="Selecciona el banco" required />
+              <Dropdown id="banco" value={formValues.banco} options={bancos} onChange={(e) => handleInputChange(e, 'banco')} placeholder="Selecciona el banco"  />
             </div>
               <div className="p-field p-col-12 p-md-6">
                 <label htmlFor="cuentaBancaria">Cuenta Bancaria</label>
@@ -197,7 +292,7 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="correo">Correo Electrónico</label>
-              <InputText id="correo" value={formValues.correo} onChange={(e) => handleInputChange(e, 'correo')} required />
+              <InputText id="correo" value={formValues.correo} onChange={(e) => handleInputChange(e, 'correo')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="telefonoFijo">Teléfono Fijo</label>
@@ -205,7 +300,7 @@ const RegistroCandidato = () => {
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="telefonoMovil">Teléfono Móvil</label>
-              <InputText id="telefonoMovil" value={formValues.telefonoMovil} onChange={(e) => handleInputChange(e, 'telefonoMovil')} required />
+              <InputText id="telefonoMovil" value={formValues.telefonoMovil} onChange={(e) => handleInputChange(e, 'telefonoMovil')}  />
             </div>
           </div>
 
@@ -215,19 +310,19 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="nivelEducativoLEC">Nivel Educativo del LEC</label>
-              <InputText id="nivelEducativoLEC" value={formValues.nivelEducativoLEC} onChange={(e) => handleInputChange(e, 'nivelEducativoLEC')} required />
+              <InputText id="nivelEducativoLEC" value={formValues.nivelEducativoLEC} onChange={(e) => handleInputChange(e, 'nivelEducativoLEC')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="nivelEducativoServicio">Nivel Educativo de Servicio Social</label>
-              <Dropdown id="nivelEducativoServicio" value={formValues.nivelEducativoServicio} options={nivelesEducativos} onChange={(e) => handleInputChange(e, 'nivelEducativoServicio')} placeholder="Seleccione el nivel" required />
+              <Dropdown id="nivelEducativoServicio" value={formValues.nivelEducativoServicio} options={nivelesEducativos} onChange={(e) => handleInputChange(e, 'nivelEducativoServicio')} placeholder="Seleccione el nivel"  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="gustoCiencia">Experiencia en Ciencia</label>
-              <Dropdown id="gustoCiencia" value={formValues.gustoCiencia} options={camposCiencia} onChange={(e) => handleInputChange(e, 'gustoCiencia')} placeholder="Seleccione la ciencia" required />
+              <Dropdown id="gustoCiencia" value={formValues.gustoCiencia} options={camposCiencia} onChange={(e) => handleInputChange(e, 'gustoCiencia')} placeholder="Seleccione la ciencia"  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="experienciaArte">Experiencia en Arte</label>
-              <Dropdown id="experienciaArte" value={formValues.experienciaArte} options={camposArte} onChange={(e) => handleInputChange(e, 'experienciaArte')} placeholder="Seleccione el arte" required />
+              <Dropdown id="experienciaArte" value={formValues.experienciaArte} options={camposArte} onChange={(e) => handleInputChange(e, 'experienciaArte')} placeholder="Seleccione el arte"  />
             </div>
             <div className="p-field-checkbox p-col-12">
               <Checkbox inputId="interesComunitario" checked={formValues.interesComunitario} onChange={(e) => handleCheckboxChange(e, 'interesComunitario')} />
@@ -235,7 +330,7 @@ const RegistroCandidato = () => {
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="razonLEC">Razón para ser LEC</label>
-              <Dropdown id="razonLEC" value={formValues.razonLEC} options={razonesLEC} onChange={(e) => handleInputChange(e, 'razonLEC')} placeholder="Seleccione la razón" required />
+              <Dropdown id="razonLEC" value={formValues.razonLEC} options={razonesLEC} onChange={(e) => handleInputChange(e, 'razonLEC')} placeholder="Seleccione la razón"  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="profesionInteres">Profesión de Interés</label>
@@ -247,7 +342,7 @@ const RegistroCandidato = () => {
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="interesesIncorporacion">Intereses de Incorporación</label>
-              <Dropdown id="interesesIncorporacion" value={formValues.interesesIncorporacion} options={interesesOptions} onChange={(e) => handleInputChange(e, 'interesesIncorporacion')} placeholder="Seleccione una opción" required />
+              <Dropdown id="interesesIncorporacion" value={formValues.interesesIncorporacion} options={interesesOptions} onChange={(e) => handleInputChange(e, 'interesesIncorporacion')} placeholder="Seleccione una opción"  />
             </div>
           </div>
 
@@ -257,19 +352,19 @@ const RegistroCandidato = () => {
           <div className="p-grid">
           <div className="p-field p-col-12 p-md-6">
               <label htmlFor="codigoPostal">Código Postal</label>
-              <InputText id="codigoPostal" value={formValues.codigoPostal} onChange={(e) => handleInputChange(e, 'codigoPostal')} required />
+              <InputText id="codigoPostal" value={formValues.codigoPostal} onChange={(e) => handleInputChange(e, 'codigoPostal')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="estado">Estado</label>
-              <InputText id="estado" value={formValues.estado} onChange={(e) => handleInputChange(e, 'estado')} required />
+              <InputText id="estado" value={formValues.estado} onChange={(e) => handleInputChange(e, 'estado')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="colonia">Colonia</label>
-              <InputText id="colonia" value={formValues.colonia} onChange={(e) => handleInputChange(e, 'colonia')} required />
+              <InputText id="colonia" value={formValues.colonia} onChange={(e) => handleInputChange(e, 'colonia')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="municipio">Municipio o Alcaldía</label>
-              <InputText id="municipio" value={formValues.municipio} onChange={(e) => handleInputChange(e, 'municipio')} required />
+              <InputText id="municipio" value={formValues.municipio} onChange={(e) => handleInputChange(e, 'municipio')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="localidad">Localidad</label>
@@ -277,11 +372,11 @@ const RegistroCandidato = () => {
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="calle">Calle</label>
-              <InputText id="calle" value={formValues.calle} onChange={(e) => handleInputChange(e, 'calle')} required />
+              <InputText id="calle" value={formValues.calle} onChange={(e) => handleInputChange(e, 'calle')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="numeroExterior">Número Exterior</label>
-              <InputText id="numeroExterior" value={formValues.numeroExterior} onChange={(e) => handleInputChange(e, 'numeroExterior')} required />
+              <InputText id="numeroExterior" value={formValues.numeroExterior} onChange={(e) => handleInputChange(e, 'numeroExterior')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="numeroInterior">Número Interior</label>
@@ -295,19 +390,19 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="estadoParticipacion">Estado en el que desea participar</label>
-              <InputText id="estadoParticipacion" value={formValues.estadoParticipacion} onChange={(e) => handleInputChange(e, 'estadoParticipacion')} required />
+              <InputText id="estadoParticipacion" value={formValues.estadoParticipacion} onChange={(e) => handleInputChange(e, 'estadoParticipacion')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="cicloEscolar">Ciclo Escolar a participar</label>
-              <InputText id="cicloEscolar" value={formValues.cicloEscolar} onChange={(e) => handleInputChange(e, 'cicloEscolar')} required />
+              <InputText id="cicloEscolar" value={formValues.cicloEscolar} onChange={(e) => handleInputChange(e, 'cicloEscolar')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="medioInformacion">Medio por el cual se enteró</label>
-              <InputText id="medioInformacion" value={formValues.medioInformacion} onChange={(e) => handleInputChange(e, 'medioInformacion')} required />
+              <InputText id="medioInformacion" value={formValues.medioInformacion} onChange={(e) => handleInputChange(e, 'medioInformacion')}  />
             </div>
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="municipioServicio">Municipio en el que desea brindar el servicio educativo</label>
-              <InputText id="municipioServicio" value={formValues.municipioServicio} onChange={(e) => handleInputChange(e, 'municipioServicio')} required />
+              <InputText id="municipioServicio" value={formValues.municipioServicio} onChange={(e) => handleInputChange(e, 'municipioServicio')}  />
             </div>
           </div>
 

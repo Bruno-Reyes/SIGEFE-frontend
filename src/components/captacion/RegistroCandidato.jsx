@@ -60,6 +60,8 @@ const RegistroCandidato = () => {
       fecha_nacimiento : Yup.date().required("La fecha de nacimiento es obligatoria"),
       genero : Yup.string().required("El género es obligatorio"),
       talla_playera : Yup.string().required("La talla de playera es obligatoria"),
+      talla_pantalon : Yup.string().required("La talla de pantalón es obligatoria"),  
+      talla_calzado : Yup.string().required("La talla de calzado es obligatoria"),
     }),
     onSubmit: async (values) => {
       console.log(values);
@@ -86,6 +88,35 @@ const RegistroCandidato = () => {
     // Preferencias de Participación
     estadoParticipacion: '', cicloEscolar: '', medioInformacion: '', municipioServicio: ''
   });
+
+  const tallas = [
+    { label: 'Chica', value: 'CH' },
+    { label: 'Mediana', value: 'M' },
+    { label: 'Grande', value: 'G' },
+    { label: 'Extra Grande', value: 'EG' },
+  ]
+
+  const tallas_calzado = [
+    {label: '22', value: '22'},
+    {label: '22.5', value: '22.5'},
+    {label: '23', value: '23'},
+    {label: '23.5', value: '23.5'},
+    {label: '24', value: '24'},
+    {label: '24.5', value: '24.5'},
+    {label: '25', value: '25'},
+    {label: '25.5', value: '25.5'},
+    {label: '26', value: '26'},
+    {label: '26.5', value: '26.5'},
+    {label: '27', value: '27'},
+    {label: '27.5', value: '27.5'},
+    {label: '28', value: '28'},
+    {label: '28.5', value: '28.5'},
+    {label: '29', value: '29'},
+    {label: '29.5', value: '29.5'},
+    {label: '30', value: '30'},
+  ]
+  
+
 
   const bancos = [
     { label: 'BBVA', value: 'BBVA' },
@@ -227,32 +258,37 @@ const RegistroCandidato = () => {
               options={[{label: 'Masculino', value: 'M'}, {label: 'Femenino', value: 'F'}, {label: 'Otro', value: 'O'}]} 
               onChange={formik.handleChange} 
               placeholder="Selecciona el género"  />
-            </div>
-
-            <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="nacionalidad">Nacionalidad</label>
-              <InputText 
-              id="nacionalidad" 
-              className={`p-inputtext-lg ${formik.touched.nacionalidad && formik.errors.nacionalidad ? "p-invalid" : ""}`} 
-              value={formik.values.nacionalidad} 
-              onChange={formik.handleChange}
-              />
-              {formik.touched.nacionalidad && formik.errors.nacionalidad ? (
-                <small className="p-error">{formik.errors.nacionalidad}</small>
+              {formik.touched.genero && formik.errors.genero ? (
+                <small className="p-error">{formik.errors.genero}</small>
               ) : null}
             </div>
 
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="talla_playera">Talla de Playera</label>
-              <InputText
+              <Dropdown
               id="talla_playera"
               className={`p-inputtext-lg ${formik.touched.talla_playera && formik.errors.talla_playera ? "p-invalid" : ""}`} 
+              options={tallas}
               value={formik.values.talla_playera} 
               onChange={formik.handleChange}  />
               {formik.touched.talla_playera && formik.errors.talla_playera ? (
                 <small className="p-error">{formik.errors.talla_playera}</small>
               ) : null}
             </div>
+
+            <div className="p-field p-col-12 p-md-6">
+              <label htmlFor="talla_pantalon">Talla de Pantalón</label>
+              <Dropdown
+              id="talla_pantalon"
+              className={`p-inputtext-lg ${formik.touched.talla_pantalon && formik.errors.talla_pantalon ? "p-invalid" : ""}`} 
+              options={tallas}
+              value={formik.values.talla_pantalon} 
+              onChange={formik.handleChange}  />
+              {formik.touched.talla_pantalon && formik.errors.talla_pantalon ? (
+                <small className="p-error">{formik.errors.talla_pantalon}</small>
+              ) : null}
+            </div>
+
             <div className="p-field p-col-12 p-md-6">
               <label htmlFor="tallaPantalon">Talla de Pantalón</label>
               <InputText id="tallaPantalon" value={formValues.tallaPantalon} onChange={(e) => handleInputChange(e, 'tallaPantalon')}  />

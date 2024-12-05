@@ -49,7 +49,6 @@ const RegistroCandidato = () => {
       numero_exterior: '',
       numero_interior: '',
       convocatoria: '',
-      municipio_deseado: '',
       certificado_estudios: '',
       identificacion_oficial: '',
       estado_cuenta_bancario: '',
@@ -202,6 +201,7 @@ const RegistroCandidato = () => {
     { label: 'No perder el año y realizar alguna actividad', value: 'No perder el año' },
     { label: 'Conocer personas y trabajar con niños', value: 'Conocer personas' },
     { label: 'Apoyar y participar en programas sociales', value: 'Apoyar en programas sociales' },
+    { label: 'Otro', value: 'Otro' },
   ];
 
   const profesiones = [
@@ -221,6 +221,7 @@ const RegistroCandidato = () => {
     { label: 'Residencia profesional', value: 'Residencia profesional' },
     { label: 'Movilidad académica', value: 'Movilidad académica' },
     { label: 'Participación voluntaria', value: 'Participación voluntaria' },
+    { label: 'Otro', value: 'Otro' },
   ];
 
   const lugares = [
@@ -265,6 +266,7 @@ const RegistroCandidato = () => {
   const obtenerConvocatorias = async () => {
     try {
       const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`);
+      
       setConvocatorias(response.data);
       console.log(convocatorias);
     }
@@ -484,7 +486,7 @@ const RegistroCandidato = () => {
             </div>
 
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="clabe">Cuenta Bancaria</label>
+              <label htmlFor="clabe">Cuenta CLABE</label>
               <InputText
                 id="clabe"
                 className={`p-inputtext-lg ${formik.touched.clabe && formik.errors.clabe ? "p-invalid" : ""}`}
@@ -703,12 +705,8 @@ const RegistroCandidato = () => {
           <h3>Preferencias de Participación</h3>
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="estadoParticipacion">¿En cual de los siguientes estados deseas participar?</label>
+              <label htmlFor="estadoParticipacion">¿En que convocatoria quieres participar?</label>
               <InputText id="estadoParticipacion" value={formValues.estadoParticipacion} onChange={(e) => handleInputChange(e, 'estadoParticipacion')} />
-            </div>
-            <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="municipioServicio">Municipio en el que desea brindar el servicio educativo</label>
-              <InputText id="municipioServicio" value={formValues.municipioServicio} onChange={(e) => handleInputChange(e, 'municipioServicio')} />
             </div>
           </div>
 
@@ -730,38 +728,6 @@ const RegistroCandidato = () => {
             </div>
           </div>
 
-          {/* Informacion de usuario */}
-          <Divider />
-          <h3>Datos Bancarios</h3>
-          <div className="p-grid">
-            <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="banco">Banco</label>
-              <Dropdown
-                id="banco"
-                value={formik.values.banco}
-                className={`p-inputtext-lg ${formik.touched.banco && formik.errors.banco ? "p-invalid" : ""}`}
-                options={bancos}
-                onChange={formik.handleChange}
-                placeholder="Selecciona tu banco" />
-              {formik.touched.banco && formik.errors.banco ? (
-                <small className="p-error">{formik.errors.banco}</small>
-              ) : null}
-            </div>
-
-            <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="clabe">Cuenta Bancaria</label>
-              <InputText
-                id="clabe"
-                className={`p-inputtext-lg ${formik.touched.clabe && formik.errors.clabe ? "p-invalid" : ""}`}
-                value={formik.values.clabe}
-                onChange={formik.handleChange}
-              />
-              {formik.touched.clabe && formik.errors.clabe ? (
-                <small className="p-error">{formik.errors.clabe}</small>
-              ) : null}
-            </div>
-          </div>
-          <Divider />
 
           {/* Botón de Envío */}
           <div className="p-d-flex p-jc-end p-mt-4">

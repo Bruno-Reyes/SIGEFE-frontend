@@ -12,6 +12,10 @@ export const Schemas = {
     CURP :  Yup.string().required("El CURP es obligatorio"),
     nombres : Yup.string().matches(nombresRegex ,"El campo nombre(s) es inválido").required("El nombre es obligatorio").trim(),
     apellidos : Yup.string().matches(apellidosRegex ,"El campo apellido (paterno ó materno) es inválido").required("El apellido es obligatorio").trim(),
-
-
+    peso : Yup.number().min(0, "El peso no puede ser negativo").required("El peso es obligatorio"),
+    estatura : Yup.number().min(0, "La estatura no puede ser negativa").required("La estatura es obligatoria"),  
+    clabe: Yup.string().matches(/^[0-9]{18}$/, "La CLABE debe contener 18 dígitos").required("La CLABE es obligatoria"),    
+    correo: Yup.string().email("El correo no es válido").required("El correo es obligatorio"),
+    codigoPostal: Yup.string().matches(/^[0-9]{5}$/, "El código postal debe contener 5 dígitos").required("El código postal es obligatorio"),
+    colonia: Yup.string().matches(/^[a-zA-ZÁÉÍÓÚÑáéíóúñ\s]+$/, "El nombre de la colonia es inválido").required("La colonia es obligatorio"),    
 }

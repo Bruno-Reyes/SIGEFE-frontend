@@ -17,6 +17,11 @@ import axios from 'axios';
 
 const RegistroCandidato = () => {
   const toast = useRef(null);
+
+  const [certificado, setCertificado] = useState(null);
+  const [identificacion, setIdentificacion] = useState(null);
+  const [cuenta, setCuenta] = useState(null);
+
   const formik = useFormik({
     initialValues: {
       curp: '',
@@ -30,6 +35,7 @@ const RegistroCandidato = () => {
       talla_calzado: '',
       peso: '',
       estatura: '',
+      afecciones: '',
       banco: '',
       clabe: '',
       nivel_estudios: '',
@@ -49,12 +55,8 @@ const RegistroCandidato = () => {
       numero_exterior: '',
       numero_interior: '',
       convocatoria: '',
-      certificado_estudios: '',
-      identificacion_oficial: '',
-      estado_cuenta_bancario: '',
       correo: '',
       contrasena: '',
-
     },
     validationSchema: Yup.object({
       curp: Schemas.CURP,
@@ -68,6 +70,7 @@ const RegistroCandidato = () => {
       talla_calzado: Yup.string().required("La talla de calzado es obligatoria"),
       peso: Schemas.peso,
       estatura: Schemas.estatura,
+      afecciones: Yup.string().required("Las afecciones son obligatorias"),
       banco: Yup.string().required("El banco es obligatorio"),
       clabe: Schemas.clabe,
       nivel_estudios: Yup.string().required("Tu nivel máximo de estudios es obligatoria"),
@@ -86,34 +89,74 @@ const RegistroCandidato = () => {
       calle: Yup.string().required("La calle es obligatoria"),
       numero_exterior: Yup.string().required("El número exterior es obligatorio"),
       numero_interior: Yup.string(),
-
-
+      correo: Schemas.correo,
+      contrasena: Schemas.password,
     }),
     onSubmit: async (values) => {
-      console.log(values);
+      console.log('Values:', values);
+
       // Eliminar espacios al inicio y final de las cadenas
+      console.log('Certificado:', certificado);
+      console.log('Identificación:', identificacion);
+      console.log('Cuenta:', cuenta);
+
+      let data = {
+        values: values,
+        certificado: certificado,
+        identificacion: identificacion,
+        cuenta: cuenta
+      }
+
+      const formData = new FormData();
+
+      formData.append('files[0]', certificado);
+      formData.append('files[1]', identificacion);
+      formData.append('files[2]', cuenta);
+      formData.append('data', JSON.stringify(values));
+
+
+      try {
+        const response = await axios.post(`${apiUrl}/captacion/registrar-candidato/`, formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+        console.log('Response:', response);
+
+        toast.current.show({
+          severity: 'success',
+          summary: 'Candidato registrado',
+          detail: 'El candidato ha sido registrado exitosamente',
+          life: 6000,
+        });
+      }
+      catch (error) {
+
+        const errorMessage = error.response?.data?.detail || 'Hubo un problema al cargar las convocatorias activas';
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage,
+          life: 6000,
+        });
+      }
     },
   });
 
-  const [formValues, setFormValues] = useState({
-    // Información personal
-    curp: '', nombres: '', apellidoPaterno: '', apellidoMaterno: '',
-    fechaNacimiento: null, genero: '', nacionalidad: '',
-    tallaPlayera: '', tallaPantalon: '', tallaCalzado: '', peso: '', estatura: '', edad: '',
-    // Datos Bancarios
-    banco: '', cuentaBancaria: '', clabe: '',
-    // Información de Contacto
-    correo: '', telefonoFijo: '', telefonoMovil: '',
-    // Educación y Preferencias
-    nivelEducativoLEC: '', nivelEducativoServicio: '', gustoCiencia: '', experienciaArte: '',
-    interesComunitario: false, razonLEC: '', profesionInteres: '',
-    requisitoTitulacion: false, interesesIncorporacion: '',
-    // Dirección
-    codigoPostal: '', estado: '', colonia: '', municipio: '', localidad: '',
-    calle: '', numeroExterior: '', numeroInterior: '',
-    // Preferencias de Participación
-    estadoParticipacion: '', cicloEscolar: '', medioInformacion: '', municipioServicio: ''
-  });
+  const uploaderCertificado = (e) => {
+    setCertificado(e.files[0]);
+    toast.current.show({ severity: 'info', summary: 'Success', detail: 'Certificado cargado' });
+  };
+  const uploaderIdentificacion = (e) => {
+    setIdentificacion(e.files[0]);
+    toast.current.show({ severity: 'info', summary: 'Success', detail: 'Identificación cargada' });
+  };
+  const uploaderCuenta = (e) => {
+    setCuenta(e.files[0]);
+    toast.current.show({ severity: 'info', summary: 'Success', detail: 'Estado de cuenta cargado' });
+  };
 
   const tallas_playera = [
     { label: 'Chica', value: 'CH' },
@@ -148,6 +191,14 @@ const RegistroCandidato = () => {
     { label: '29.5', value: '29.5' },
     { label: '30', value: '30' },
   ]
+
+  const afecciones = [
+    { label: 'Diabetes', value: 'Diabetes' },
+    { label: 'Hipertension', value: 'Hipertension' },
+    { label: 'Asma', value: 'Asma' },
+    { label: 'Otro', value: 'Otro' },
+    { label: 'Ninguna', value: 'Ninguna' }
+  ];
 
   const bancos = [
     { label: 'BBVA', value: 'BBVA' },
@@ -266,9 +317,12 @@ const RegistroCandidato = () => {
   const obtenerConvocatorias = async () => {
     try {
       const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`);
-      
-      setConvocatorias(response.data);
-      console.log(convocatorias);
+      let newConvocatorias = [];
+      response.data.forEach(convocatoria => {
+        newConvocatorias.push({ label: convocatoria.lugar_convocatoria, value: convocatoria.id });
+      });
+
+      setConvocatorias(newConvocatorias);
     }
     catch (error) {
       console.log(error);
@@ -286,10 +340,6 @@ const RegistroCandidato = () => {
     obtenerConvocatorias();
   }, []);
 
-
-  const handleInputChange = (e, field) => {
-    setFormValues({ ...formValues, [field]: e.target ? e.target.value : e.value });
-  };
 
   return (
     <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
@@ -465,6 +515,20 @@ const RegistroCandidato = () => {
               ) : null}
             </div>
 
+            <div className="p-field p-col-12 p-md-6">
+              <label htmlFor="afecciones">¿Sufres alguna de las siguientes enfermedades?</label>
+              <Dropdown
+                id="afecciones"
+                value={formik.values.afecciones}
+                className={`p-inputtext-lg ${formik.touched.afecciones && formik.errors.afecciones ? "p-invalid" : ""}`}
+                options={afecciones}
+                onChange={formik.handleChange}
+                placeholder="--- Selecciona alguna opcion ---" />
+              {formik.touched.afecciones && formik.errors.afecciones ? (
+                <small className="p-error">{formik.errors.afecciones}</small>
+              ) : null}
+            </div>
+
           </div>
 
           {/* Datos Bancarios */}
@@ -627,7 +691,7 @@ const RegistroCandidato = () => {
                 className={`p-inputtext-lg ${formik.touched.estado && formik.errors.estado ? "p-invalid" : ""}`}
                 options={lugares}
                 onChange={formik.handleChange}
-                placeholder="Selecciona tu interes de incorporación" />
+                placeholder="Selecciona el estado en el que vives" />
               {formik.touched.estado && formik.errors.estado ? (
                 <small className="p-error">{formik.errors.estado}</small>
               ) : null}
@@ -705,30 +769,103 @@ const RegistroCandidato = () => {
           <h3>Preferencias de Participación</h3>
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="estadoParticipacion">¿En que convocatoria quieres participar?</label>
-              <InputText id="estadoParticipacion" value={formValues.estadoParticipacion} onChange={(e) => handleInputChange(e, 'estadoParticipacion')} />
+              <label htmlFor="convocatoria">¿En que convocatoria quieres participar?</label>
+              <Dropdown
+                id="convocatoria"
+                value={formik.values.convocatoria}
+                className={`p-inputtext-lg ${formik.touched.convocatoria && formik.errors.convocatoria ? "p-invalid" : ""}`}
+                options={convocatorias}
+                onChange={formik.handleChange}
+                placeholder="--- Selecciona una convocatoria ---" />
+              {formik.touched.convocatoria && formik.errors.convocatoria ? (
+                <small className="p-error">{formik.errors.convocatoria}</small>
+              ) : null}
             </div>
           </div>
 
           {/* Documentos Adjuntos */}
           <Divider />
           <h3>Documentos Adjuntos</h3>
+
           <div className="p-grid">
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="certificadoEstudios">Certificado o constancia de último grado de estudios</label>
-              <FileUpload mode="basic" name="certificadoEstudios" accept="application/pdf" customUpload onUpload={(e) => handleFileUpload(e, 'certificadoEstudios')} />
+              <label htmlFor="certificado_estudios">Certificado o constancia de último grado de estudios</label>
+              <FileUpload
+                id="certificado_estudios"
+                mode="basic"
+                name="certificado_estudios"
+                accept="application/pdf"
+                customUpload
+                uploadHandler={uploaderCertificado}
+                auto
+                chooseLabel="Elegir" />
             </div>
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="identificacionOficial">Identificación oficial</label>
-              <FileUpload mode="basic" name="identificacionOficial" accept="application/pdf" customUpload onUpload={(e) => handleFileUpload(e, 'identificacionOficial')} />
+              <label htmlFor="identificacion_oficial">Identificación oficial</label>
+              <FileUpload
+                id="identificacion_oficial"
+                mode="basic"
+                name="identificacion_oficial"
+                accept="application/pdf"
+                customUpload
+                uploadHandler={uploaderIdentificacion}
+                auto
+                chooseLabel="Elegir" />
             </div>
             <div className="p-field p-col-12 p-md-6">
-              <label htmlFor="estadoCuentaBancario">Estado de cuenta bancario (que incluya nombre y domicilio del aspirante)</label>
-              <FileUpload mode="basic" name="estadoCuentaBancario" accept="application/pdf" customUpload onUpload={(e) => handleFileUpload(e, 'estadoCuentaBancario')} />
+              <label htmlFor="estado_cuenta_bancario">Estado de cuenta bancario (que incluya nombre y domicilio del aspirante)</label>
+              <FileUpload
+                id="estado_cuenta_bancario"
+                mode="basic"
+                name="estado_cuenta_bancario"
+                accept="application/pdf"
+                customUpload
+                uploadHandler={uploaderCuenta}
+                auto
+                chooseLabel="Elegir" />
             </div>
           </div>
 
-
+          <Divider />
+          <h3>Cuenta SIGEFE</h3>
+          <div className="p-grid">
+            <div className="p-field p-col-12 p-md-6">
+              <label htmlFor="correo">Correo electrónico</label>
+              <InputText
+                id="correo"
+                className={`p-inputtext-lg ${formik.touched.correo && formik.errors.correo ? "p-invalid" : ""}`}
+                value={formik.values.correo}
+                onChange={formik.handleChange}
+              />
+              {formik.touched.correo && formik.errors.correo ? (
+                <small className="p-error">{formik.errors.correo}</small>
+              ) : null}
+            </div>
+            <div className="p-field p-col-12 p-md-6">
+              <label htmlFor="contrasena">Contraseña</label>
+              <InputText
+                id="contrasena"
+                className={`p-inputtext-lg ${formik.touched.contrasena && formik.errors.contrasena ? "p-invalid" : ""}`}
+                value={formik.values.contrasena}
+                onChange={formik.handleChange}
+              />
+              {formik.touched.contrasena && formik.errors.contrasena ? (
+                <small className="p-error">{formik.errors.contrasena}</small>
+              ) : null}
+            </div>
+            <div className="p-field p-col-12 p-md-6">
+              <label htmlFor="Confirmar">Confirmar contraseña</label>
+              <InputText
+                id="confirmar"
+                className={`p-inputtext-lg ${formik.touched.confirmar && formik.errors.confirmar ? "p-invalid" : ""}`}
+                value={formik.values.confirmar}
+                onChange={formik.handleChange}
+              />
+              {formik.touched.confirmar && formik.errors.confirmar ? (
+                <small className="p-error">{formik.errors.confirmar}</small>
+              ) : null}
+            </div>
+          </div>
           {/* Botón de Envío */}
           <div className="p-d-flex p-jc-end p-mt-4">
             <Button label="Registrar Candidato" icon="pi pi-check" className="p-button-success" type="submit" />

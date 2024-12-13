@@ -18,4 +18,5 @@ export const Schemas = {
     correo: Yup.string().email("El correo no es válido").required("El correo es obligatorio"),
     codigoPostal: Yup.string().matches(/^[0-9]{5}$/, "El código postal debe contener 5 dígitos").required("El código postal es obligatorio"),
     colonia: Yup.string().matches(/^[a-zA-ZÁÉÍÓÚÑáéíóúñ\s]+$/, "El nombre de la colonia es inválido").required("La colonia es obligatorio"),    
+    password: Yup.string().required("La contraseña es obligatoria").min(8, "La contraseña debe tener al menos 8 caracteres"),   
 }

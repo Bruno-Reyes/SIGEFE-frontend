@@ -13,13 +13,80 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import * as Yup from "yup";
 import { Schemas } from "../../tools/validationSchemas";
 import axios from "axios";
+import lugares from "../../tools/lugares_mexico.json";
 
 const RegistroCandidato = () => {
   const toast = useRef(null);
+  const fileUploadCertificadoRef = useRef(null);
+  const fileUploadIdentificacionRef = useRef(null);
+  const fileUploadCuentaRef = useRef(null);
 
   const [certificado, setCertificado] = useState(null);
   const [identificacion, setIdentificacion] = useState(null);
   const [cuenta, setCuenta] = useState(null);
+  const [convocatorias, setConvocatorias] = useState([]);
+  const [municipios, setMunicipios] = useState([]);
+  const [localidades, setLocalidades] = useState([]);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  const obtenerConvocatorias = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`);
+      let newConvocatorias = [];
+      response.data.forEach((convocatoria) => {
+        newConvocatorias.push({
+          label: convocatoria.lugar_convocatoria,
+          value: convocatoria.id,
+        });
+      });
+
+      setConvocatorias(newConvocatorias);
+    } catch (error) {
+      console.log(error);
+      const errorMessage =
+        error.response?.data?.detail ||
+        "Hubo un problema al cargar las convocatorias activas";
+      toast.current.show({
+        severity: "error",
+        summary: "Error al cargar convocatorias",
+        detail: errorMessage,
+        life: 3000,
+      });
+    }
+  };
+
+  useEffect(() => {
+    obtenerConvocatorias();
+  }, []);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
+  };
+
+  const handleEstadoChange = (e) => {
+    const estadoSeleccionado = e.value;
+    formik.setFieldValue("estado", estadoSeleccionado);
+
+    if (lugares[estadoSeleccionado]) {
+      setMunicipios(
+        lugares[estadoSeleccionado].municipios.map((municipio) => ({
+          label: municipio,
+          value: municipio,
+        }))
+      );
+      setLocalidades(
+        lugares[estadoSeleccionado].pueblos.map((pueblo) => ({
+          label: pueblo,
+          value: pueblo,
+        }))
+      );
+    } else {
+      setMunicipios([]);
+      setLocalidades([]);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -99,10 +166,10 @@ const RegistroCandidato = () => {
 
       // Eliminar espacios en blanco de los valores
       const trimmedValues = Object.keys(values).reduce((acc, key) => {
-        acc[key] = typeof values[key] === 'string' ? values[key].trim() : values[key];
+        acc[key] =
+          typeof values[key] === "string" ? values[key].trim() : values[key];
         return acc;
       }, {});
-
 
       console.log("Certificado:", certificado);
       console.log("Identificación:", identificacion);
@@ -163,6 +230,17 @@ const RegistroCandidato = () => {
       detail: "Certificado cargado",
     });
   };
+
+  const removeCertificado = () => {
+    setCertificado(null);
+    fileUploadCertificadoRef.current.clear();
+    toast.current.show({
+      severity: "info",
+      summary: "Success",
+      detail: "Certificado eliminado",
+    });
+  };
+
   const uploaderIdentificacion = (e) => {
     setIdentificacion(e.files[0]);
     toast.current.show({
@@ -171,12 +249,33 @@ const RegistroCandidato = () => {
       detail: "Identificación cargada",
     });
   };
+
+  const removeIdentificacion = () => {
+    setIdentificacion(null);
+    fileUploadIdentificacionRef.current.clear();
+    toast.current.show({
+      severity: "info",
+      summary: "Success",
+      detail: "Identificación eliminada",
+    });
+  };
+
   const uploaderCuenta = (e) => {
     setCuenta(e.files[0]);
     toast.current.show({
       severity: "info",
       summary: "Success",
       detail: "Estado de cuenta cargado",
+    });
+  };
+
+  const removeCuenta = () => {
+    setCuenta(null);
+    fileUploadCuentaRef.current.clear();
+    toast.current.show({
+      severity: "info",
+      summary: "Success",
+      detail: "Estado de cuenta eliminado",
     });
   };
 
@@ -312,81 +411,6 @@ const RegistroCandidato = () => {
     { label: "Participación voluntaria", value: "Participación voluntaria" },
     { label: "Otro", value: "Otro" },
   ];
-
-  const lugares = [
-    { label: "Aguascalientes", value: "Aguascalientes" },
-    { label: "Baja California", value: "Baja California" },
-    { label: "Baja California Sur", value: "Baja California Sur" },
-    { label: "Campeche", value: "Campeche" },
-    { label: "CDMX", value: "CDMX" },
-    { label: "Chiapas", value: "Chiapas" },
-    { label: "Chihuahua", value: "Chihuahua" },
-    { label: "Coahuila", value: "Coahuila" },
-    { label: "Colima", value: "Colima" },
-    { label: "Durango", value: "Durango" },
-    { label: "Guanajuato", value: "Guanajuato" },
-    { label: "Guerrero", value: "Guerrero" },
-    { label: "Hidalgo", value: "Hidalgo" },
-    { label: "Jalisco", value: "Jalisco" },
-    { label: "México (Estado de México)", value: "México (Estado de México)" },
-    { label: "Michoacán", value: "Michoacán" },
-    { label: "Morelos", value: "Morelos" },
-    { label: "Nayarit", value: "Nayarit" },
-    { label: "Nuevo León", value: "Nuevo León" },
-    { label: "Oaxaca", value: "Oaxaca" },
-    { label: "Puebla", value: "Puebla" },
-    { label: "Querétaro", value: "Querétaro" },
-    { label: "Quintana Roo", value: "Quintana Roo" },
-    { label: "San Luis Potosí", value: "San Luis Potosí" },
-    { label: "Sinaloa", value: "Sinaloa" },
-    { label: "Sonora", value: "Sonora" },
-    { label: "Tabasco", value: "Tabasco" },
-    { label: "Tamaulipas", value: "Tamaulipas" },
-    { label: "Tlaxcala", value: "Tlaxcala" },
-    { label: "Veracruz", value: "Veracruz" },
-    { label: "Yucatán", value: "Yucatán" },
-    { label: "Zacatecas", value: "Zacatecas" },
-  ];
-
-  const apiUrl = import.meta.env.VITE_API_URL;
-
-  let [convocatorias, setConvocatorias] = useState([]);
-
-  const obtenerConvocatorias = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`);
-      let newConvocatorias = [];
-      response.data.forEach((convocatoria) => {
-        newConvocatorias.push({
-          label: convocatoria.lugar_convocatoria,
-          value: convocatoria.id,
-        });
-      });
-
-      setConvocatorias(newConvocatorias);
-    } catch (error) {
-      console.log(error);
-      const errorMessage =
-        error.response?.data?.detail ||
-        "Hubo un problema al cargar las convocatorias activas";
-      toast.current.show({
-        severity: "error",
-        summary: "Error al cargar convocatorias",
-        detail: errorMessage,
-        life: 3000,
-      });
-    }
-  };
-
-  useEffect(() => {
-    obtenerConvocatorias();
-  }, []);
-
-  const [showPassword, setShowPassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
-  };
 
   return (
     <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
@@ -1104,7 +1128,10 @@ const RegistroCandidato = () => {
                   value={formik.values.interes_comunitario}
                   onChange={formik.handleChange}
                 />
-                <label htmlFor="interesComunitario" style={{ marginLeft: '1%' }} >
+                <label
+                  htmlFor="interesComunitario"
+                  style={{ marginLeft: "1%" }}
+                >
                   Interés en el desarrollo comunitario
                 </label>
                 {formik.touched.interes_comunitario &&
@@ -1165,14 +1192,17 @@ const RegistroCandidato = () => {
                 <Dropdown
                   id="estado"
                   value={formik.values.estado}
+                  options={Object.keys(lugares).map((estado) => ({
+                    label: estado,
+                    value: estado,
+                  }))}
+                  onChange={handleEstadoChange}
+                  placeholder="Selecciona un estado"
                   className={`p-inputtext-lg ${
                     formik.touched.estado && formik.errors.estado
                       ? "p-invalid"
                       : ""
                   }`}
-                  options={lugares}
-                  onChange={formik.handleChange}
-                  placeholder="Selecciona el estado en el que vives"
                 />
                 {formik.touched.estado && formik.errors.estado ? (
                   <small className="p-error">{formik.errors.estado}</small>
@@ -1214,15 +1244,17 @@ const RegistroCandidato = () => {
                 }}
               >
                 <label htmlFor="municipio">Municipio o Alcaldía</label>
-                <InputText
+                <Dropdown
                   id="municipio"
+                  value={formik.values.municipio}
                   className={`p-inputtext-lg ${
                     formik.touched.municipio && formik.errors.municipio
                       ? "p-invalid"
                       : ""
                   }`}
-                  value={formik.values.municipio}
-                  onChange={formik.handleChange}
+                  options={municipios}
+                  onChange={(e) => formik.setFieldValue("municipio", e.value)}
+                  placeholder="Selecciona el municipio"
                 />
                 {formik.touched.municipio && formik.errors.municipio ? (
                   <small className="p-error">{formik.errors.municipio}</small>
@@ -1244,15 +1276,17 @@ const RegistroCandidato = () => {
                 }}
               >
                 <label htmlFor="localidad">Localidad</label>
-                <InputText
+                <Dropdown
                   id="localidad"
+                  value={formik.values.localidad}
                   className={`p-inputtext-lg ${
                     formik.touched.localidad && formik.errors.localidad
                       ? "p-invalid"
                       : ""
                   }`}
-                  value={formik.values.localidad}
-                  onChange={formik.handleChange}
+                  options={localidades}
+                  onChange={(e) => formik.setFieldValue("localidad", e.value)}
+                  placeholder="Selecciona la localidad"
                 />
                 {formik.touched.localidad && formik.errors.localidad ? (
                   <small className="p-error">{formik.errors.localidad}</small>
@@ -1407,6 +1441,7 @@ const RegistroCandidato = () => {
                   Certificado o constancia de último grado de estudios
                 </label>
                 <FileUpload
+                  ref={fileUploadCertificadoRef}
                   id="certificado_estudios"
                   mode="basic"
                   name="certificado_estudios"
@@ -1416,6 +1451,18 @@ const RegistroCandidato = () => {
                   auto
                   chooseLabel="Elegir"
                 />
+                {certificado && (
+                  <div>
+                    <p>{certificado.name}</p>
+                    <Button
+                      type="button"
+                      label="Eliminar"
+                      icon="pi pi-times"
+                      className="p-button-danger"
+                      onClick={removeCertificado}
+                    />
+                  </div>
+                )}
               </div>
 
               <div
@@ -1431,6 +1478,7 @@ const RegistroCandidato = () => {
                   Identificación oficial
                 </label>
                 <FileUpload
+                  ref={fileUploadIdentificacionRef}
                   id="identificacion_oficial"
                   mode="basic"
                   name="identificacion_oficial"
@@ -1440,6 +1488,18 @@ const RegistroCandidato = () => {
                   auto
                   chooseLabel="Elegir"
                 />
+                {identificacion && (
+                  <div>
+                    <p>{identificacion.name}</p>
+                    <Button
+                      type="button"
+                      label="Eliminar"
+                      icon="pi pi-times"
+                      className="p-button-danger"
+                      onClick={removeIdentificacion}
+                    />
+                  </div>
+                )}
               </div>
 
               <div
@@ -1456,6 +1516,7 @@ const RegistroCandidato = () => {
                   aspirante)
                 </label>
                 <FileUpload
+                  ref={fileUploadCuentaRef}
                   id="estado_cuenta_bancario"
                   mode="basic"
                   name="estado_cuenta_bancario"
@@ -1465,6 +1526,18 @@ const RegistroCandidato = () => {
                   auto
                   chooseLabel="Elegir"
                 />
+                {cuenta && (
+                  <div>
+                    <p>{cuenta.name}</p>
+                    <Button
+                      type="button"
+                      label="Eliminar"
+                      icon="pi pi-times"
+                      className="p-button-danger"
+                      onClick={removeCuenta}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1587,7 +1660,7 @@ const RegistroCandidato = () => {
             </div>
           </div>
           {/* Botón de Envío */}
-          <div style={{ marginTop: '4%'}}>
+          <div style={{ marginTop: "4%" }}>
             <Button
               label="Registrar Candidato"
               icon="pi pi-check"

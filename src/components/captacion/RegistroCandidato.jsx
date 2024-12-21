@@ -6,7 +6,6 @@ import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
-import { Checkbox } from "primereact/checkbox";
 import { FileUpload } from "primereact/fileupload";
 import { Toast } from "primereact/toast";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";

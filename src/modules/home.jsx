@@ -11,6 +11,7 @@ import DefaultContent from "../components/main/loader";
 // - Coordinador Nacional de Recursos Humanos
 import Convocatorias from "../components/main/convocatorias";
 // - Coordinador Academico
+import AsignarLEC from "../components/Asignación/AsignarLEC";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -28,6 +29,8 @@ const HomePage = () => {
     switch (activeComponent) {
       case "convocatorias":
         return <Convocatorias />;
+      case "asignar_LEC":
+        return <AsignarLEC/>;
       default:
         return <DefaultContent />;
     }

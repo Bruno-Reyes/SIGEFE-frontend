@@ -1,183 +1,175 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Dropdown } from "primereact/dropdown";
+import { Button } from "primereact/button";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import lugares from "../../tools/lugares_mexico.json";
 
 const AsignarLEC = () => {
   const [lecList, setLecList] = useState([]);
+  const [filteredLEC, setFilteredLEC] = useState([]);
   const [centrosList, setCentrosList] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [selectedCentro, setSelectedCentro] = useState(null);
-  const [filteredLEC, setFilteredLEC] = useState([]);
-  const [estado, setEstado] = useState('');
-  const [municipio, setMunicipio] = useState('');
-  const [localidad, setLocalidad] = useState('');
+
+  const [estado, setEstado] = useState("");
+  const [municipio, setMunicipio] = useState("");
+  const [localidad, setLocalidad] = useState("");
   const [estados, setEstados] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [localidades, setLocalidades] = useState([]);
+
   const apiUrl = import.meta.env.VITE_API_URL;
+
+const refreshToken = async () => {
+    try {
+      const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
+      const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
+        refresh: refreshToken,
+      });
+      const newAccessToken = response.data.access;
+      localStorage.setItem("access-token", JSON.stringify(newAccessToken));
+      return newAccessToken;
+    } catch (error) {
+      console.error("Error al refrescar el token:", error);
+      throw new Error("No se pudo renovar el token de acceso.");
+    }
+  };
+
 
   useEffect(() => {
     const fetchLEC = async () => {
-      const response = await axios.get(`${apiUrl}/lec`);
+      const response = await axios.get(`${apiUrl}/lecs`);
       setLecList(response.data);
-      setFilteredLEC(response.data);
-    };
-
-    const fetchCentros = async () => {
-      const response = await axios.get(`${apiUrl}/centros`);
-      setCentrosList(response.data);
-    };
-
-    const fetchEstados = async () => {
-      const response = await axios.get(`${apiUrl}/estados`);
-      setEstados(response.data);
     };
 
     fetchLEC();
-    fetchCentros();
-    fetchEstados();
+    setEstados(
+      Object.keys(lugares).map((estado) => ({ label: estado, value: estado }))
+    );
   }, [apiUrl]);
 
-  const fetchMunicipios = async (estadoId) => {
-    const response = await axios.get(`${apiUrl}/municipios?estado=${estadoId}`);
-    setMunicipios(response.data);
+  const handleEstadoChange = (e) => {
+    const estadoSeleccionado = e.value;
+    setEstado(estadoSeleccionado);
+    setMunicipios(
+      lugares[estadoSeleccionado]?.municipios.map((municipio) => ({
+        label: municipio,
+        value: municipio,
+      })) || []
+    );
+    setLocalidades(
+      lugares[estadoSeleccionado]?.pueblos.map((localidad) => ({
+        label: localidad,
+        value: localidad,
+      })) || []
+    );
+    setMunicipio("");
+    setLocalidad("");
   };
 
-  const fetchLocalidades = async (municipioId) => {
-    const response = await axios.get(`${apiUrl}/localidades?municipio=${municipioId}`);
-    setLocalidades(response.data);
+  const handleMunicipioChange = (e) => {
+    setMunicipio(e.value);
   };
 
-  const sugerirAsignaciones = () => {
-    // Lógica para sugerir asignaciones basadas en los criterios
-    const sugerencias = lecList.map(lec => {
-      const centro = centrosList.find(centro => centro.ubicacion === lec.ubicacion);
-      return centro ? { id: `${lec.id}-${centro.id}`, lecNombre: lec.nombre, centroNombre: centro.nombre, lecId: lec.id, centroId: centro.id } : null;
-    }).filter(sugerencia => sugerencia !== null);
-    setAsignaciones(sugerencias);
+  const handleLocalidadChange = (e) => {
+    setLocalidad(e.value);
   };
 
-  const aceptarAsignacion = async (asignacion) => {
+  const handleFilterChange = async () => {
     try {
-      await axios.post(`${apiUrl}/asignaciones`, asignacion);
-      alert(`Asignación aceptada: ${asignacion.lecNombre} -> ${asignacion.centroNombre}`);
+
+      let token = JSON.parse(localStorage.getItem("access-token"));
+                if (!token) {
+                    token = await refreshToken();
+                }
+      console.log("Token:", token);          
+      const response = await axios.get(`${apiUrl}/asignacion/lecs/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+      },
+        params: {
+          estado: estado,
+          municipio: municipio,
+          localidad: localidad
+        }
+      });
+      setFilteredLEC(response.data);
     } catch (error) {
-      console.error("Error al aceptar la asignación:", error);
+      console.error('Error fetching LEC data:', error);
     }
   };
-
-  const ajustarAsignacion = (asignacion) => {
-    // Lógica para ajustar la asignación manualmente
-    const manualAsignacion = prompt("Ingrese el ID del LEC y el ID del Centro Comunitario separados por una coma (ej. 1,2)");
-    if (manualAsignacion) {
-      const [lecId, centroId] = manualAsignacion.split(',').map(id => parseInt(id.trim()));
-      const lec = lecList.find(lec => lec.id === lecId);
-      const centro = centrosList.find(centro => centro.id === centroId);
-      if (lec && centro) {
-        const nuevaAsignacion = { id: `${lec.id}-${centro.id}`, lecNombre: lec.nombre, centroNombre: centro.nombre, lecId: lec.id, centroId: centro.id };
-        aceptarAsignacion(nuevaAsignacion);
-      } else {
-        alert("LEC o Centro Comunitario no encontrado.");
-      }
-    }
-  };
-
-  const handleFilterChange = () => {
-    let filtered = lecList;
-    if (estado) filtered = filtered.filter(lec => lec.estado === estado);
-    if (municipio) filtered = filtered.filter(lec => lec.municipio === municipio);
-    if (localidad) filtered = filtered.filter(lec => lec.localidad === localidad);
-    setFilteredLEC(filtered);
-  };
-
-  useEffect(() => {
-    handleFilterChange();
-  }, [estado, municipio, localidad]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
+      {/* Primer tercio */}
       <div>
         <h2>LEC Disponibles</h2>
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <label>Estado:</label>
-          <select value={estado} onChange={(e) => { setEstado(e.target.value); fetchMunicipios(e.target.value); }}>
-            <option value="">Seleccione un estado</option>
-            {estados.map(estado => (
-              <option key={estado.id} value={estado.id}>{estado.nombre}</option>
-            ))}
-          </select>
+          <Dropdown
+            value={estado}
+            options={estados}
+            onChange={handleEstadoChange}
+            placeholder="Seleccione un estado"
+          />
+
           <label>Municipio:</label>
-          <select value={municipio} onChange={(e) => { setMunicipio(e.target.value); fetchLocalidades(e.target.value); }}>
-            <option value="">Seleccione un municipio</option>
-            {municipios.map(municipio => (
-              <option key={municipio.id} value={municipio.id}>{municipio.nombre}</option>
-            ))}
-          </select>
+          <Dropdown
+            value={municipio}
+            options={municipios}
+            onChange={handleMunicipioChange}
+            placeholder="Seleccione un municipio"
+          />
+
           <label>Localidad:</label>
-          <select value={localidad} onChange={(e) => setLocalidad(e.target.value)}>
-            <option value="">Seleccione una localidad</option>
-            {localidades.map(localidad => (
-              <option key={localidad.id} value={localidad.id}>{localidad.nombre}</option>
-            ))}
-          </select>
-          <button onClick={handleFilterChange}>Buscar</button>
+          <Dropdown
+            value={localidad}
+            options={localidades}
+            onChange={handleLocalidadChange}
+            placeholder="Seleccione una localidad"
+          />
+
+          <Button label="Buscar" onClick={handleFilterChange} />
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Estado</th>
-              <th>Municipio</th>
-              <th>Localidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLEC.map(lec => (
-              <tr key={lec.id}>
-                <td>{lec.nombre}</td>
-                <td>{lec.estado}</td>
-                <td>{lec.municipio}</td>
-                <td>{lec.localidad}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+        <DataTable value={filteredLEC} responsiveLayout="scroll" style={{ marginTop: "20px" }}>
+          <Column field="nombre" header="Nombre" />
+          <Column field="estado" header="Estado" />
+          <Column field="municipio" header="Municipio" />
+          <Column field="localidad" header="Localidad" />
+        </DataTable>
       </div>
+
+      {/* Segundo tercio */}
       <div>
         <h2>Centros Comunitarios</h2>
-        <ul>
-          {centrosList.map(centro => (
-            <li key={centro.id} onClick={() => setSelectedCentro(centro)} style={{ cursor: 'pointer', backgroundColor: selectedCentro?.id === centro.id ? 'lightgray' : 'white' }}>
-              {centro.nombre}
-            </li>
-          ))}
-        </ul>
+        <DataTable
+          value={centrosList.filter((centro) => centro.estado === estado)}
+          responsiveLayout="scroll"
+          selectionMode="single"
+          selection={selectedCentro}
+          onSelectionChange={(e) => setSelectedCentro(e.value)}
+        >
+          <Column field="nombre" header="Nombre" />
+          <Column field="ubicacion" header="Ubicación" />
+        </DataTable>
       </div>
+
+      {/* Tercer tercio */}
       <div>
         <h2>LEC Asignados</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Estado</th>
-              <th>Municipio</th>
-              <th>Localidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {asignaciones.filter(asignacion => asignacion.centroId === selectedCentro?.id).map(asignacion => (
-              <tr key={asignacion.id}>
-                <td>{asignacion.lecNombre}</td>
-                <td>{asignacion.estado}</td>
-                <td>{asignacion.municipio}</td>
-                <td>{asignacion.localidad}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div style={{ gridColumn: '1 / span 3', textAlign: 'center', marginTop: '20px' }}>
-        <button onClick={() => ajustarAsignacion()}>Asignar al centro comunitario seleccionado</button>
-        <button onClick={sugerirAsignaciones}>Obtener sugerencia de asignación</button>
+        <DataTable
+          value={asignaciones.filter((asignacion) => asignacion.centroId === selectedCentro?.id)}
+          responsiveLayout="scroll"
+        >
+          <Column field="lecNombre" header="Nombre del LEC" />
+          <Column field="estado" header="Estado" />
+          <Column field="municipio" header="Municipio" />
+          <Column field="localidad" header="Localidad" />
+        </DataTable>
       </div>
     </div>
   );

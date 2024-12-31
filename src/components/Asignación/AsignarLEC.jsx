@@ -12,16 +12,14 @@ const AsignarLEC = () => {
   const [centrosList, setCentrosList] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [selectedCentro, setSelectedCentro] = useState(null);
+  const [selectedLEC, setSelectedLEC] = useState(null);
 
   const [estado, setEstado] = useState("");
   const [municipio, setMunicipio] = useState("");
   const [localidad, setLocalidad] = useState("");
+  const [estados, setEstados] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [localidades, setLocalidades] = useState([]);
-
-  const [estadoCentro, setEstadoCentro] = useState("");
-  const [municipioCentro, setMunicipioCentro] = useState("");
-  const [centrosFiltrados, setCentrosFiltrados] = useState([]);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -40,40 +38,39 @@ const AsignarLEC = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchLEC = async () => {
+      const response = await axios.get(`${apiUrl}/asignacion/lecs/`);
+      setLecList(response.data);
+    };
+
+    fetchLEC();
+    setEstados(
+      Object.keys(lugares).map((estado) => ({ label: estado, value: estado }))
+    );
+  }, [apiUrl]);
+
   const handleEstadoChange = (e) => {
     const estadoSeleccionado = e.value;
     setEstado(estadoSeleccionado);
-
-    if (lugares[estadoSeleccionado]) {
-      setMunicipios(
-        lugares[estadoSeleccionado].municipios.map((municipio) => ({
-          label: municipio,
-          value: municipio,
-        }))
-      );
-      setLocalidades([]);
-      setMunicipio("");
-      setLocalidad("");
-    } else {
-      setMunicipios([]);
-      setLocalidades([]);
-    }
+    setMunicipios(
+      lugares[estadoSeleccionado]?.municipios.map((municipio) => ({
+        label: municipio,
+        value: municipio,
+      })) || []
+    );
+    setLocalidades(
+      lugares[estadoSeleccionado]?.pueblos.map((localidad) => ({
+        label: localidad,
+        value: localidad,
+      })) || []
+    );
+    setMunicipio("");
+    setLocalidad("");
   };
 
   const handleMunicipioChange = (e) => {
-    const municipioSeleccionado = e.value;
-    setMunicipio(municipioSeleccionado);
-
-    if (lugares[estado]) {
-      setLocalidades(
-        lugares[estado].pueblos.map((pueblo) => ({
-          label: pueblo,
-          value: pueblo,
-        }))
-      );
-    } else {
-      setLocalidades([]);
-    }
+    setMunicipio(e.value);
   };
 
   const handleLocalidadChange = (e) => {
@@ -86,66 +83,49 @@ const AsignarLEC = () => {
       if (!token) {
         token = await refreshToken();
       }
-      const response = await axios.get(`${apiUrl}/asignacion/lecs/`, {
+
+      const responseLEC = await axios.get(`${apiUrl}/asignacion/lecs/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         params: {
-          estado: (estado),
-    municipio: (municipio),
-    localidad: (localidad),
+          estado: estado,
+          municipio: municipio,
+          localidad: localidad,
         },
       });
-      console.log("Response data:", response.data); // Verificar la respuesta de la API
-      setFilteredLEC(response.data);
-    } catch (error) {
-      console.error('Error fetching LEC data:', error);
-    }
-  };
+      setFilteredLEC(responseLEC.data);
 
-  const handleBuscarCentros = async () => {
-    try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
-      if (!token) {
-        token = await refreshToken();
-      }
-      const response = await axios.get(`${apiUrl}/asignacion/centros/`, {
+      const responseCentros = await axios.get(`${apiUrl}/asignacion/centros/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         params: {
-          estado: estadoCentro,
-          municipio: municipioCentro,
+          estado: estado,
+          municipio: municipio,
         },
       });
-      setCentrosFiltrados(response.data);
-      console.log("Estado",estado,municipio);
+      setCentrosList(responseCentros.data);
     } catch (error) {
-      console.error('Error fetching centros data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
-  const handleEstadoCentroChange = (e) => {
-    const estadoSeleccionado = e.value;
-    setEstadoCentro(estadoSeleccionado);
-
-    if (lugares[estadoSeleccionado]) {
-      setMunicipios(
-        lugares[estadoSeleccionado].municipios.map((municipio) => ({
-          label: municipio,
-          value: municipio,
-        }))
-      );
-      setMunicipioCentro("");
-    } else {
-      setMunicipios([]);
+  const handleInscribirLEC = () => {
+    if (selectedLEC && selectedCentro) {
+      const nuevaAsignacion = {
+        lecId: selectedLEC.id,
+        lecNombre: selectedLEC.nombre,
+        centroId: selectedCentro.id,
+        centroNombre: selectedCentro.clave_centro_trabajo,
+        estado: selectedCentro.estado,
+        municipio: selectedCentro.municipio,
+        localidad: selectedCentro.nombre_localidad,
+      };
+      setAsignaciones([...asignaciones, nuevaAsignacion]);
     }
-  };
-
-  const handleMunicipioCentroChange = (e) => {
-    setMunicipioCentro(e.value);
   };
 
   return (
@@ -157,10 +137,7 @@ const AsignarLEC = () => {
           <label>Estado:</label>
           <Dropdown
             value={estado}
-            options={Object.keys(lugares).map((estado) => ({
-              label: estado,
-              value: estado,
-            }))}
+            options={estados}
             onChange={handleEstadoChange}
             placeholder="Seleccione un estado"
           />
@@ -171,7 +148,6 @@ const AsignarLEC = () => {
             options={municipios}
             onChange={handleMunicipioChange}
             placeholder="Seleccione un municipio"
-            disabled={!estado}
           />
 
           <label>Localidad:</label>
@@ -180,7 +156,6 @@ const AsignarLEC = () => {
             options={localidades}
             onChange={handleLocalidadChange}
             placeholder="Seleccione una localidad"
-            disabled={!municipio}
           />
 
           <Button
@@ -193,6 +168,9 @@ const AsignarLEC = () => {
         <DataTable
           value={filteredLEC}
           responsiveLayout="scroll"
+          selectionMode="single"
+          selection={selectedLEC}
+          onSelectionChange={(e) => setSelectedLEC(e.value)}
           style={{ marginTop: "2%" }}
         >
           <Column field="nombre" header="Nombre" />
@@ -208,46 +186,53 @@ const AsignarLEC = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: "5%" }}>
           <label>Estado:</label>
           <Dropdown
-            value={estadoCentro}
-            options={Object.keys(lugares).map((estado) => ({
-              label: estado,
-              value: estado,
-            }))}
-            onChange={handleEstadoCentroChange}
-            placeholder="Seleccione un estado"
+            value={estado}
+            options={estados}
+            onChange={(e) => setEstado(e.value)}
+            placeholder="Selecciona un estado"
           />
 
           <label>Municipio:</label>
           <Dropdown
-            value={municipioCentro}
+            value={municipio}
             options={municipios}
-            onChange={handleMunicipioCentroChange}
-            placeholder="Seleccione un municipio"
-            disabled={!estadoCentro}
+            onChange={(e) => setMunicipio(e.value)}
+            placeholder="Selecciona un municipio"
+            disabled={!estado}
           />
 
           <Button
             label="Buscar"
-            onClick={handleBuscarCentros}
+            onClick={handleFilterChange}
             style={{ marginTop: "2%" }}
           />
         </div>
         <DataTable
-  value={centrosFiltrados}
-  responsiveLayout="scroll"
-  style={{ marginTop: "20px", maxHeight: "20%", overflowY: "auto" }}
->
-  <Column field="clave_centro_trabajo" header="CCT" />
-  <Column field="nombre_turno" header="Turno" />
-  <Column field="nivel_educativo" header="Nivel Educativo" />
-  <Column field="codigo_postal" header="CP" />
-  <Column field="domicilio" header="Domicilio" />
-</DataTable>
+          value={centrosList.filter((centro) => centro.estado === estado)}
+          responsiveLayout="scroll"
+          selectionMode="single"
+          selection={selectedCentro}
+          onSelectionChange={(e) => setSelectedCentro(e.value)}
+          style={{ marginTop: "20px" }}
+        >
+          <Column field="clave_centro_trabajo" header="CCT" />
+          <Column field="nombre_turno" header="Turno" />
+          <Column field="nivel_educativo" header="Nivel Educativo" />
+          <Column field="codigo_postal" header="CP" />
+          <Column field="domicilio" header="Domicilio" />
+          <Column field="vacantes" header="Vacantes" />
+        </DataTable>
       </div>
 
       {/* Tercer tercio */}
       <div style={{ width: "33%", marginRight: "2%" }}>
         <h2>LEC Asignados</h2>
+        <Button
+          label="Inscribir LEC"
+          onClick={handleInscribirLEC}
+          style={{ marginBottom: "2%" }}
+          disabled={!selectedLEC || !selectedCentro}
+        />
         <DataTable
           value={asignaciones.filter(
             (asignacion) => asignacion.centroId === selectedCentro?.id
@@ -255,6 +240,9 @@ const AsignarLEC = () => {
           responsiveLayout="scroll"
         >
           <Column field="lecNombre" header="Nombre del LEC" />
+          <Column field="estado" header="Estado" />
+          <Column field="municipio" header="Municipio" />
+          <Column field="localidad" header="Localidad" />
         </DataTable>
       </div>
     </div>

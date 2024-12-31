@@ -12,6 +12,7 @@ import DefaultContent from "../components/main/loader";
 import Convocatorias from "../components/main/convocatorias";
 // - Coordinador Academico
 import AsignarLEC from "../components/Asignación/AsignarLEC";
+import Candidatos from "../components/Candidatos/Candidatos";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -31,6 +32,8 @@ const HomePage = () => {
         return <Convocatorias />;
       case "asignar_LEC":
         return <AsignarLEC/>;
+      case "candidatos":
+        return <Candidatos/>
       default:
         return <DefaultContent />;
     }

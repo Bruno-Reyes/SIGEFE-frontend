@@ -52,6 +52,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="Asignación de LECs" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("asignar_LEC")} />
                 </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("candidatos")} />
+                </li>
             </ul>
         );
     } else if (usuario === "\"aux_operacion\"") { 

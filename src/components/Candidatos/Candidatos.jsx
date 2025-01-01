@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'; // Importar ConfirmDialog
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Candidatos = () => {
     const navigate = useNavigate();
     const [Candidatos, setCandidatos] = useState([]);
-    const [loading, setLoading] = useState(true); // Indicador de carga
+    const [loading, setLoading] = useState(true);
+    const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_URL;
 
     const refreshToken = async () => {
@@ -32,19 +35,21 @@ const Candidatos = () => {
             if (!token) {
                 token = await refreshToken();
             }
-
+    
             const response = await axios.get(`${apiUrl}/captacion/candidatos/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-
-            console.log( response.data )
-
-            setCandidatos(response.data); // Guardamos los datos reales
-            setLoading(false); // Detenemos el indicador de carga
-
+    
+            // Filtrar candidatos con estado_aceptacion pendiente
+            const candidatosPendientes = response.data.filter(
+                (candidato) => candidato.estado_aceptacion === "Pendiente"
+            );
+    
+            setCandidatos(candidatosPendientes);
+            setLoading(false);
         } catch (error) {
             setLoading(false);
             console.error("Error al cargar los candidatos:", error);
@@ -55,19 +60,57 @@ const Candidatos = () => {
         obtenerCandidatos();
     }, []);
 
-    const handleViewRecord = (id) => {
-        const candidato = Candidatos.find((candidato) => candidato.id === id);
-        navigate(`/detalle/${id}`, { state: { candidato } });
+    const handleAction = async (id, action) => {
+        try {
+            let token = JSON.parse(localStorage.getItem("access-token"));
+            if (!token) {
+                token = await refreshToken();
+            }
+
+            await axios.patch(`${apiUrl}/captacion/detalles_usuario/${id}/${action}/`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            setCandidatos((prevCandidatos) =>
+                prevCandidatos.filter((candidato) => candidato.id !== id)
+            );
+
+            toast.current.show({
+                severity: action === "aceptar" ? "success" : "warn",
+                summary: `Candidato ${action === "aceptar" ? "Aceptado" : "Rechazado"}`,
+                detail: `El candidato con ID ${id} ha sido ${action === "aceptar" ? "aceptado" : "rechazado"}.`,
+                life: 3000,
+            });
+        } catch (error) {
+            console.error(`Error al ${action} al candidato:`, error);
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: `Hubo un problema al ${action} al candidato.`,
+                life: 3000,
+            });
+        }
     };
 
-    const handleAccept = (id) => {
-        alert(`Aceptar candidato con ID: ${id}`);
-        // Aquí puedes implementar la lógica para aceptar al candidato
-    };
-
-    const handleReject = (id) => {
-        alert(`Rechazar candidato con ID: ${id}`);
-        // Aquí puedes implementar la lógica para rechazar al candidato
+    const confirmAction = (id, action) => {
+        confirmDialog({
+            message: `¿Estás seguro de que deseas ${action === "aceptar" ? "aceptar" : "rechazar"} al candidato con ID ${id}?`,
+            header: `${action === "aceptar" ? "Aceptar" : "Rechazar"} Candidato`,
+            icon: `pi ${action === "aceptar" ? "pi-check-circle" : "pi-times-circle"}`,
+            acceptClassName: action === "aceptar" ? "p-button-success" : "p-button-danger",
+            accept: () => handleAction(id, action),
+            reject: () => {
+                toast.current.show({
+                    severity: "info",
+                    summary: "Cancelado",
+                    detail: `No se realizó ninguna acción.`,
+                    life: 2000,
+                });
+            },
+        });
     };
 
     const actionBodyTemplate = (rowData) => (
@@ -76,13 +119,13 @@ const Candidatos = () => {
                 label="Aceptar"
                 icon="pi pi-check"
                 className="p-button-success"
-                onClick={() => handleAccept(rowData.id)}
+                onClick={() => confirmAction(rowData.id, "aceptar")}
             />
             <Button
                 label="Rechazar"
                 icon="pi pi-times"
                 className="p-button-danger"
-                onClick={() => handleReject(rowData.id)}
+                onClick={() => confirmAction(rowData.id, "rechazar")}
             />
         </div>
     );
@@ -91,12 +134,17 @@ const Candidatos = () => {
         <Button
             icon="pi pi-pen-to-square"
             className="p-button-info"
-            onClick={() => handleViewRecord(rowData.id)}
+            onClick={() => {
+                const candidato = Candidatos.find((candidato) => candidato.id === rowData.id);
+                navigate(`/detalle/${rowData.id}`, { state: { candidato } });
+            }}
         />
     );
 
     return (
         <div style={{ padding: '16px' }}>
+            <Toast ref={toast} />
+            <ConfirmDialog /> {/* ConfirmDialog */}
             {loading ? (
                 <p>Cargando...</p>
             ) : (
@@ -113,3 +161,4 @@ const Candidatos = () => {
 };
 
 export default Candidatos;
+

@@ -13,9 +13,16 @@ import Convocatorias from "../components/main/convocatorias";
 // - Coordinador Academico
 import AsignarLEC from "../components/Asignación/AsignarLEC";
 import Candidatos from "../components/Candidatos/Candidatos";
+import RegistrarEquipoDisponible from "../components/Logistica/RegistrarEquipoDisponible";
+import '@fontsource/roboto'; // Fuente Roboto con pesos predeterminados
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
+
+const styles = {
+  fontFamily: "'Roboto', sans-serif",
+  fontWeight: 400,
+};
 
 const HomePage = () => {
 
@@ -34,13 +41,15 @@ const HomePage = () => {
         return <AsignarLEC/>;
       case "candidatos":
         return <Candidatos/>
+      case "equipo_dispoible":
+        return <RegistrarEquipoDisponible/>
       default:
         return <DefaultContent />;
     }
   };
 
   return(
-    <div>
+    <div style={styles}>
       <Menu toggleSidebar={toggleSidebar}/>
       <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
       <div>{renderContent()}</div>

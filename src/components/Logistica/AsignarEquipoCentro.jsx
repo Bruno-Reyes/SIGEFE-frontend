@@ -178,7 +178,7 @@ const AsignarEquipoCentro = () => {
 
                 {/* Sección de Filtros y Centros */}
                 <div style={{ flex: 1, width: "33%" }}>
-                    <h3>Filtros y Centros</h3>
+                    <h3>Centros Comunitarios</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
                         <div>
                             <label>Estado:</label>
@@ -234,7 +234,7 @@ const AsignarEquipoCentro = () => {
 
                 {/* Sección de Asignación */}
                 <div style={{ flex: 1, width: "33%" }}>
-                    <h3>Asignación de Equipos</h3>
+                    <h3>Asignación de Equipos a centros comunitarios</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
                         <label>Cantidad:</label>
                         <input

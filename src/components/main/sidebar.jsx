@@ -79,7 +79,10 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         items = (
             <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
                 <li style={{ margin: '10px 0', width: '100%' }}>
-                    <Button label="Registrar Equipo" icon="pi pi-wrench" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("equipo_dispoible")} />
+                    <Button label="Registrar Equipo" icon="pi pi-wrench" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("equipo_disponible")} />
+                </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Asignar equipo a Centros Comunitarios" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("asignar_equipo_centro")}/>
                 </li>
             </ul>
         );
@@ -89,6 +92,7 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="coord_operativo" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
                 </li>
+                
             </ul>
         );
     }

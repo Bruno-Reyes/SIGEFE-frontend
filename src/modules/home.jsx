@@ -15,6 +15,7 @@ import AsignarLEC from "../components/Asignación/AsignarLEC";
 import Candidatos from "../components/Candidatos/Candidatos";
 import RegistrarEquipoDisponible from "../components/Logistica/RegistrarEquipoDisponible";
 import '@fontsource/roboto'; // Fuente Roboto con pesos predeterminados
+import AsignarEquipoCentro from "../components/Logistica/AsignarEquipoCentro";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -41,8 +42,10 @@ const HomePage = () => {
         return <AsignarLEC/>;
       case "candidatos":
         return <Candidatos/>
-      case "equipo_dispoible":
+      case "equipo_disponible":
         return <RegistrarEquipoDisponible/>
+      case "asignar_equipo_centro":
+        return <AsignarEquipoCentro/>
       default:
         return <DefaultContent />;
     }

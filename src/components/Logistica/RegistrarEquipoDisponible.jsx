@@ -5,7 +5,31 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Editor } from 'primereact/editor';
 import { Toast } from 'primereact/toast';
+import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
+// Función para refrescar el token
+const refreshToken = async () => {
+    try {
+        const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
+        const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
+            refresh: refreshToken,
+        });
+        const newAccessToken = response.data.access;
+        localStorage.setItem("access-token", JSON.stringify(newAccessToken));
+        return newAccessToken;
+    } catch (error) {
+        console.error("Error al refrescar el token:", error);
+        throw new Error("No se pudo renovar el token de acceso.");
+    }
+};
+
+const stripHtmlTags = (html) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+};
 
 const RegistrarEquipoDisponible = () => {
     
@@ -18,28 +42,65 @@ const RegistrarEquipoDisponible = () => {
     const toast = React.useRef(null);
 
     const categorias = [
-        { label: 'Papelería', value: 'papeleria' },
-        { label: 'Utilería', value: 'utileria' },
-        { label: 'Tecnología', value: 'tecnologia' },
-        { label: 'Mobiliario', value: 'mobiliario' },
+        { label: 'Papelería', value: 'Papelería' },
+        { label: 'Utilería', value: 'Utilería' },
+        { label: 'Tecnología', value: 'Tecnología' },
+        { label: 'Mobiliario', value: 'Mobiliario' },
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.nombre && formData.cantidad && formData.descripcion && formData.categoria) {
-            console.log('Datos enviados:', formData);
-            toast.current.show({
-                severity: 'success',
-                summary: 'Equipo Subido',
-                detail: 'El equipo se ha subido correctamente.',
-                life: 3000,
-            });
-            setFormData({
-                nombre: '',
-                cantidad: null,
-                descripcion: '',
-                categoria: null,
-            });
+            try {
+                let token = JSON.parse(localStorage.getItem("access-token"));
+                if (!token) {
+                    token = await refreshToken();
+                }
+                const descripcionSinHtml = stripHtmlTags(formData.descripcion);
+                const response = await axios.post(`${apiUrl}/logistica/crear/`, {
+                    nombre_equipo: formData.nombre,
+                    cantidad_disponible: formData.cantidad,
+                    descripcion: descripcionSinHtml,
+                    categoria: formData.categoria, 
+                    
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                console.log('Datos enviados:', response.data);
+                toast.current.show({
+                    severity: 'success',
+                    summary: 'Equipo Subido',
+                    detail: 'El equipo se ha subido correctamente.',
+                    life: 3000,
+                });
+                setFormData({
+                    nombre: '',
+                    cantidad: null,
+                    descripcion: '',
+                    categoria: null,
+                });
+            } catch (error) {
+                console.error('Error al enviar los datos:', error);
+                if (error.response) {
+                    console.error('Detalles del error:', error.response.data);
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: `Hubo un problema al subir el equipo: ${JSON.stringify(error.response.data)}`,
+                        life: 3000,
+                    });
+                } else {
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Hubo un problema al subir el equipo.',
+                        life: 3000,
+                    });
+                }
+            }
         } else {
             toast.current.show({
                 severity: 'error',

@@ -207,6 +207,19 @@ const RegistroCandidato = () => {
           detail: "El candidato ha sido registrado exitosamente",
           life: 6000,
         });
+
+        // Limpiar formulario
+        formik.resetForm();
+
+        setCertificado(null);
+        fileUploadCertificadoRef.current.clear();
+
+        setIdentificacion(null);
+        fileUploadIdentificacionRef.current.clear();
+
+        setCuenta(null);
+        fileUploadCuentaRef.current.clear();
+
       } catch (error) {
         const errorMessage =
           error.response?.data?.detail ||

@@ -54,7 +54,7 @@ function Login() {
         toast.current.show({
           severity: "error",
           summary: "Error de autenticación",
-          detail: "Usuario o contraseña incorrectos",
+          detail: error.response.data.non_field_errors[0],
           life: 3000,
         });
       }

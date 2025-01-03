@@ -19,22 +19,14 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
     let items;
     let usuario = localStorage.getItem("usuario")
     
-    if (usuario === "\"aspirante_lec\"") {
-        items = (
-            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
-                <li style={{ margin: '10px 0', width: '100%' }}>
-                    <Button label="Aspirante LEC" icon="pi pi-calendar" className="p-button-text" style={{ width: '100%' }} />
-                </li>
-            </ul>
-        );
-    } else if (usuario === "\"coord_nac_rrhh\"") {
+    if (usuario === "\"coord_nac_rrhh\"") {
         items = (
             <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="Convocatorias" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }}  onClick={() => setActiveComponent("convocatorias")} />
                 </li>
                 <li style={{ margin: '10px 0', width: '100%' }}>
-                    <Button label="Alumnos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }}/>
+                    <Button label="Validar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("validar_aspirantes")}/>
                 </li>
             </ul>
         );

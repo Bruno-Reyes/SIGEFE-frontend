@@ -15,40 +15,40 @@ const HistorialAsignacionesLEC = () => {
   const [apellidoPaterno, setApellidoPaterno] = useState("");
   const [apellidoMaterno, setApellidoMaterno] = useState("");
 
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL
 
   // Función para refrescar el token
   const refreshToken = async () => {
     try {
-      const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
+      const refreshToken = JSON.parse(localStorage.getItem('refresh-token'))
       const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
         refresh: refreshToken,
-      });
-      const newAccessToken = response.data.access;
-      localStorage.setItem("access-token", JSON.stringify(newAccessToken));
-      return newAccessToken;
+      })
+      const newAccessToken = response.data.access
+      localStorage.setItem('access-token', JSON.stringify(newAccessToken))
+      return newAccessToken
     } catch (error) {
-      console.error("Error al refrescar el token:", error);
-      throw new Error("No se pudo renovar el token de acceso.");
+      console.error('Error al refrescar el token:', error)
+      throw new Error('No se pudo renovar el token de acceso.')
     }
-  };
+  }
 
   // Cargar datos iniciales
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        let token = JSON.parse(localStorage.getItem("access-token"));
+        let token = JSON.parse(localStorage.getItem('access-token'))
         if (!token) {
-          token = await refreshToken();
+          token = await refreshToken()
         }
         // Aquí puedes cargar datos iniciales si es necesario
       } catch (error) {
-        console.error("Error al cargar datos iniciales:", error);
+        console.error('Error al cargar datos iniciales:', error)
       }
-    };
+    }
 
-    fetchInitialData();
-  }, []);
+    fetchInitialData()
+  }, [])
 
   const handleConsultarHistorial = async () => {
     if (!nombre || !apellidoPaterno || !apellidoMaterno) {
@@ -62,14 +62,14 @@ const HistorialAsignacionesLEC = () => {
     }
 
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
       const response = await axios.get(`${apiUrl}/asignacion/historial-lec/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         params: {
           nombre: nombre,
@@ -89,7 +89,7 @@ const HistorialAsignacionesLEC = () => {
         life: 3000,
       });
     }
-  };
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -144,7 +144,7 @@ const HistorialAsignacionesLEC = () => {
         </DataTable>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HistorialAsignacionesLEC;
+export default HistorialAsignacionesLEC

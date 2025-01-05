@@ -1,67 +1,67 @@
-import { useRef } from "react";
-import axios from "axios";
-import { Toast } from "primereact/toast";
-import { InputText } from "primereact/inputtext";
-import { Password } from "primereact/password";
-import { Button } from "primereact/button";
-import { Card } from "primereact/card";
-import { useFormik } from "formik";
+import { useRef } from 'react'
+import axios from 'axios'
+import { Toast } from 'primereact/toast'
+import { InputText } from 'primereact/inputtext'
+import { Password } from 'primereact/password'
+import { Button } from 'primereact/button'
+import { Card } from 'primereact/card'
+import { useFormik } from 'formik'
 
-import * as Yup from "yup";
+import * as Yup from 'yup'
 
 const apiUrl = import.meta.env.VITE_API_URL
 
 
 function Login() {
 
-  const toast = useRef(null);
+  const toast = useRef(null)
 
   const formik = useFormik({
     initialValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
     validationSchema: Yup.object({
-      username: Yup.string().required("El nombre del usuario es obligatorio"),
+      username: Yup.string().required('El nombre del usuario es obligatorio'),
       password: Yup.string()
-        .min(6, "La contraseña debe tener 6 caracteres")
-        .required("La contraseña es obligatoria"),
+        .min(6, 'La contraseña debe tener 6 caracteres')
+        .required('La contraseña es obligatoria'),
     }),
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(apiUrl+"/auth/token/", {
+        const response = await axios.post(apiUrl+'/auth/token/', {
           email: values.username,
           password: values.password,
-        });
+        })
 
         toast.current.show({
-          severity: "success",
-          summary: "Inicio exitoso",
+          severity: 'success',
+          summary: 'Inicio exitoso',
           detail: `Bienvenido ${username}`,
           life: 3000,
-        });
+        })
 
         // Establecer los datos en el localStorage
-        localStorage.setItem("access-token", JSON.stringify(response.data.access));
-        localStorage.setItem("refresh-token", JSON.stringify(response.data.refresh));
-        localStorage.setItem("email", response.data.payload.email);
-        localStorage.setItem("usuario", JSON.stringify(response.data.payload.tipo_usuario));
-        localStorage.setItem("sidebar", true);
+        localStorage.setItem('access-token', JSON.stringify(response.data.access))
+        localStorage.setItem('refresh-token', JSON.stringify(response.data.refresh))
+        localStorage.setItem('email', response.data.payload.email)
+        localStorage.setItem('usuario', JSON.stringify(response.data.payload.tipo_usuario))
+        localStorage.setItem('sidebar', true)
   
         // Redirigir a la página de inicio
         window.location.reload()
       } catch (error) {
         toast.current.show({
-          severity: "error",
-          summary: "Error de autenticación",
+          severity: 'error',
+          summary: 'Error de autenticación',
           detail: error.response.data.non_field_errors[0],
           life: 3000,
-        });
+        })
       }
     },
-  });
+  })
 
-  const header = <img alt="Card" src="/CU001.png" />;
+  const header = <img alt="Card" src="/CU001.png" />
 
   return (
     <div className="grid">
@@ -74,7 +74,7 @@ function Login() {
           <Card
             title="Inicio de Sesión"
             className="shadow-8 border-round-lg"
-            style={{ width: "25rem" }}
+            style={{ width: '25rem' }}
             header={header}
           >
             <form onSubmit={formik.handleSubmit} className="p-fluid">
@@ -89,7 +89,7 @@ function Login() {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="Ingrese su usuario"
-                  className={`p-inputtext-lg ${formik.touched.username && formik.errors.username ? "p-invalid" : ""}`}
+                  className={`p-inputtext-lg ${formik.touched.username && formik.errors.username ? 'p-invalid' : ''}`}
                 />
                 {formik.touched.username && formik.errors.username ? (
                   <small className="p-error">{formik.errors.username}</small>
@@ -107,7 +107,7 @@ function Login() {
                   onBlur={formik.handleBlur}
                   feedback={false}
                   placeholder="Ingrese su contraseña"
-                  className={`p-inputtext-lg ${formik.touched.password && formik.errors.password ? "p-invalid" : ""}`}
+                  className={`p-inputtext-lg ${formik.touched.password && formik.errors.password ? 'p-invalid' : ''}`}
                   toggleMask
                 />
                 {formik.touched.password && formik.errors.password ? (
@@ -128,7 +128,7 @@ function Login() {
         <div className="p-3"></div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login

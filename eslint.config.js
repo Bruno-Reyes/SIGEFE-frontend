@@ -33,7 +33,11 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      "react/prop-types": "off",
+      'react/prop-types': 'off',
+      'indent': ['error', 2],
+      'semi': ['error', 'never'],
+      'quotes': ['error', 'single'],
+      'max-len': ['error', { 'code': 80 }]
     },
   },
 ]

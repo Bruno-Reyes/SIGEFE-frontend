@@ -1,72 +1,72 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useFormik } from "formik";
-import { InputText } from "primereact/inputtext";
-import { Calendar } from "primereact/calendar";
-import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
-import { Button } from "primereact/button";
-import { Divider } from "primereact/divider";
-import { FileUpload } from "primereact/fileupload";
-import { Toast } from "primereact/toast";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import * as Yup from "yup";
-import { Schemas } from "../../tools/validationSchemas";
-import axios from "axios";
-import lugares from "../../tools/lugares_mexico.json";
+import React, { useState, useRef, useEffect } from 'react'
+import { useFormik } from 'formik'
+import { InputText } from 'primereact/inputtext'
+import { Calendar } from 'primereact/calendar'
+import { Dropdown } from 'primereact/dropdown'
+import { InputNumber } from 'primereact/inputnumber'
+import { Button } from 'primereact/button'
+import { Divider } from 'primereact/divider'
+import { FileUpload } from 'primereact/fileupload'
+import { Toast } from 'primereact/toast'
+import { TriStateCheckbox } from 'primereact/tristatecheckbox'
+import * as Yup from 'yup'
+import { Schemas } from '../../tools/validationSchemas'
+import axios from 'axios'
+import lugares from '../../tools/lugares_mexico.json'
 
 const RegistroCandidato = () => {
-  const toast = useRef(null);
-  const fileUploadCertificadoRef = useRef(null);
-  const fileUploadIdentificacionRef = useRef(null);
-  const fileUploadCuentaRef = useRef(null);
+  const toast = useRef(null)
+  const fileUploadCertificadoRef = useRef(null)
+  const fileUploadIdentificacionRef = useRef(null)
+  const fileUploadCuentaRef = useRef(null)
 
-  const [certificado, setCertificado] = useState(null);
-  const [identificacion, setIdentificacion] = useState(null);
-  const [cuenta, setCuenta] = useState(null);
-  const [convocatorias, setConvocatorias] = useState([]);
-  const [municipios, setMunicipios] = useState([]);
-  const [localidades, setLocalidades] = useState([]);
-  const [showPassword, setShowPassword] = useState(false);
+  const [certificado, setCertificado] = useState(null)
+  const [identificacion, setIdentificacion] = useState(null)
+  const [cuenta, setCuenta] = useState(null)
+  const [convocatorias, setConvocatorias] = useState([])
+  const [municipios, setMunicipios] = useState([])
+  const [localidades, setLocalidades] = useState([])
+  const [showPassword, setShowPassword] = useState(false)
 
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const obtenerConvocatorias = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`);
-      let newConvocatorias = [];
+      const response = await axios.get(`${apiUrl}/captacion/obtener-activas/`)
+      let newConvocatorias = []
       response.data.forEach((convocatoria) => {
         newConvocatorias.push({
           label: convocatoria.lugar_convocatoria,
           value: convocatoria.id,
-        });
-      });
+        })
+      })
 
-      setConvocatorias(newConvocatorias);
+      setConvocatorias(newConvocatorias)
     } catch (error) {
-      console.log(error);
+      console.log(error)
       const errorMessage =
         error.response?.data?.detail ||
-        "Hubo un problema al cargar las convocatorias activas";
+        'Hubo un problema al cargar las convocatorias activas'
       toast.current.show({
-        severity: "error",
-        summary: "Error al cargar convocatorias",
+        severity: 'error',
+        summary: 'Error al cargar convocatorias',
         detail: errorMessage,
         life: 3000,
-      });
+      })
     }
-  };
+  }
 
   useEffect(() => {
-    obtenerConvocatorias();
-  }, []);
+    obtenerConvocatorias()
+  }, [])
 
   const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+    setShowPassword((prevState) => !prevState)
+  }
 
   const handleEstadoChange = (e) => {
-    const estadoSeleccionado = e.value;
-    formik.setFieldValue("estado", estadoSeleccionado);
+    const estadoSeleccionado = e.value
+    formik.setFieldValue('estado', estadoSeleccionado)
 
     if (lugares[estadoSeleccionado]) {
       setMunicipios(
@@ -74,55 +74,55 @@ const RegistroCandidato = () => {
           label: municipio,
           value: municipio,
         }))
-      );
+      )
       setLocalidades(
         lugares[estadoSeleccionado].pueblos.map((pueblo) => ({
           label: pueblo,
           value: pueblo,
         }))
-      );
+      )
     } else {
-      setMunicipios([]);
-      setLocalidades([]);
+      setMunicipios([])
+      setLocalidades([])
     }
-  };
+  }
 
   const formik = useFormik({
     initialValues: {
-      curp: "",
-      nombres: "",
-      apellido_paterno: "",
-      apellido_materno: "",
-      fecha_nacimiento: "",
-      genero: "",
-      talla_playera: "",
-      talla_pantalon: "",
-      talla_calzado: "",
-      peso: "",
-      estatura: "",
-      afecciones: "",
-      banco: "",
-      clabe: "",
-      nivel_estudios: "",
-      nivel_estudios_deseado: "",
-      experiencia_ciencia: "",
-      experiencia_arte: "",
+      curp: '',
+      nombres: '',
+      apellido_paterno: '',
+      apellido_materno: '',
+      fecha_nacimiento: '',
+      genero: '',
+      talla_playera: '',
+      talla_pantalon: '',
+      talla_calzado: '',
+      peso: '',
+      estatura: '',
+      afecciones: '',
+      banco: '',
+      clabe: '',
+      nivel_estudios: '',
+      nivel_estudios_deseado: '',
+      experiencia_ciencia: '',
+      experiencia_arte: '',
       interes_comunitario: null,
-      razones_interes: "",
-      profesion_interes: "",
-      interes_incorporacion: "",
-      codigo_postal: "",
-      estado: "",
-      colonia: "",
-      municipio: "",
-      localidad: "",
-      calle: "",
-      numero_exterior: "",
-      numero_interior: "",
-      convocatoria: "",
-      correo: "",
-      contrasena: "",
-      confirmar: "",
+      razones_interes: '',
+      profesion_interes: '',
+      interes_incorporacion: '',
+      codigo_postal: '',
+      estado: '',
+      colonia: '',
+      municipio: '',
+      localidad: '',
+      calle: '',
+      numero_exterior: '',
+      numero_interior: '',
+      convocatoria: '',
+      correo: '',
+      contrasena: '',
+      confirmar: '',
     },
     validationSchema: Yup.object({
       contrasena: Schemas.contrasena,
@@ -161,32 +161,32 @@ const RegistroCandidato = () => {
       convocatoria: Schemas.convocatoria,
     }),
     onSubmit: async (values) => {
-      console.log("Values:", values);
+      console.log('Values:', values)
 
       // Eliminar espacios en blanco de los valores
       const trimmedValues = Object.keys(values).reduce((acc, key) => {
         acc[key] =
-          typeof values[key] === "string" ? values[key].trim() : values[key];
-        return acc;
-      }, {});
+          typeof values[key] === 'string' ? values[key].trim() : values[key]
+        return acc
+      }, {})
 
-      console.log("Certificado:", certificado);
-      console.log("Identificación:", identificacion);
-      console.log("Cuenta:", cuenta);
+      console.log('Certificado:', certificado)
+      console.log('Identificación:', identificacion)
+      console.log('Cuenta:', cuenta)
 
       let data = {
         values: values,
         certificado: certificado,
         identificacion: identificacion,
         cuenta: cuenta,
-      };
+      }
 
-      const formData = new FormData();
+      const formData = new FormData()
 
-      formData.append("files[0]", certificado);
-      formData.append("files[1]", identificacion);
-      formData.append("files[2]", cuenta);
-      formData.append("data", JSON.stringify(trimmedValues));
+      formData.append('files[0]', certificado)
+      formData.append('files[1]', identificacion)
+      formData.append('files[2]', cuenta)
+      formData.append('data', JSON.stringify(trimmedValues))
 
       try {
         const response = await axios.post(
@@ -194,239 +194,239 @@ const RegistroCandidato = () => {
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
+              'Content-Type': 'multipart/form-data',
             },
           }
-        );
+        )
 
-        console.log("Response:", response);
+        console.log('Response:', response)
 
         toast.current.show({
-          severity: "success",
-          summary: "Candidato registrado",
-          detail: "El candidato ha sido registrado exitosamente",
+          severity: 'success',
+          summary: 'Candidato registrado',
+          detail: 'El candidato ha sido registrado exitosamente',
           life: 6000,
-        });
+        })
 
         // Limpiar formulario
-        formik.resetForm();
+        formik.resetForm()
 
-        setCertificado(null);
-        fileUploadCertificadoRef.current.clear();
+        setCertificado(null)
+        fileUploadCertificadoRef.current.clear()
 
-        setIdentificacion(null);
-        fileUploadIdentificacionRef.current.clear();
+        setIdentificacion(null)
+        fileUploadIdentificacionRef.current.clear()
 
-        setCuenta(null);
-        fileUploadCuentaRef.current.clear();
+        setCuenta(null)
+        fileUploadCuentaRef.current.clear()
 
       } catch (error) {
         const errorMessage =
           error.response?.data?.detail ||
-          "Hubo un problema al cargar las convocatorias activas";
+          'Hubo un problema al cargar las convocatorias activas'
         toast.current.show({
-          severity: "error",
-          summary: "Error",
+          severity: 'error',
+          summary: 'Error',
           detail: errorMessage,
           life: 6000,
-        });
+        })
       }
     },
-  });
+  })
 
   const uploaderCertificado = (e) => {
-    setCertificado(e.files[0]);
+    setCertificado(e.files[0])
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Certificado cargado",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Certificado cargado',
+    })
+  }
 
   const removeCertificado = () => {
-    setCertificado(null);
-    fileUploadCertificadoRef.current.clear();
+    setCertificado(null)
+    fileUploadCertificadoRef.current.clear()
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Certificado eliminado",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Certificado eliminado',
+    })
+  }
 
   const uploaderIdentificacion = (e) => {
-    setIdentificacion(e.files[0]);
+    setIdentificacion(e.files[0])
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Identificación cargada",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Identificación cargada',
+    })
+  }
 
   const removeIdentificacion = () => {
-    setIdentificacion(null);
-    fileUploadIdentificacionRef.current.clear();
+    setIdentificacion(null)
+    fileUploadIdentificacionRef.current.clear()
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Identificación eliminada",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Identificación eliminada',
+    })
+  }
 
   const uploaderCuenta = (e) => {
-    setCuenta(e.files[0]);
+    setCuenta(e.files[0])
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Estado de cuenta cargado",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Estado de cuenta cargado',
+    })
+  }
 
   const removeCuenta = () => {
-    setCuenta(null);
-    fileUploadCuentaRef.current.clear();
+    setCuenta(null)
+    fileUploadCuentaRef.current.clear()
     toast.current.show({
-      severity: "info",
-      summary: "Success",
-      detail: "Estado de cuenta eliminado",
-    });
-  };
+      severity: 'info',
+      summary: 'Success',
+      detail: 'Estado de cuenta eliminado',
+    })
+  }
 
   const tallas_playera = [
-    { label: "Chica", value: "CH" },
-    { label: "Mediana", value: "M" },
-    { label: "Grande", value: "G" },
-    { label: "Extra Grande", value: "EG" },
-  ];
+    { label: 'Chica', value: 'CH' },
+    { label: 'Mediana', value: 'M' },
+    { label: 'Grande', value: 'G' },
+    { label: 'Extra Grande', value: 'EG' },
+  ]
 
   const tallas_pantalon = [
-    { label: "Chica", value: "CH" },
-    { label: "Mediana", value: "M" },
-    { label: "Grande", value: "G" },
-    { label: "Extra Grande", value: "EG" },
-  ];
+    { label: 'Chica', value: 'CH' },
+    { label: 'Mediana', value: 'M' },
+    { label: 'Grande', value: 'G' },
+    { label: 'Extra Grande', value: 'EG' },
+  ]
 
   const tallas_calzado = [
-    { label: "22", value: "22" },
-    { label: "22.5", value: "22.5" },
-    { label: "23", value: "23" },
-    { label: "23.5", value: "23.5" },
-    { label: "24", value: "24" },
-    { label: "24.5", value: "24.5" },
-    { label: "25", value: "25" },
-    { label: "25.5", value: "25.5" },
-    { label: "26", value: "26" },
-    { label: "26.5", value: "26.5" },
-    { label: "27", value: "27" },
-    { label: "27.5", value: "27.5" },
-    { label: "28", value: "28" },
-    { label: "28.5", value: "28.5" },
-    { label: "29", value: "29" },
-    { label: "29.5", value: "29.5" },
-    { label: "30", value: "30" },
-  ];
+    { label: '22', value: '22' },
+    { label: '22.5', value: '22.5' },
+    { label: '23', value: '23' },
+    { label: '23.5', value: '23.5' },
+    { label: '24', value: '24' },
+    { label: '24.5', value: '24.5' },
+    { label: '25', value: '25' },
+    { label: '25.5', value: '25.5' },
+    { label: '26', value: '26' },
+    { label: '26.5', value: '26.5' },
+    { label: '27', value: '27' },
+    { label: '27.5', value: '27.5' },
+    { label: '28', value: '28' },
+    { label: '28.5', value: '28.5' },
+    { label: '29', value: '29' },
+    { label: '29.5', value: '29.5' },
+    { label: '30', value: '30' },
+  ]
 
   const afecciones = [
-    { label: "Diabetes", value: "Diabetes" },
-    { label: "Hipertension", value: "Hipertension" },
-    { label: "Asma", value: "Asma" },
-    { label: "Otro", value: "Otro" },
-    { label: "Ninguna", value: "Ninguna" },
-  ];
+    { label: 'Diabetes', value: 'Diabetes' },
+    { label: 'Hipertension', value: 'Hipertension' },
+    { label: 'Asma', value: 'Asma' },
+    { label: 'Otro', value: 'Otro' },
+    { label: 'Ninguna', value: 'Ninguna' },
+  ]
 
   const bancos = [
-    { label: "BBVA", value: "BBVA" },
-    { label: "Banamex", value: "Banamex" },
-    { label: "Santander", value: "Santander" },
-    { label: "HSBC", value: "HSBC" },
-    { label: "Banorte", value: "Banorte" },
-    { label: "Scotiabank", value: "Scotiabank" },
-    { label: "Inbursa", value: "Inbursa" },
-    { label: "Banco Azteca", value: "Banco Azteca" },
-    { label: "BanCoppel", value: "BanCoppel" },
-    { label: "Banco del Bajío", value: "Banco del Bajío" },
-    { label: "Otro", value: "Otro" },
-  ];
+    { label: 'BBVA', value: 'BBVA' },
+    { label: 'Banamex', value: 'Banamex' },
+    { label: 'Santander', value: 'Santander' },
+    { label: 'HSBC', value: 'HSBC' },
+    { label: 'Banorte', value: 'Banorte' },
+    { label: 'Scotiabank', value: 'Scotiabank' },
+    { label: 'Inbursa', value: 'Inbursa' },
+    { label: 'Banco Azteca', value: 'Banco Azteca' },
+    { label: 'BanCoppel', value: 'BanCoppel' },
+    { label: 'Banco del Bajío', value: 'Banco del Bajío' },
+    { label: 'Otro', value: 'Otro' },
+  ]
 
   const nivelesEducativos = [
-    { label: "Primaria", value: "Primaria" },
-    { label: "Secundaria", value: "Secundaria" },
-    { label: "Preparatoria", value: "Preparatoria" },
-    { label: "Licenciatura", value: "Licenciatura" },
-    { label: "Maestría", value: "Maestría" },
-    { label: "Doctorado", value: "Doctorado" },
-  ];
+    { label: 'Primaria', value: 'Primaria' },
+    { label: 'Secundaria', value: 'Secundaria' },
+    { label: 'Preparatoria', value: 'Preparatoria' },
+    { label: 'Licenciatura', value: 'Licenciatura' },
+    { label: 'Maestría', value: 'Maestría' },
+    { label: 'Doctorado', value: 'Doctorado' },
+  ]
 
   const nivelesEducativosDeseados = [
-    { label: "Preescolar", value: "Preescolar" },
-    { label: "Primaria", value: "Primaria" },
-    { label: "Secundaria", value: "Secundaria" },
-    { label: "Preparatoria", value: "Preparatoria" },
-  ];
+    { label: 'Preescolar', value: 'Preescolar' },
+    { label: 'Primaria', value: 'Primaria' },
+    { label: 'Secundaria', value: 'Secundaria' },
+    { label: 'Preparatoria', value: 'Preparatoria' },
+  ]
 
   const camposCiencia = [
-    { label: "Biología", value: "Biología" },
-    { label: "Física", value: "Física" },
-    { label: "Química", value: "Química" },
-    { label: "Otro", value: "Otro" },
-    { label: "Ninguna", value: "Ninguna" },
-  ];
+    { label: 'Biología', value: 'Biología' },
+    { label: 'Física', value: 'Física' },
+    { label: 'Química', value: 'Química' },
+    { label: 'Otro', value: 'Otro' },
+    { label: 'Ninguna', value: 'Ninguna' },
+  ]
 
   const camposArte = [
-    { label: "Música", value: "Música" },
-    { label: "Teatro", value: "Teatro" },
-    { label: "Artes Plásticas", value: "Artes Plásticas" },
-    { label: "Literatura", value: "Literatura" },
-    { label: "Ninguna", value: "Ninguna" },
-  ];
+    { label: 'Música', value: 'Música' },
+    { label: 'Teatro', value: 'Teatro' },
+    { label: 'Artes Plásticas', value: 'Artes Plásticas' },
+    { label: 'Literatura', value: 'Literatura' },
+    { label: 'Ninguna', value: 'Ninguna' },
+  ]
 
   const razonesLEC = [
     {
-      label: "Recibir apoyo económico para continuar estudios",
-      value: "Recibir apoyo económico",
+      label: 'Recibir apoyo económico para continuar estudios',
+      value: 'Recibir apoyo económico',
     },
     {
       label:
-        "Tener experiencia como líder en educación comunitaria y compartir conocimientos",
-      value: "Experiencia como líder",
+        'Tener experiencia como líder en educación comunitaria y compartir conocimientos',
+      value: 'Experiencia como líder',
     },
     {
-      label: "No perder el año y realizar alguna actividad",
-      value: "No perder el año",
+      label: 'No perder el año y realizar alguna actividad',
+      value: 'No perder el año',
     },
     {
-      label: "Conocer personas y trabajar con niños",
-      value: "Conocer personas",
+      label: 'Conocer personas y trabajar con niños',
+      value: 'Conocer personas',
     },
     {
-      label: "Apoyar y participar en programas sociales",
-      value: "Apoyar en programas sociales",
+      label: 'Apoyar y participar en programas sociales',
+      value: 'Apoyar en programas sociales',
     },
-    { label: "Otro", value: "Otro" },
-  ];
+    { label: 'Otro', value: 'Otro' },
+  ]
 
   const profesiones = [
-    { label: "Ingeniería", value: "Ingeniería" },
-    { label: "Ciencias de la Salud", value: "Ciencias de la Salud" },
-    { label: "Ciencias Sociales", value: "Ciencias Sociales" },
-    { label: "Ciencias Exactas", value: "Ciencias Exactas" },
-    { label: "Ciencias Naturales", value: "Ciencias Naturales" },
-    { label: "Artes", value: "Artes" },
-    { label: "Humanidades", value: "Humanidades" },
-    { label: "Otro", value: "Otro" },
-  ];
+    { label: 'Ingeniería', value: 'Ingeniería' },
+    { label: 'Ciencias de la Salud', value: 'Ciencias de la Salud' },
+    { label: 'Ciencias Sociales', value: 'Ciencias Sociales' },
+    { label: 'Ciencias Exactas', value: 'Ciencias Exactas' },
+    { label: 'Ciencias Naturales', value: 'Ciencias Naturales' },
+    { label: 'Artes', value: 'Artes' },
+    { label: 'Humanidades', value: 'Humanidades' },
+    { label: 'Otro', value: 'Otro' },
+  ]
 
   const interesesOptions = [
-    { label: "Prácticas profesionales", value: "Prácticas profesionales" },
-    { label: "Servicio social", value: "Servicio social" },
-    { label: "Residencia profesional", value: "Residencia profesional" },
-    { label: "Movilidad académica", value: "Movilidad académica" },
-    { label: "Participación voluntaria", value: "Participación voluntaria" },
-    { label: "Otro", value: "Otro" },
-  ];
+    { label: 'Prácticas profesionales', value: 'Prácticas profesionales' },
+    { label: 'Servicio social', value: 'Servicio social' },
+    { label: 'Residencia profesional', value: 'Residencia profesional' },
+    { label: 'Movilidad académica', value: 'Movilidad académica' },
+    { label: 'Participación voluntaria', value: 'Participación voluntaria' },
+    { label: 'Otro', value: 'Otro' },
+  ]
 
   const handleHome = () => {
-    window.location.href = '/';
-  };
+    window.location.href = '/'
+  }
 
   return (
     <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
@@ -440,11 +440,11 @@ const RegistroCandidato = () => {
       />
       <div
         className="p-card p-p-4 p-shadow-3 p-mb-4"
-        style={{ width: "80%", margin: "0 auto" }}
+        style={{ width: '80%', margin: '0 auto' }}
       >
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: 'center' }}>
           <h1>Registro de Candidato</h1>
-          <Divider style={{ margin: "0 auto", width: "50%" }} />
+          <Divider style={{ margin: '0 auto', width: '50%' }} />
         </div>
 
         <form
@@ -453,19 +453,19 @@ const RegistroCandidato = () => {
           autoComplete="off"
         >
           {/* Información Personal */}
-          <h3 style={{ marginLeft: "0.5%" }}>Información Personal</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Información Personal</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="nombres">Nombre(s)</label>
@@ -473,8 +473,8 @@ const RegistroCandidato = () => {
                   id="nombres"
                   className={`p-inputtext-lg ${
                     formik.touched.nombres && formik.errors.nombres
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.nombres}
                   onChange={formik.handleChange}
@@ -486,10 +486,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="apellido_paterno">Apellido Paterno</label>
@@ -498,26 +498,26 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.apellido_paterno &&
                     formik.errors.apellido_paterno
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.apellido_paterno}
                   onChange={formik.handleChange}
                 />
                 {formik.touched.apellido_paterno &&
                 formik.errors.apellido_paterno ? (
-                  <small className="p-error">
-                    {formik.errors.apellido_paterno}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.apellido_paterno}
+                    </small>
+                  ) : null}
               </div>
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="apellido_materno">Apellido Materno</label>
@@ -526,18 +526,18 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.apellido_materno &&
                     formik.errors.apellido_materno
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.apellido_materno}
                   onChange={formik.handleChange}
                 />
                 {formik.touched.apellido_materno &&
                 formik.errors.apellido_materno ? (
-                  <small className="p-error">
-                    {formik.errors.apellido_materno}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.apellido_materno}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>
@@ -545,22 +545,22 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="curp">CURP</label>
                 <InputText
                   id="curp"
                   className={`p-inputtext-lg ${
-                    formik.touched.curp && formik.errors.curp ? "p-invalid" : ""
+                    formik.touched.curp && formik.errors.curp ? 'p-invalid' : ''
                   }`}
                   value={formik.values.curp}
                   onChange={formik.handleChange}
@@ -572,10 +572,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="fechaNacimiento">Fecha de Nacimiento</label>
@@ -584,8 +584,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.fecha_nacimiento &&
                     formik.errors.fecha_nacimiento
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.fecha_nacimiento}
                   onChange={formik.handleChange}
@@ -593,18 +593,18 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.fecha_nacimiento &&
                 formik.errors.fecha_nacimiento ? (
-                  <small className="p-error">
-                    {formik.errors.fecha_nacimiento}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.fecha_nacimiento}
+                    </small>
+                  ) : null}
               </div>
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="genero">Género</label>
@@ -613,13 +613,13 @@ const RegistroCandidato = () => {
                   value={formik.values.genero}
                   className={`p-inputtext-lg ${
                     formik.touched.genero && formik.errors.genero
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={[
-                    { label: "Masculino", value: "M" },
-                    { label: "Femenino", value: "F" },
-                    { label: "Otro", value: "O" },
+                    { label: 'Masculino', value: 'M' },
+                    { label: 'Femenino', value: 'F' },
+                    { label: 'Otro', value: 'O' },
                   ]}
                   onChange={formik.handleChange}
                   placeholder="Selecciona el género"
@@ -634,15 +634,15 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="talla_playera">Talla de Playera</label>
@@ -651,8 +651,8 @@ const RegistroCandidato = () => {
                   value={formik.values.talla_playera}
                   className={`p-inputtext-lg ${
                     formik.touched.talla_playera && formik.errors.talla_playera
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={tallas_playera}
                   onChange={formik.handleChange}
@@ -668,10 +668,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="talla_pantalon">Talla de Pantalón</label>
@@ -681,8 +681,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.talla_pantalon &&
                     formik.errors.talla_pantalon
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={tallas_pantalon}
                   onChange={formik.handleChange}
@@ -690,19 +690,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.talla_pantalon &&
                 formik.errors.talla_pantalon ? (
-                  <small className="p-error">
-                    {formik.errors.talla_pantalon}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.talla_pantalon}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="talla_calzado">Talla de Calzado</label>
@@ -711,8 +711,8 @@ const RegistroCandidato = () => {
                   value={formik.values.talla_calzado}
                   className={`p-inputtext-lg ${
                     formik.touched.talla_calzado && formik.errors.talla_calzado
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={tallas_calzado}
                   onChange={formik.handleChange}
@@ -730,15 +730,15 @@ const RegistroCandidato = () => {
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="peso">Peso</label>
@@ -749,8 +749,8 @@ const RegistroCandidato = () => {
                       id="peso"
                       className={`p-inputtext-lg ${
                         formik.touched.peso && formik.errors.peso
-                          ? "p-invalid"
-                          : ""
+                          ? 'p-invalid'
+                          : ''
                       }`}
                       value={formik.values.peso}
                       onValueChange={formik.handleChange}
@@ -768,10 +768,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="estatura">Estatura</label>
@@ -782,8 +782,8 @@ const RegistroCandidato = () => {
                       id="estatura"
                       className={`p-inputtext-lg ${
                         formik.touched.estatura && formik.errors.estatura
-                          ? "p-invalid"
-                          : ""
+                          ? 'p-invalid'
+                          : ''
                       }`}
                       value={formik.values.estatura}
                       onValueChange={formik.handleChange}
@@ -801,10 +801,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="afecciones">
@@ -815,8 +815,8 @@ const RegistroCandidato = () => {
                   value={formik.values.afecciones}
                   className={`p-inputtext-lg ${
                     formik.touched.afecciones && formik.errors.afecciones
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={afecciones}
                   onChange={formik.handleChange}
@@ -831,19 +831,19 @@ const RegistroCandidato = () => {
 
           {/* Datos Bancarios */}
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Datos Bancarios</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Datos Bancarios</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "49%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '49%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="banco">Banco</label>
@@ -852,8 +852,8 @@ const RegistroCandidato = () => {
                   value={formik.values.banco}
                   className={`p-inputtext-lg ${
                     formik.touched.banco && formik.errors.banco
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={bancos}
                   onChange={formik.handleChange}
@@ -867,10 +867,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "49%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '49%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <div className="p-field p-col-12 p-md-6">
@@ -879,8 +879,8 @@ const RegistroCandidato = () => {
                     id="clabe"
                     className={`p-inputtext-lg ${
                       formik.touched.clabe && formik.errors.clabe
-                        ? "p-invalid"
-                        : ""
+                        ? 'p-invalid'
+                        : ''
                     }`}
                     value={formik.values.clabe}
                     onChange={formik.handleChange}
@@ -896,19 +896,19 @@ const RegistroCandidato = () => {
 
           {/* Educación y Preferencias */}
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Educación y Preferencias</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Educación y Preferencias</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="nivel_estudios">
@@ -920,8 +920,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.nivel_estudios &&
                     formik.errors.nivel_estudios
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={nivelesEducativos}
                   onChange={formik.handleChange}
@@ -929,19 +929,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.nivelesEducativos &&
                 formik.errors.nivelesEducativos ? (
-                  <small className="p-error">
-                    {formik.errors.nivelesEducativos}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.nivelesEducativos}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="nivel_estudios_deseado">
@@ -953,8 +953,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.nivel_estudios_deseado &&
                     formik.errors.nivel_estudios_deseado
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={nivelesEducativosDeseados}
                   onChange={formik.handleChange}
@@ -962,19 +962,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.nivel_estudios_deseado &&
                 formik.errors.nivel_estudios_deseado ? (
-                  <small className="p-error">
-                    {formik.errors.nivel_estudios_deseado}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.nivel_estudios_deseado}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="experiencia_ciencia">
@@ -986,8 +986,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.experiencia_ciencia &&
                     formik.errors.experiencia_ciencia
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={camposCiencia}
                   onChange={formik.handleChange}
@@ -995,24 +995,24 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.experiencia_ciencia &&
                 formik.errors.experiencia_ciencia ? (
-                  <small className="p-error">
-                    {formik.errors.experiencia_ciencia}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.experiencia_ciencia}
+                    </small>
+                  ) : null}
               </div>
             </div>
 
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="experiencia_arte">Experiencia en Arte</label>
@@ -1022,8 +1022,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.experiencia_arte &&
                     formik.errors.experiencia_arte
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={camposArte}
                   onChange={formik.handleChange}
@@ -1031,19 +1031,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.experiencia_arte &&
                 formik.errors.experiencia_arte ? (
-                  <small className="p-error">
-                    {formik.errors.experiencia_arte}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.experiencia_arte}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="razones_interes">Razón para ser LEC</label>
@@ -1053,8 +1053,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.razones_interes &&
                     formik.errors.razones_interes
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={razonesLEC}
                   onChange={formik.handleChange}
@@ -1062,19 +1062,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.razones_interes &&
                 formik.errors.razones_interes ? (
-                  <small className="p-error">
-                    {formik.errors.razones_interes}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.razones_interes}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  margin: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  margin: '0.5%',
                 }}
               >
                 <label htmlFor="profesion_interes">Profesión de Interés</label>
@@ -1084,8 +1084,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.profesion_interes &&
                     formik.errors.profesion_interes
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={profesiones}
                   onChange={formik.handleChange}
@@ -1093,24 +1093,24 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.profesion_interes &&
                 formik.errors.profesion_interes ? (
-                  <small className="p-error">
-                    {formik.errors.profesion_interes}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.profesion_interes}
+                    </small>
+                  ) : null}
               </div>
             </div>
 
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="interes_incorporacion">
@@ -1122,8 +1122,8 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.interes_incorporacion &&
                     formik.errors.interes_incorporacion
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={interesesOptions}
                   onChange={formik.handleChange}
@@ -1131,19 +1131,19 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.interes_incorporacion &&
                 formik.errors.interes_incorporacion ? (
-                  <small className="p-error">
-                    {formik.errors.interes_incorporacion}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.interes_incorporacion}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "3%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '3%',
                 }}
               >
                 <TriStateCheckbox
@@ -1153,35 +1153,35 @@ const RegistroCandidato = () => {
                 />
                 <label
                   htmlFor="interesComunitario"
-                  style={{ marginLeft: "1%" }}
+                  style={{ marginLeft: '1%' }}
                 >
                   Interés en el desarrollo comunitario
                 </label>
                 {formik.touched.interes_comunitario &&
                 formik.errors.interes_comunitario ? (
-                  <small className="p-error">
-                    {formik.errors.interes_comunitario}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.interes_comunitario}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>
 
           {/* Dirección */}
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Dirección</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Dirección</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "24%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '24%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="codigo_postal">Código Postal</label>
@@ -1189,8 +1189,8 @@ const RegistroCandidato = () => {
                   id="codigo_postal"
                   className={`p-inputtext-lg ${
                     formik.touched.codigo_postal && formik.errors.codigo_postal
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.codigo_postal}
                   onChange={formik.handleChange}
@@ -1205,10 +1205,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "24%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '24%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="estado">Estado</label>
@@ -1223,8 +1223,8 @@ const RegistroCandidato = () => {
                   placeholder="Selecciona un estado"
                   className={`p-inputtext-lg ${
                     formik.touched.estado && formik.errors.estado
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                 />
                 {formik.touched.estado && formik.errors.estado ? (
@@ -1235,10 +1235,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "24%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '24%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="colonia">Colonia</label>
@@ -1246,8 +1246,8 @@ const RegistroCandidato = () => {
                   id="colonia"
                   className={`p-inputtext-lg ${
                     formik.touched.colonia && formik.errors.colonia
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.colonia}
                   onChange={formik.handleChange}
@@ -1260,10 +1260,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "24%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '24%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="municipio">Municipio o Alcaldía</label>
@@ -1272,11 +1272,11 @@ const RegistroCandidato = () => {
                   value={formik.values.municipio}
                   className={`p-inputtext-lg ${
                     formik.touched.municipio && formik.errors.municipio
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={municipios}
-                  onChange={(e) => formik.setFieldValue("municipio", e.value)}
+                  onChange={(e) => formik.setFieldValue('municipio', e.value)}
                   placeholder="Selecciona el municipio"
                 />
                 {formik.touched.municipio && formik.errors.municipio ? (
@@ -1287,15 +1287,15 @@ const RegistroCandidato = () => {
 
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="localidad">Localidad</label>
@@ -1304,11 +1304,11 @@ const RegistroCandidato = () => {
                   value={formik.values.localidad}
                   className={`p-inputtext-lg ${
                     formik.touched.localidad && formik.errors.localidad
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   options={localidades}
-                  onChange={(e) => formik.setFieldValue("localidad", e.value)}
+                  onChange={(e) => formik.setFieldValue('localidad', e.value)}
                   placeholder="Selecciona la localidad"
                 />
                 {formik.touched.localidad && formik.errors.localidad ? (
@@ -1319,10 +1319,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="calle">Calle</label>
@@ -1330,8 +1330,8 @@ const RegistroCandidato = () => {
                   id="calle"
                   className={`p-inputtext-lg ${
                     formik.touched.calle && formik.errors.calle
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.calle}
                   onChange={formik.handleChange}
@@ -1344,10 +1344,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="numero_exterior">Número Exterior</label>
@@ -1356,27 +1356,27 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.numero_exterior &&
                     formik.errors.numero_exterior
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.numero_exterior}
                   onChange={formik.handleChange}
                 />
                 {formik.touched.numero_exterior &&
                 formik.errors.numero_exterior ? (
-                  <small className="p-error">
-                    {formik.errors.numero_exterior}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.numero_exterior}
+                    </small>
+                  ) : null}
               </div>
 
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="numero_interior">Número Interior</label>
@@ -1385,37 +1385,37 @@ const RegistroCandidato = () => {
                   className={`p-inputtext-lg ${
                     formik.touched.numero_interior &&
                     formik.errors.numero_interior
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.numero_interior}
                   onChange={formik.handleChange}
                 />
                 {formik.touched.numero_interior &&
                 formik.errors.numero_interior ? (
-                  <small className="p-error">
-                    {formik.errors.numero_interior}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.numero_interior}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>
 
           {/* Preferencias de Participación */}
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Preferencias de Participación</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Preferencias de Participación</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="convocatoria">
@@ -1425,8 +1425,8 @@ const RegistroCandidato = () => {
                   id="convocatoria"
                   className={`p-inputtext-lg ${
                     formik.touched.convocatoria && formik.errors.convocatoria
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.convocatoria}
                   options={convocatorias}
@@ -1444,20 +1444,20 @@ const RegistroCandidato = () => {
 
           {/* Documentos Adjuntos */}
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Documentos Adjuntos</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Documentos Adjuntos</h3>
 
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="certificado_estudios">
@@ -1491,10 +1491,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="identificacion_oficial">
@@ -1528,10 +1528,10 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="estado_cuenta_bancario">
@@ -1566,19 +1566,19 @@ const RegistroCandidato = () => {
           </div>
 
           <Divider />
-          <h3 style={{ marginLeft: "0.5%" }}>Cuenta SIGEFE</h3>
+          <h3 style={{ marginLeft: '0.5%' }}>Cuenta SIGEFE</h3>
           <div className="p-grid">
             <div
               className="p-col-12"
-              style={{ display: "flex", justifyContent: "space-between" }}
+              style={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="correo">Correo electrónico</label>
@@ -1586,8 +1586,8 @@ const RegistroCandidato = () => {
                   id="correo"
                   className={`p-inputtext-lg ${
                     formik.touched.correo && formik.errors.correo
-                      ? "p-invalid"
-                      : ""
+                      ? 'p-invalid'
+                      : ''
                   }`}
                   value={formik.values.correo}
                   onChange={formik.handleChange}
@@ -1600,21 +1600,21 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="contrasena">Contraseña</label>
-                <div style={{ position: "relative" }}>
+                <div style={{ position: 'relative' }}>
                   <InputText
                     id="contrasena"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     className={`p-inputtext-lg ${
                       formik.touched.contrasena && formik.errors.contrasena
-                        ? "p-invalid"
-                        : ""
+                        ? 'p-invalid'
+                        : ''
                     }`}
                     value={formik.values.contrasena}
                     onChange={formik.handleChange}
@@ -1623,14 +1623,14 @@ const RegistroCandidato = () => {
                   <Button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    icon={showPassword ? "pi pi-eye-slash" : "pi pi-eye"}
+                    icon={showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'}
                     className="p-button-text p-button-sm"
                     style={{
-                      position: "absolute",
-                      right: "0.5%",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      padding: "0",
+                      position: 'absolute',
+                      right: '0.5%',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      padding: '0',
                     }}
                   />
                 </div>
@@ -1642,21 +1642,21 @@ const RegistroCandidato = () => {
               <div
                 className="p-field"
                 style={{
-                  width: "32%",
-                  marginRight: "0.5%",
-                  marginLeft: "0.5%",
-                  marginTop: "0.5%",
+                  width: '32%',
+                  marginRight: '0.5%',
+                  marginLeft: '0.5%',
+                  marginTop: '0.5%',
                 }}
               >
                 <label htmlFor="confirmar">Confirmar contraseña</label>
-                <div style={{ position: "relative" }}>
+                <div style={{ position: 'relative' }}>
                   <InputText
                     id="confirmar"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     className={`p-inputtext-lg ${
                       formik.touched.confirmar && formik.errors.confirmar
-                        ? "p-invalid"
-                        : ""
+                        ? 'p-invalid'
+                        : ''
                     }`}
                     value={formik.values.confirmar}
                     onChange={formik.handleChange}
@@ -1665,14 +1665,14 @@ const RegistroCandidato = () => {
                   <Button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    icon={showPassword ? "pi pi-eye-slash" : "pi pi-eye"}
+                    icon={showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'}
                     className="p-button-text p-button-sm"
                     style={{
-                      position: "absolute",
-                      right: "0.5%",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      padding: "0",
+                      position: 'absolute',
+                      right: '0.5%',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      padding: '0',
                     }}
                   />
                 </div>
@@ -1683,7 +1683,7 @@ const RegistroCandidato = () => {
             </div>
           </div>
           {/* Botón de Envío */}
-          <div style={{ marginTop: "4%", display: "flex", justifyContent: "space-between" }}>
+          <div style={{ marginTop: '4%', display: 'flex', justifyContent: 'space-between' }}>
             <Button
               label="Registrar Candidato"
               icon="pi pi-check"
@@ -1694,7 +1694,7 @@ const RegistroCandidato = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RegistroCandidato;
+export default RegistroCandidato

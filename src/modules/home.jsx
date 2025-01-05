@@ -9,7 +9,7 @@ import DefaultContent from "../components/main/loader";
 // - Lider para la Educacion Comunitaria
 // - Coordinador Nacional de Recursos Humanos
 import Convocatorias from "../components/main/convocatorias";
-import ValidarAspirantes from "../components/captacion/ValidarAspirantes";
+import {ValidarAspirantes} from "../components/captacion/ValidarAspirantes";
 // - Coordinador Academico
 import AsignarLEC from "../components/Asignación/AsignarLEC";
 import Candidatos from "../components/Candidatos/Candidatos";

@@ -1,18 +1,18 @@
-import React from 'react';
-import { Menubar } from 'primereact/menubar';
-import { Button } from 'primereact/button';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import React from 'react'
+import { Menubar } from 'primereact/menubar'
+import { Button } from 'primereact/button'
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 
 export default function Menu( {toggleSidebar} ) {
 
   const accept = () => {
-    localStorage.clear(); // Eliminar todo el contenido de localStorage
-    window.location.reload(); // Recargar la página
-  };
+    localStorage.clear() // Eliminar todo el contenido de localStorage
+    window.location.reload() // Recargar la página
+  }
 
   const reject = () => {
-    console.log('reject');
-  };
+    console.log('reject')
+  }
 
   const confirm1 = () => {
     confirmDialog({
@@ -23,8 +23,8 @@ export default function Menu( {toggleSidebar} ) {
       defaultFocus: 'accept',
       accept,
       reject
-    });
-  };
+    })
+  }
 
   const itemRenderer = (item) => (
     <a className="flex align-items-center p-menuitem-link">
@@ -33,7 +33,7 @@ export default function Menu( {toggleSidebar} ) {
       {item.badge && <Badge className="ml-auto" value={item.badge} />}
       {item.shortcut && <span className="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{item.shortcut}</span>}
     </a>
-  );
+  )
 
   const items = [
     {
@@ -41,11 +41,11 @@ export default function Menu( {toggleSidebar} ) {
       icon: 'pi pi-home',
       command : toggleSidebar
     },
-  ];
+  ]
 
   const end = (
     <Button icon="pi pi-sign-out" rounded outlined severity="info" aria-label="User" onClick={confirm1} />
-  );
+  )
 
   return (
     <div>
@@ -68,8 +68,8 @@ export default function Menu( {toggleSidebar} ) {
               <Button
                 label="Seguro"
                 onClick={(event) => {
-                  hide(event);
-                  accept();
+                  hide(event)
+                  accept()
                 }}
                 className="w-8rem"
               ></Button>
@@ -77,8 +77,8 @@ export default function Menu( {toggleSidebar} ) {
                 label="Cancelar"
                 outlined
                 onClick={(event) => {
-                  hide(event);
-                  reject();
+                  hide(event)
+                  reject()
                 }}
                 className="w-8rem"
               ></Button>
@@ -87,5 +87,5 @@ export default function Menu( {toggleSidebar} ) {
         )}
       />
     </div>
-  );
+  )
 }   

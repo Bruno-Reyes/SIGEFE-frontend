@@ -1,7 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router';
-import LandingPage from '../modules/landingPage';
-import Login from '../modules/login';
-import Register from '../components/captacion/RegistroCandidato';
+import { Navigate, Route, Routes } from 'react-router'
+import LandingPage from '../modules/landingPage'
+import Login from '../modules/login'
+import Register from '../components/captacion/RegistroCandidato'
 
 export const PublicRoutes = () => {
   return (
@@ -11,7 +11,7 @@ export const PublicRoutes = () => {
       <Route path='register' element={<Register />} />
       <Route path='*' element={<Navigate to='/' replace />} />
     </Routes>
-  );
-};
+  )
+}
 
 

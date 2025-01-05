@@ -1,4 +1,4 @@
-import { Card } from 'primereact/card';
+import { Card } from 'primereact/card'
 
 const InfoCard = ({ title, value, icon }) => {
   return (
@@ -7,5 +7,5 @@ const InfoCard = ({ title, value, icon }) => {
       <h3>{value}</h3>
       <p>{title}</p>
     </Card>
-  );
-};
+  )
+}

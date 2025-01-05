@@ -1,7 +1,7 @@
-import React from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Toast } from 'primereact/toast';
+import React from 'react'
+import { DataTable } from 'primereact/datatable'
+import { Column } from 'primereact/column'
+import { Toast } from 'primereact/toast'
 
 const MostrarConvocatorias = ({ convocatorias }) => {
   return (
@@ -31,7 +31,7 @@ const MostrarConvocatorias = ({ convocatorias }) => {
         <Column field="max_participantes" header="Máximo de participantes" sortable />
       </DataTable>
     </div>
-  );
-};
+  )
+}
 
-export default MostrarConvocatorias;
+export default MostrarConvocatorias

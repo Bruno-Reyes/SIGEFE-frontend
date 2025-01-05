@@ -1,6 +1,6 @@
-import { Navigate, Route, Routes } from 'react-router';
-import HomePage from '../modules/home';
-import DetalleCandidato from '../components/Candidatos/DetalleCandidato';
+import { Navigate, Route, Routes } from 'react-router'
+import HomePage from '../modules/home'
+import DetalleCandidato from '../components/Candidatos/DetalleCandidato'
 
 export const PrivateRoutes = () => {
   return (
@@ -9,5 +9,5 @@ export const PrivateRoutes = () => {
       <Route path='*' element={<Navigate to='/home' replace />} />
       <Route path="/detalle/:id" element={<DetalleCandidato />} />
     </Routes>
-  );
-};
+  )
+}

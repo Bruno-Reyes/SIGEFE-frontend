@@ -1,71 +1,71 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Dropdown } from "primereact/dropdown";
-import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import lugares from "../../tools/lugares_mexico.json";
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { Dropdown } from 'primereact/dropdown'
+import { Button } from 'primereact/button'
+import { DataTable } from 'primereact/datatable'
+import { Column } from 'primereact/column'
+import lugares from '../../tools/lugares_mexico.json'
 
 const AsignarLEC = () => {
   // Estado para las listas principales
-  const [lecList, setLecList] = useState([]);
-  const [filteredLEC, setFilteredLEC] = useState([]);
-  const [centrosList, setCentrosList] = useState([]);
-  const [asignaciones, setAsignaciones] = useState([]);
-  const [lecAsignado, setLecAsignado] = useState(null); // Nuevo estado para almacenar el LEC asignado
-  const [lecsAsignados, setLecsAsignados] = useState([]); // Nuevo estado para almacenar los LECs asignados
+  const [lecList, setLecList] = useState([])
+  const [filteredLEC, setFilteredLEC] = useState([])
+  const [centrosList, setCentrosList] = useState([])
+  const [asignaciones, setAsignaciones] = useState([])
+  const [lecAsignado, setLecAsignado] = useState(null) // Nuevo estado para almacenar el LEC asignado
+  const [lecsAsignados, setLecsAsignados] = useState([]) // Nuevo estado para almacenar los LECs asignados
   
   // Estado para selecciones
-  const [selectedLEC, setSelectedLEC] = useState(null);
-  const [selectedCentro, setSelectedCentro] = useState(null);
+  const [selectedLEC, setSelectedLEC] = useState(null)
+  const [selectedCentro, setSelectedCentro] = useState(null)
 
   // Estado para filtros de LEC
-  const [estado, setEstado] = useState("");
-  const [municipio, setMunicipio] = useState("");
-  const [localidad, setLocalidad] = useState("");
-  const [municipios, setMunicipios] = useState([]);
-  const [localidades, setLocalidades] = useState([]);
+  const [estado, setEstado] = useState('')
+  const [municipio, setMunicipio] = useState('')
+  const [localidad, setLocalidad] = useState('')
+  const [municipios, setMunicipios] = useState([])
+  const [localidades, setLocalidades] = useState([])
 
   // Estado para filtros de Centros
-  const [estadoCentro, setEstadoCentro] = useState("");
-  const [municipioCentro, setMunicipioCentro] = useState("");
-  const [municipiosCentro, setMunicipiosCentro] = useState([]);
-  const [centrosFiltrados, setCentrosFiltrados] = useState([]);
+  const [estadoCentro, setEstadoCentro] = useState('')
+  const [municipioCentro, setMunicipioCentro] = useState('')
+  const [municipiosCentro, setMunicipiosCentro] = useState([])
+  const [centrosFiltrados, setCentrosFiltrados] = useState([])
 
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL
 
   // Función para refrescar el token
   const refreshToken = async () => {
     try {
-      const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
+      const refreshToken = JSON.parse(localStorage.getItem('refresh-token'))
       const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
         refresh: refreshToken,
-      });
-      const newAccessToken = response.data.access;
-      localStorage.setItem("access-token", JSON.stringify(newAccessToken));
-      return newAccessToken;
+      })
+      const newAccessToken = response.data.access
+      localStorage.setItem('access-token', JSON.stringify(newAccessToken))
+      return newAccessToken
     } catch (error) {
-      console.error("Error al refrescar el token:", error);
-      throw new Error("No se pudo renovar el token de acceso.");
+      console.error('Error al refrescar el token:', error)
+      throw new Error('No se pudo renovar el token de acceso.')
     }
-  };
+  }
 
   // Cargar datos iniciales
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        let token = JSON.parse(localStorage.getItem("access-token"));
+        let token = JSON.parse(localStorage.getItem('access-token'))
         if (!token) {
-          token = await refreshToken();
+          token = await refreshToken()
         }
         // Aquí puedes cargar datos iniciales si es necesario
       } catch (error) {
-        console.error("Error al cargar datos iniciales:", error);
+        console.error('Error al cargar datos iniciales:', error)
       }
-    };
+    }
 
-    fetchInitialData();
-  }, []);
+    fetchInitialData()
+  }, [])
 
   // Actualizar municipios cuando cambia el estado (para LEC)
   useEffect(() => {
@@ -75,13 +75,13 @@ const AsignarLEC = () => {
           label: municipio,
           value: municipio,
         }))
-      );
+      )
       // Reset dependientes
-      setMunicipio("");
-      setLocalidad("");
-      setLocalidades([]);
+      setMunicipio('')
+      setLocalidad('')
+      setLocalidades([])
     }
-  }, [estado]);
+  }, [estado])
 
   // Actualizar municipios cuando cambia el estado (para Centros)
   useEffect(() => {
@@ -91,11 +91,11 @@ const AsignarLEC = () => {
           label: municipio,
           value: municipio,
         }))
-      );
+      )
       // Reset dependiente
-      setMunicipioCentro("");
+      setMunicipioCentro('')
     }
-  }, [estadoCentro]);
+  }, [estadoCentro])
 
   // Actualizar localidades cuando cambia el municipio
   useEffect(() => {
@@ -105,96 +105,96 @@ const AsignarLEC = () => {
           label: pueblo,
           value: pueblo,
         }))
-      );
+      )
     }
-  }, [estado, municipio]);
+  }, [estado, municipio])
 
   // Handlers para LEC
   const handleEstadoChange = (e) => {
-    setEstado(e.value);
-  };
+    setEstado(e.value)
+  }
 
   const handleMunicipioChange = (e) => {
-    setMunicipio(e.value);
-  };
+    setMunicipio(e.value)
+  }
 
   const handleLocalidadChange = (e) => {
-    setLocalidad(e.value);
-  };
+    setLocalidad(e.value)
+  }
 
   // Handlers para Centros
   const handleEstadoCentroChange = (e) => {
-    setEstadoCentro(e.value);
-  };
+    setEstadoCentro(e.value)
+  }
 
   const handleMunicipioCentroChange = (e) => {
-    setMunicipioCentro(e.value);
-  };
+    setMunicipioCentro(e.value)
+  }
 
   // Función para buscar LEC
   const handleFilterChange = async () => {
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
       const response = await axios.get(`${apiUrl}/asignacion/lecs/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         params: {
           estado,
           municipio,
           localidad,
         },
-      });
-      setFilteredLEC(response.data);
+      })
+      setFilteredLEC(response.data)
     } catch (error) {
-      console.error("Error al buscar LECs:", error);
-      alert("Error al buscar LECs. Por favor, intente nuevamente.");
+      console.error('Error al buscar LECs:', error)
+      alert('Error al buscar LECs. Por favor, intente nuevamente.')
     }
-  };
+  }
 
 
   // Función para buscar Centros
   const handleBuscarCentros = async () => {
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
       const response = await axios.get(`${apiUrl}/asignacion/centros/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         params: {
           estado: estadoCentro,
           municipio: municipioCentro,
         },
-      });
-      setCentrosFiltrados(response.data);
+      })
+      setCentrosFiltrados(response.data)
     } catch (error) {
-      console.error("Error al buscar centros:", error);
-      alert("Error al buscar centros. Por favor, intente nuevamente.");
+      console.error('Error al buscar centros:', error)
+      alert('Error al buscar centros. Por favor, intente nuevamente.')
     }
-  };
+  }
 
   // Función para asignar LEC
   const handleAsignarLEC = async () => {
     if (!selectedLEC) {
-      alert("Por favor seleccione un LEC y un centro para asignar");
-      return;
+      alert('Por favor seleccione un LEC y un centro para asignar')
+      return
     }else if (!selectedCentro) {
-      alert("Por favor seleccione un centro para asignar");
-      return;
+      alert('Por favor seleccione un centro para asignar')
+      return
     }
   
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
   
       const response = await axios.post(
@@ -206,10 +206,10 @@ const AsignarLEC = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
-      );
+      )
   
       // Actualizar el estado con la información del LEC asignado
       setLecAsignado({
@@ -217,27 +217,27 @@ const AsignarLEC = () => {
         cct: selectedCentro.clave_centro_trabajo,
         estado: selectedCentro.estado,
         municipio: selectedCentro.municipio,
-      });
+      })
 
-      alert("LEC asignado correctamente.");
+      alert('LEC asignado correctamente.')
     } catch (error) {
-      console.error("Error al asignar LEC:", error);
-      alert("Error al asignar LEC. Por favor, intente nuevamente.");
+      console.error('Error al asignar LEC:', error)
+      alert('Error al asignar LEC. Por favor, intente nuevamente.')
     }
 
-    setSelectedLEC(null);
-    setSelectedCentro(null);
-    handleFilterChange();
-    handleBuscarCentros();
-  };
+    setSelectedLEC(null)
+    setSelectedCentro(null)
+    handleFilterChange()
+    handleBuscarCentros()
+  }
 
   const handleCentroSelect = async (centro) => {
-    setSelectedCentro(centro);
+    setSelectedCentro(centro)
 
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
 
       const response = await axios.get(
@@ -245,42 +245,42 @@ const AsignarLEC = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           params: {
             centro_asignado: centro.id, // Filtrar por el centro asignado
           },
         }
-      );
+      )
 
-      setLecsAsignados(response.data); // Actualizar el estado con los LECs asignados
+      setLecsAsignados(response.data) // Actualizar el estado con los LECs asignados
     } catch (error) {
-      console.error("Error al obtener LECs asignados:", error);
-      alert("Error al obtener LECs asignados. Por favor, intente nuevamente.");
+      console.error('Error al obtener LECs asignados:', error)
+      alert('Error al obtener LECs asignados. Por favor, intente nuevamente.')
     }
-  };
+  }
 
   const handleEliminarLEC = async (lecId) => {
     try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
+      let token = JSON.parse(localStorage.getItem('access-token'))
       if (!token) {
-        token = await refreshToken();
+        token = await refreshToken()
       }
 
       await axios.delete(`${apiUrl}/asignacion/eliminar-lec/${lecId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-      alert("LEC eliminado correctamente.");
-      handleCentroSelect(selectedCentro); // Refrescar la lista de LECs asignados
+      alert('LEC eliminado correctamente.')
+      handleCentroSelect(selectedCentro) // Refrescar la lista de LECs asignados
     } catch (error) {
-      console.error("Error al eliminar LEC:", error);
-      alert("Error al eliminar LEC. Por favor, intente nuevamente.");
+      console.error('Error al eliminar LEC:', error)
+      alert('Error al eliminar LEC. Por favor, intente nuevamente.')
     }
-  };
+  }
 
   const eliminarTemplate = (rowData) => {
     return (
@@ -289,15 +289,15 @@ const AsignarLEC = () => {
         className="p-button-danger"
         onClick={() => handleEliminarLEC(rowData.id)}
       />
-    );
-  };
+    )
+  }
 
   return (
-    <div style={{ display: "flex", marginRight: "5%" }}>
+    <div style={{ display: 'flex', marginRight: '5%' }}>
       {/* Sección de LEC Disponibles */}
-      <div style={{ width: "33%", marginRight: "2%" }}>
+      <div style={{ width: '33%', marginRight: '2%' }}>
         <h2>LEC Disponibles</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label>Estado:</label>
             <Dropdown
@@ -351,7 +351,7 @@ const AsignarLEC = () => {
           responsiveLayout="scroll"
           className="mt-4"
         >
-          <Column selectionMode="single" headerStyle={{ width: "3rem" }} />
+          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
           <Column field="nombre" header="Nombre" />
           <Column field="estado" header="Estado" />
           <Column field="municipio" header="Municipio" />
@@ -360,9 +360,9 @@ const AsignarLEC = () => {
       </div>
 
       {/* Sección de Centros Comunitarios */}
-      <div style={{ width: "33%", marginRight: "2%" }}>
+      <div style={{ width: '33%', marginRight: '2%' }}>
         <h2>Centros Comunitarios</h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
             <label>Estado:</label>
             <Dropdown
@@ -405,7 +405,7 @@ const AsignarLEC = () => {
           className="mt-4"
           scrollHeight="400px"
         >
-          <Column selectionMode="single" headerStyle={{ width: "3rem" }} />
+          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
           <Column field="clave_centro_trabajo" header="CCT" />
           <Column field="nombre_turno" header="Turno" />
           <Column field="nivel_educativo" header="Nivel Educativo" />
@@ -416,7 +416,7 @@ const AsignarLEC = () => {
       </div>
 
       {/* Sección de LEC Asignados */}
-      <div style={{ width: "33%" }}>
+      <div style={{ width: '33%' }}>
         <h2>LEC Asignados</h2>
         <Button
           label="Asignar"
@@ -437,7 +437,7 @@ const AsignarLEC = () => {
         </DataTable>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AsignarLEC;
+export default AsignarLEC

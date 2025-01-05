@@ -1,13 +1,13 @@
-import React from 'react';
+import React from 'react'
 
 const LandingPage = () => {
   const handleLogin = () => {
-    window.location.href = '/login';
-  };
+    window.location.href = '/login'
+  }
 
   const handleRegister = () => {
-    window.location.href = '/register';
-  };
+    window.location.href = '/register'
+  }
 
   return (
     <div style={styles.container}>
@@ -67,8 +67,8 @@ const LandingPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const styles = {
   container: {
@@ -76,7 +76,7 @@ const styles = {
     flexDirection: 'row',
     height: '100vh',
     backgroundColor: '#f9f9f9',
-    fontFamily: "'Roboto', sans-serif",
+    fontFamily: '\'Roboto\', sans-serif',
     flexWrap: 'wrap', // Permitir que los elementos envuelvan en pantallas pequeñas
   },
   content: {
@@ -169,6 +169,6 @@ const styles = {
     margin: '5px',
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
   },
-};
+}
 
-export default LandingPage;
+export default LandingPage

@@ -11,64 +11,64 @@ const AsignarLEC = () => {
   const toast = useRef(null); // Referencia para el Toast
 
   // Estado para las listas principales
-  const [lecList, setLecList] = useState([])
-  const [filteredLEC, setFilteredLEC] = useState([])
-  const [centrosList, setCentrosList] = useState([])
-  const [asignaciones, setAsignaciones] = useState([])
-  const [lecAsignado, setLecAsignado] = useState(null) // Nuevo estado para almacenar el LEC asignado
-  const [lecsAsignados, setLecsAsignados] = useState([]) // Nuevo estado para almacenar los LECs asignados
+  const [lecList, setLecList] = useState([]);
+  const [filteredLEC, setFilteredLEC] = useState([]);
+  const [centrosList, setCentrosList] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
+  const [lecAsignado, setLecAsignado] = useState(null); // Nuevo estado para almacenar el LEC asignado
+  const [lecsAsignados, setLecsAsignados] = useState([]); // Nuevo estado para almacenar los LECs asignados
   
   // Estado para selecciones
-  const [selectedLEC, setSelectedLEC] = useState(null)
-  const [selectedCentro, setSelectedCentro] = useState(null)
+  const [selectedLEC, setSelectedLEC] = useState(null);
+  const [selectedCentro, setSelectedCentro] = useState(null);
 
   // Estado para filtros de LEC
-  const [estado, setEstado] = useState('')
-  const [municipio, setMunicipio] = useState('')
-  const [localidad, setLocalidad] = useState('')
-  const [municipios, setMunicipios] = useState([])
-  const [localidades, setLocalidades] = useState([])
+  const [estado, setEstado] = useState("");
+  const [municipio, setMunicipio] = useState("");
+  const [localidad, setLocalidad] = useState("");
+  const [municipios, setMunicipios] = useState([]);
+  const [localidades, setLocalidades] = useState([]);
 
   // Estado para filtros de Centros
-  const [estadoCentro, setEstadoCentro] = useState('')
-  const [municipioCentro, setMunicipioCentro] = useState('')
-  const [municipiosCentro, setMunicipiosCentro] = useState([])
-  const [centrosFiltrados, setCentrosFiltrados] = useState([])
+  const [estadoCentro, setEstadoCentro] = useState("");
+  const [municipioCentro, setMunicipioCentro] = useState("");
+  const [municipiosCentro, setMunicipiosCentro] = useState([]);
+  const [centrosFiltrados, setCentrosFiltrados] = useState([]);
 
-  const apiUrl = import.meta.env.VITE_API_URL
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Función para refrescar el token
   const refreshToken = async () => {
     try {
-      const refreshToken = JSON.parse(localStorage.getItem('refresh-token'))
+      const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
       const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
         refresh: refreshToken,
-      })
-      const newAccessToken = response.data.access
-      localStorage.setItem('access-token', JSON.stringify(newAccessToken))
-      return newAccessToken
+      });
+      const newAccessToken = response.data.access;
+      localStorage.setItem("access-token", JSON.stringify(newAccessToken));
+      return newAccessToken;
     } catch (error) {
-      console.error('Error al refrescar el token:', error)
-      throw new Error('No se pudo renovar el token de acceso.')
+      console.error("Error al refrescar el token:", error);
+      throw new Error("No se pudo renovar el token de acceso.");
     }
-  }
+  };
 
   // Cargar datos iniciales
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        let token = JSON.parse(localStorage.getItem('access-token'))
+        let token = JSON.parse(localStorage.getItem("access-token"));
         if (!token) {
-          token = await refreshToken()
+          token = await refreshToken();
         }
         // Aquí puedes cargar datos iniciales si es necesario
       } catch (error) {
-        console.error('Error al cargar datos iniciales:', error)
+        console.error("Error al cargar datos iniciales:", error);
       }
-    }
+    };
 
-    fetchInitialData()
-  }, [])
+    fetchInitialData();
+  }, []);
 
   // Actualizar municipios cuando cambia el estado (para LEC)
   useEffect(() => {
@@ -78,13 +78,13 @@ const AsignarLEC = () => {
           label: municipio,
           value: municipio,
         }))
-      )
+      );
       // Reset dependientes
-      setMunicipio('')
-      setLocalidad('')
-      setLocalidades([])
+      setMunicipio("");
+      setLocalidad("");
+      setLocalidades([]);
     }
-  }, [estado])
+  }, [estado]);
 
   // Actualizar municipios cuando cambia el estado (para Centros)
   useEffect(() => {
@@ -94,11 +94,11 @@ const AsignarLEC = () => {
           label: municipio,
           value: municipio,
         }))
-      )
+      );
       // Reset dependiente
-      setMunicipioCentro('')
+      setMunicipioCentro("");
     }
-  }, [estadoCentro])
+  }, [estadoCentro]);
 
   // Actualizar localidades cuando cambia el municipio
   useEffect(() => {
@@ -108,31 +108,31 @@ const AsignarLEC = () => {
           label: pueblo,
           value: pueblo,
         }))
-      )
+      );
     }
-  }, [estado, municipio])
+  }, [estado, municipio]);
 
   // Handlers para LEC
   const handleEstadoChange = (e) => {
-    setEstado(e.value)
-  }
+    setEstado(e.value);
+  };
 
   const handleMunicipioChange = (e) => {
-    setMunicipio(e.value)
-  }
+    setMunicipio(e.value);
+  };
 
   const handleLocalidadChange = (e) => {
-    setLocalidad(e.value)
-  }
+    setLocalidad(e.value);
+  };
 
   // Handlers para Centros
   const handleEstadoCentroChange = (e) => {
-    setEstadoCentro(e.value)
-  }
+    setEstadoCentro(e.value);
+  };
 
   const handleMunicipioCentroChange = (e) => {
-    setMunicipioCentro(e.value)
-  }
+    setMunicipioCentro(e.value);
+  };
 
   // Función para buscar LEC
 const handleFilterChange = async () => {
@@ -172,6 +172,7 @@ const handleFilterChange = async () => {
       life: 3000,
     });
   }
+};
 
 
   // Función para buscar Centros
@@ -187,21 +188,21 @@ const handleFilterChange = async () => {
     }
 
     try {
-      let token = JSON.parse(localStorage.getItem('access-token'))
+      let token = JSON.parse(localStorage.getItem("access-token"));
       if (!token) {
-        token = await refreshToken()
+        token = await refreshToken();
       }
       const response = await axios.get(`${apiUrl}/asignacion/centros/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         params: {
           estado: estadoCentro,
           municipio: municipioCentro,
         },
-      })
-      setCentrosFiltrados(response.data)
+      });
+      setCentrosFiltrados(response.data);
     } catch (error) {
       console.error("Error al buscar centros:", error);
       toast.current.show({
@@ -211,7 +212,7 @@ const handleFilterChange = async () => {
         life: 3000,
       });
     }
-  }
+  };
 
   // Función para asignar LEC
   const handleAsignarLEC = async () => {
@@ -234,9 +235,9 @@ const handleFilterChange = async () => {
     }
 
     try {
-      let token = JSON.parse(localStorage.getItem('access-token'))
+      let token = JSON.parse(localStorage.getItem("access-token"));
       if (!token) {
-        token = await refreshToken()
+        token = await refreshToken();
       }
 
       const response = await axios.post(
@@ -248,7 +249,7 @@ const handleFilterChange = async () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -327,7 +328,7 @@ const handleFilterChange = async () => {
       await axios.delete(`${apiUrl}/asignacion/eliminar-lec/${lecId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -363,9 +364,9 @@ const handleFilterChange = async () => {
     <div style={{ display: "flex", marginRight: "5%" }}>
       <Toast ref={toast} /> {/* Componente Toast */}
       {/* Sección de LEC Disponibles */}
-      <div style={{ width: '33%', marginRight: '2%' }}>
+      <div style={{ width: "33%", marginRight: "2%" }}>
         <h2>LEC Disponibles</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
             <label>Estado:</label>
             <Dropdown
@@ -419,7 +420,7 @@ const handleFilterChange = async () => {
           responsiveLayout="scroll"
           className="mt-4"
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
+          <Column selectionMode="single" headerStyle={{ width: "3rem" }} />
           <Column field="nombre" header="Nombre" />
           <Column field="estado" header="Estado" />
           <Column field="municipio" header="Municipio" />
@@ -428,9 +429,9 @@ const handleFilterChange = async () => {
       </div>
 
       {/* Sección de Centros Comunitarios */}
-      <div style={{ width: '33%', marginRight: '2%' }}>
+      <div style={{ width: "33%", marginRight: "2%" }}>
         <h2>Centros Comunitarios</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
             <label>Estado:</label>
             <Dropdown
@@ -473,7 +474,7 @@ const handleFilterChange = async () => {
           className="mt-4"
           scrollHeight="400px"
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
+          <Column selectionMode="single" headerStyle={{ width: "3rem" }} />
           <Column field="clave_centro_trabajo" header="CCT" />
           <Column field="nombre_turno" header="Turno" />
           <Column field="nivel_educativo" header="Nivel Educativo" />
@@ -484,7 +485,7 @@ const handleFilterChange = async () => {
       </div>
 
       {/* Sección de LEC Asignados */}
-      <div style={{ width: '33%' }}>
+      <div style={{ width: "33%" }}>
         <h2>LEC Asignados</h2>
         <Button
           label="Asignar"
@@ -505,7 +506,7 @@ const handleFilterChange = async () => {
         </DataTable>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AsignarLEC
+export default AsignarLEC;

@@ -5,18 +5,18 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 const Loader = () => {
-    const loaderStyle = {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-    };
+  const loaderStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh'
+  };
 
-    return (
-        <div style={loaderStyle}>
-            <ProgressSpinner />
-        </div>
-    );
+  return (
+    <div style={loaderStyle}>
+      <ProgressSpinner />
+    </div>
+  );
 };
 
 export default Loader;

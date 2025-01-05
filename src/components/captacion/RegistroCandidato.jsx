@@ -495,10 +495,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.apellido_paterno &&
                 formik.errors.apellido_paterno ? (
-                  <small className="p-error">
-                    {formik.errors.apellido_paterno}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.apellido_paterno}
+                    </small>
+                  ) : null}
               </div>
               <div
                 className="p-field"
@@ -523,10 +523,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.apellido_materno &&
                 formik.errors.apellido_materno ? (
-                  <small className="p-error">
-                    {formik.errors.apellido_materno}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.apellido_materno}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>
@@ -582,10 +582,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.fecha_nacimiento &&
                 formik.errors.fecha_nacimiento ? (
-                  <small className="p-error">
-                    {formik.errors.fecha_nacimiento}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.fecha_nacimiento}
+                    </small>
+                  ) : null}
               </div>
               <div
                 className="p-field"
@@ -679,10 +679,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.talla_pantalon &&
                 formik.errors.talla_pantalon ? (
-                  <small className="p-error">
-                    {formik.errors.talla_pantalon}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.talla_pantalon}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -918,10 +918,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.nivelesEducativos &&
                 formik.errors.nivelesEducativos ? (
-                  <small className="p-error">
-                    {formik.errors.nivelesEducativos}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.nivelesEducativos}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -951,10 +951,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.nivel_estudios_deseado &&
                 formik.errors.nivel_estudios_deseado ? (
-                  <small className="p-error">
-                    {formik.errors.nivel_estudios_deseado}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.nivel_estudios_deseado}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -984,10 +984,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.experiencia_ciencia &&
                 formik.errors.experiencia_ciencia ? (
-                  <small className="p-error">
-                    {formik.errors.experiencia_ciencia}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.experiencia_ciencia}
+                    </small>
+                  ) : null}
               </div>
             </div>
 
@@ -1020,10 +1020,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.experiencia_arte &&
                 formik.errors.experiencia_arte ? (
-                  <small className="p-error">
-                    {formik.errors.experiencia_arte}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.experiencia_arte}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -1051,10 +1051,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.razones_interes &&
                 formik.errors.razones_interes ? (
-                  <small className="p-error">
-                    {formik.errors.razones_interes}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.razones_interes}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -1082,10 +1082,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.profesion_interes &&
                 formik.errors.profesion_interes ? (
-                  <small className="p-error">
-                    {formik.errors.profesion_interes}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.profesion_interes}
+                    </small>
+                  ) : null}
               </div>
             </div>
 
@@ -1120,10 +1120,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.interes_incorporacion &&
                 formik.errors.interes_incorporacion ? (
-                  <small className="p-error">
-                    {formik.errors.interes_incorporacion}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.interes_incorporacion}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -1148,10 +1148,10 @@ const RegistroCandidato = () => {
                 </label>
                 {formik.touched.interes_comunitario &&
                 formik.errors.interes_comunitario ? (
-                  <small className="p-error">
-                    {formik.errors.interes_comunitario}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.interes_comunitario}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>
@@ -1353,10 +1353,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.numero_exterior &&
                 formik.errors.numero_exterior ? (
-                  <small className="p-error">
-                    {formik.errors.numero_exterior}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.numero_exterior}
+                    </small>
+                  ) : null}
               </div>
 
               <div
@@ -1382,10 +1382,10 @@ const RegistroCandidato = () => {
                 />
                 {formik.touched.numero_interior &&
                 formik.errors.numero_interior ? (
-                  <small className="p-error">
-                    {formik.errors.numero_interior}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.numero_interior}
+                    </small>
+                  ) : null}
               </div>
             </div>
           </div>

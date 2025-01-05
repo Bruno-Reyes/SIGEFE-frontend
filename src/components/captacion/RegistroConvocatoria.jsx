@@ -84,41 +84,41 @@ const RegistroConvocatoria = ({ onRegistroExitoso }) => {
         .required("El número máximo de participantes es obligatorio"),
     }),
 
-        onSubmit: async (values) => {
-            try {
-                let token = JSON.parse(localStorage.getItem("access-token"));
-                if (!token) {
-                    token = await refreshToken();
-                }
+    onSubmit: async (values) => {
+      try {
+        let token = JSON.parse(localStorage.getItem("access-token"));
+        if (!token) {
+          token = await refreshToken();
+        }
 
-                const fechaRegistroFormateada = new Date(values.fechaRegistro).toISOString().split("T")[0];
-                const fechaEntregaFormateada = new Date(values.fechaEntregaResultados).toISOString().split("T")[0];
+        const fechaRegistroFormateada = new Date(values.fechaRegistro).toISOString().split("T")[0];
+        const fechaEntregaFormateada = new Date(values.fechaEntregaResultados).toISOString().split("T")[0];
 
-                const requestData = {
-                    lugar_convocatoria: values.lugarConvocatoria,
-                    fecha_limite_registro: fechaRegistroFormateada,
-                    fecha_entrega_resultados: fechaEntregaFormateada,
-                    max_participantes: parseInt(values.maxParticipantes, 10),
-                };
+        const requestData = {
+          lugar_convocatoria: values.lugarConvocatoria,
+          fecha_limite_registro: fechaRegistroFormateada,
+          fecha_entrega_resultados: fechaEntregaFormateada,
+          max_participantes: parseInt(values.maxParticipantes, 10),
+        };
 
-                await axios.post(`${apiUrl}/captacion/convocatorias/`, requestData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+        await axios.post(`${apiUrl}/captacion/convocatorias/`, requestData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-                toast.current.show({
-                    severity: "success",
-                    summary: "Convocatoria registrada",
-                    detail: "La convocatoria se registró exitosamente",
-                    life: 3000,
-                });
+        toast.current.show({
+          severity: "success",
+          summary: "Convocatoria registrada",
+          detail: "La convocatoria se registró exitosamente",
+          life: 3000,
+        });
 
-                // Llamamos a la función de actualización
-                if (onRegistroExitoso) {
-                    onRegistroExitoso();
-                }
+        // Llamamos a la función de actualización
+        if (onRegistroExitoso) {
+          onRegistroExitoso();
+        }
       } catch (error) {
         const errorMessage =
           error.response?.data?.detail || "Hubo un problema al registrar la convocatoria";
@@ -164,8 +164,8 @@ const RegistroConvocatoria = ({ onRegistroExitoso }) => {
                 />
                 {formik.touched.lugarConvocatoria &&
                 formik.errors.lugarConvocatoria ? (
-                  <small className="p-error">{formik.errors.lugarConvocatoria}</small>
-                ) : null}
+                    <small className="p-error">{formik.errors.lugarConvocatoria}</small>
+                  ) : null}
               </div>
               <div className="p-field mb-3">
                 <label htmlFor="fechaRegistro">Fecha Límite de Registro</label>
@@ -212,10 +212,10 @@ const RegistroConvocatoria = ({ onRegistroExitoso }) => {
                 />
                 {formik.touched.fechaEntregaResultados &&
                 formik.errors.fechaEntregaResultados ? (
-                  <small className="p-error">
-                    {formik.errors.fechaEntregaResultados}
-                  </small>
-                ) : null}
+                    <small className="p-error">
+                      {formik.errors.fechaEntregaResultados}
+                    </small>
+                  ) : null}
               </div>
               <div className="p-field mb-3">
                 <label htmlFor="maxParticipantes">
@@ -239,8 +239,8 @@ const RegistroConvocatoria = ({ onRegistroExitoso }) => {
                 />
                 {formik.touched.maxParticipantes &&
                 formik.errors.maxParticipantes ? (
-                  <small className="p-error">{formik.errors.maxParticipantes}</small>
-                ) : null}
+                    <small className="p-error">{formik.errors.maxParticipantes}</small>
+                  ) : null}
               </div>
               <Button
                 label="Registrar Convocatoria"

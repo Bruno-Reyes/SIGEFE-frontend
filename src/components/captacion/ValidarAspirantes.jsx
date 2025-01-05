@@ -18,7 +18,7 @@ export const ValidarAspirantes = () => {
     rows: 18,
     sortField: null,
     sortOrder: null
-});
+  });
   const toast = useRef(null);
 
   const camposPersonales = () => {
@@ -92,34 +92,34 @@ export const ValidarAspirantes = () => {
   
   // Función para cargar los candidatos desde el backend
   const obtenerCandidatos = async () => {
-      try {
-          const token = JSON.parse(localStorage.getItem("access-token"));
-          const response = await fetch(`${API_URL}/captacion/candidatos/`, {
-              headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-              },
-          });
-          const res = await response.json()
-          setCandidatos(res); // Guardamos los datos de las convocatorias
-          setLoading(false); // Detenemos el indicador de carga
-      } catch (error) {
-          setLoading(false); // Detenemos el indicador de carga
-          const errorMessage = error.response?.data?.detail || 'Error';
-          console.log(error);
+    try {
+      const token = JSON.parse(localStorage.getItem("access-token"));
+      const response = await fetch(`${API_URL}/captacion/candidatos/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const res = await response.json()
+      setCandidatos(res); // Guardamos los datos de las convocatorias
+      setLoading(false); // Detenemos el indicador de carga
+    } catch (error) {
+      setLoading(false); // Detenemos el indicador de carga
+      const errorMessage = error.response?.data?.detail || 'Error';
+      console.log(error);
 
-          toast.current.show({
-              severity: 'error',
-              summary: 'Error',
-              detail: errorMessage,
-              life: 3000,
-          });
-      }
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: errorMessage,
+        life: 3000,
+      });
+    }
   };
 
   // Usamos useEffect para obtener las convocatorias al cargar el componente
   useEffect(() => {
-      obtenerCandidatos()
+    obtenerCandidatos()
   }, []);
 
   const onLazyLoad = (event) => {
@@ -127,22 +127,22 @@ export const ValidarAspirantes = () => {
     setLazyParams(event);
     let filteredData = [...candidatos];
 
-        // Aplicar ordenamiento si se especifica
-        if (sortField) {
-            filteredData.sort((a, b) => {
-                const valueA = a[sortField];
-                const valueB = b[sortField];
+    // Aplicar ordenamiento si se especifica
+    if (sortField) {
+      filteredData.sort((a, b) => {
+        const valueA = a[sortField];
+        const valueB = b[sortField];
 
-                let result = 0;
-                if (valueA < valueB) result = -1;
-                if (valueA > valueB) result = 1;
+        let result = 0;
+        if (valueA < valueB) result = -1;
+        if (valueA > valueB) result = 1;
 
-                return sortOrder * result; // Multiplica por el orden (1 o -1)
-            });
-        }
+        return sortOrder * result; // Multiplica por el orden (1 o -1)
+      });
+    }
 
-        // Filtrar datos visibles de acuerdo con la paginación
-        const paginatedData = filteredData.slice(first, first + rows);
+    // Filtrar datos visibles de acuerdo con la paginación
+    const paginatedData = filteredData.slice(first, first + rows);
     setData(paginatedData);
   };
 

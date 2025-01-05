@@ -15,15 +15,15 @@ const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
   <PrimeReactProvider>
-  <BrowserRouter>
-    <Routes>
-      {
-        localStorage.length > 0
-        ? <Route path="/*" element={<PrivateRoutes />} />
-        : <Route path="/*" element={<PublicRoutes />} />
-      }
+    <BrowserRouter>
+      <Routes>
+        {
+          localStorage.length > 0
+            ? <Route path="/*" element={<PrivateRoutes />} />
+            : <Route path="/*" element={<PublicRoutes />} />
+        }
         <Route path="*" element={<Navigate to="/login" replace/>} />
-    </Routes>
-  </BrowserRouter>
+      </Routes>
+    </BrowserRouter>
   </PrimeReactProvider>
 );

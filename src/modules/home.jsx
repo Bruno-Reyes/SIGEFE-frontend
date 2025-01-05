@@ -35,23 +35,23 @@ const HomePage = () => {
 
   const renderContent = () => {
     switch (activeComponent) {
-      // Componentes por tipo de usuario
+    // Componentes por tipo de usuario
 
-      // - Coordinador Nacional de Recursos Humanos
-      case "convocatorias":
-        return <Convocatorias />;
-      case "validar_aspirantes":
-        return <ValidarAspirantes />;
-      case "asignar_LEC":
-        return <AsignarLEC/>;
-      case "candidatos":
-        return <Candidatos/>
-      case "equipo_disponible":
-        return <RegistrarEquipoDisponible/>
-      case "asignar_equipo_centro":
-        return <AsignarEquipoCentro/>
-      default:
-        return <h1>Main</h1>;
+    // - Coordinador Nacional de Recursos Humanos
+    case "convocatorias":
+      return <Convocatorias />;
+    case "validar_aspirantes":
+      return <ValidarAspirantes />;
+    case "asignar_LEC":
+      return <AsignarLEC/>;
+    case "candidatos":
+      return <Candidatos/>
+    case "equipo_disponible":
+      return <RegistrarEquipoDisponible/>
+    case "asignar_equipo_centro":
+      return <AsignarEquipoCentro/>
+    default:
+      return <h1>Main</h1>;
     }
   };
 

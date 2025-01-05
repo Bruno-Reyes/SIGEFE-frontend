@@ -19,6 +19,7 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
   let items;
   let usuario = localStorage.getItem("usuario")
     
+<<<<<<< HEAD
   if (usuario === "\"coord_nac_rrhh\"") {
     items = (
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
@@ -57,6 +58,49 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         </li>
       </ul>
     );
+=======
+    if (usuario === "\"coord_nac_rrhh\"") {
+        items = (
+            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Convocatorias" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }}  onClick={() => setActiveComponent("convocatorias")} />
+                </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Validar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("validar_aspirantes")}/>
+                </li>
+            </ul>
+        );
+    } else if (usuario === "\"lider_lec\"") { 
+        items = (
+            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="lider_lec" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
+                </li>
+            </ul>
+        );
+    } else if (usuario === "\"coord_academico\"") { 
+        items = (
+            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Asignación de LECs" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("asignar_LEC")} />
+                </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("candidatos")} />
+                </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Historial Asignaciones LECs" icon="pi pi-history" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("historial_asignacionesLEC")} />
+                </li>
+            </ul>
+        );
+    } else if (usuario === "\"aux_operacion\"") { 
+        items = (
+            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="aux_operacion" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
+                </li>
+            </ul>
+        );
+>>>>>>> 2362d67e4e0b9bb309d97ba44a4ed7afa77ab9f9
     
   } else if (usuario === "\"aux_operacion\"") { 
     items = (

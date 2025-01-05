@@ -22,11 +22,6 @@ import AsignarEquipoCentro from "../components/Logistica/AsignarEquipoCentro";
 // - Coordinador Operativo
 import '@fontsource/roboto'; // Fuente Roboto con pesos predeterminados
 
-const styles = {
-  fontFamily: "'Roboto', sans-serif",
-  fontWeight: 400,
-};
-
 const HomePage = () => {
 
   const [visible, setVisible] = useState(false);
@@ -40,7 +35,6 @@ const HomePage = () => {
     switch (activeComponent) {
     // Componentes por tipo de usuario
 
-<<<<<<< HEAD
     // - Coordinador Nacional de Recursos Humanos
     case "convocatorias":
       return <Convocatorias />;
@@ -54,38 +48,20 @@ const HomePage = () => {
       return <RegistrarEquipoDisponible/>
     case "asignar_equipo_centro":
       return <AsignarEquipoCentro/>
+    case "historial_asignacionesLEC":
+      return <HistorialAsignacionesLEC />;
     default:
-      return <h1>Main</h1>;
+      return <DefaultContent />;
     }
-=======
-      // - Coordinador Nacional de Recursos Humanos
-      case "convocatorias":
-        return <Convocatorias />;
-      case "validar_aspirantes":
-        return <ValidarAspirantes />;
-      case "asignar_LEC":
-        return <AsignarLEC/>;
-      case "candidatos":
-        return <Candidatos/>
-      case "equipo_disponible":
-        return <RegistrarEquipoDisponible/>
-      case "asignar_equipo_centro":
-        return <AsignarEquipoCentro/>
-      case "historial_asignacionesLEC":
-        return <HistorialAsignacionesLEC />;
-        default:
-          return <DefaultContent />;
-      }
-    };
-  
-    return(
-      <div>
-        <Menu toggleSidebar={toggleSidebar}/>
-        <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
-        <div>{renderContent()}</div>
-      </div>
-    )
->>>>>>> 2362d67e4e0b9bb309d97ba44a4ed7afa77ab9f9
   };
   
-  export default HomePage;
+  return(
+    <div>
+      <Menu toggleSidebar={toggleSidebar}/>
+      <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
+      <div>{renderContent()}</div>
+    </div>
+  )
+};
+  
+export default HomePage;

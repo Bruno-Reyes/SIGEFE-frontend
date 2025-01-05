@@ -12,6 +12,13 @@ export const ValidarAspirantes = () => {
   const [candidatos, setCandidatos] = useState([]);
   const [candidatoSeleccionado, setCandidatoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [data, setData] = useState()
+  const [lazyParams, setLazyParams] = useState({
+    first: 0,
+    rows: 18,
+    sortField: null,
+    sortOrder: null
+});
   const toast = useRef(null);
 
   const camposPersonales = () => {
@@ -112,8 +119,32 @@ export const ValidarAspirantes = () => {
 
   // Usamos useEffect para obtener las convocatorias al cargar el componente
   useEffect(() => {
-      obtenerCandidatos();
+      obtenerCandidatos()
   }, []);
+
+  const onLazyLoad = (event) => {
+    const { first, rows, sortField, sortOrder } = event;
+    setLazyParams(event);
+    let filteredData = [...candidatos];
+
+        // Aplicar ordenamiento si se especifica
+        if (sortField) {
+            filteredData.sort((a, b) => {
+                const valueA = a[sortField];
+                const valueB = b[sortField];
+
+                let result = 0;
+                if (valueA < valueB) result = -1;
+                if (valueA > valueB) result = 1;
+
+                return sortOrder * result; // Multiplica por el orden (1 o -1)
+            });
+        }
+
+        // Filtrar datos visibles de acuerdo con la paginación
+        const paginatedData = filteredData.slice(first, first + rows);
+    setData(paginatedData);
+  };
 
   /* Renderizar el loader mientras se hace la peticion */
   if (loading) return <Loader />
@@ -126,25 +157,38 @@ export const ValidarAspirantes = () => {
         margin: 'auto',
         display: 'grid',
         gridTemplateColumns: '2fr 3fr',
-        justifyItems: 'end'
+        columnGap: '40px'
       }}>
-        <section style={{ height: '90vh' }}>
+        <section>
           <DataTable 
-            value={candidatos}
+            value={data || candidatos}
+            lazy
+            paginator
+            first={lazyParams.first}
+            rows={lazyParams.rows}
+            onPage={onLazyLoad}
+            sortField={lazyParams.sortField}
+            sortOrder={lazyParams.sortOrder}
+            onSort={onLazyLoad}
+            loading={loading}
+            totalRecords={candidatos.length} 
             selection={candidatoSeleccionado}
             selectionMode='single'
             onSelectionChange={e => setCandidatoSeleccionado(e.value)}
             scrollable
-            scrollHeight="flex"
           >
             <Column field='nombres' header='Nombre' sortable></Column>
             <Column field='apellido_paterno' header='Apellido Paterno' sortable></Column>
             <Column field='estado' header='Procedencia' sortable></Column>
           </DataTable>
         </section>
-        <section>
         {candidatoSeleccionado &&
-          <>
+          <section style={{
+            height: '90vh', 
+            overflow: 'hidden scroll',
+            scrollbarWidth: 'thin',
+            scrollbarGutter: 'auto'
+          }}>
             <h3 style={{ textAlign: 'center' }}>Detalles del candidato</h3>
 
             <DatoAspirante 
@@ -179,15 +223,15 @@ export const ValidarAspirantes = () => {
             <DatoAspirante 
               titulo='Documentación'
               campos={camposDocumentacion()}
+              link
             />
 
             <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '20px 0' }}>
               <Button label="❌ Rechazar" severity="danger" outlined  />
               <Button label="✅ Aceptar" severity="success" />
             </div>
-          </>
+          </section>
         }
-        </section>
       </main>
     </>
   )

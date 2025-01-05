@@ -1,4 +1,4 @@
-export const DatoAspirante = ({titulo, campos}) => {
+export const DatoAspirante = ({titulo, campos, link = false}) => {
     return (
         <>
             <h4 style={{
@@ -11,7 +11,10 @@ export const DatoAspirante = ({titulo, campos}) => {
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '25px' }}>
                 {campos.map((campo, index) => (
-                    <p key={index}><strong>{campo.campo}: </strong>{campo.valor}</p>
+                    <p key={index}>
+                        <strong>{campo.campo}: </strong>
+                        {link ? <a href={campo.valor} target="_blank">Ver</a> : campo.valor}
+                    </p>
                 ))}
             </div>
         </>

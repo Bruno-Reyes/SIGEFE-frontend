@@ -2,7 +2,8 @@ import {useState} from "react";
 
 // Importamos componentes hijos
 import Menu from "../components/main/menubar";
-import Sidebar from "../components/main/sidebar";
+import Sidebar from "../components/main/sidebar"
+import DefaultContent from "../components/main/loader";
 
 // Componentes por tipo usuario
 // - Lider para la Educacion Comunitaria
@@ -54,18 +55,18 @@ const HomePage = () => {
         return <AsignarEquipoCentro/>
       case "historial_asignacionesLEC":
         return <HistorialAsignacionesLEC />;
-      default:
-        return <h1>Main</h1>;
-    }
+        default:
+          return <DefaultContent />;
+      }
+    };
+  
+    return(
+      <div>
+        <Menu toggleSidebar={toggleSidebar}/>
+        <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
+        <div>{renderContent()}</div>
+      </div>
+    )
   };
-
-  return(
-    <div style={styles}>
-      <Menu toggleSidebar={toggleSidebar}/>
-      <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
-      <div>{renderContent()}</div>
-    </div>
-  )
-};
-
-export default HomePage;
+  
+  export default HomePage;

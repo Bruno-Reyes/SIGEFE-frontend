@@ -1,5 +1,4 @@
 // GlOBAL CONFIGURATIONS (DON'T TOUCH) °°°°°°°°°°°°°°°°°
-import React, {StrictMode} from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { PrimeReactProvider } from "primereact/api";

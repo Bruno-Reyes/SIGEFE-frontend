@@ -1,15 +1,14 @@
-import React, {useState} from "react";
+import {useState} from "react";
 
 // Importamos componentes hijos
 import Menu from "../components/main/menubar";
 import Sidebar from "../components/main/sidebar";
-import DefaultContent from "../components/main/loader";
 
 // Componentes por tipo usuario
 // - Lider para la Educacion Comunitaria
 // - Coordinador Nacional de Recursos Humanos
 import Convocatorias from "../components/main/convocatorias";
-import ValidarAspirantes from "../components/captacion/ValidarAspirantes";
+import {ValidarAspirantes} from "../components/captacion/ValidarAspirantes";
 // - Coordinador Academico
 import AsignarLEC from "../components/Asignación/AsignarLEC";
 import Candidatos from "../components/Candidatos/Candidatos";
@@ -20,6 +19,7 @@ import AsignarEquipoCentro from "../components/Logistica/AsignarEquipoCentro";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
+import '@fontsource/roboto'; // Fuente Roboto con pesos predeterminados
 
 const styles = {
   fontFamily: "'Roboto', sans-serif",
@@ -55,7 +55,7 @@ const HomePage = () => {
       case "historial_asignacionesLEC":
         return <HistorialAsignacionesLEC />;
       default:
-        return <DefaultContent />;
+        return <h1>Main</h1>;
     }
   };
 

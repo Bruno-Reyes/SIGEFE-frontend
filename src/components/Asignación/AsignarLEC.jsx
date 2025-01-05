@@ -11,10 +11,9 @@ const AsignarLEC = () => {
   const toast = useRef(null); // Referencia para el Toast
 
   // Estado para las listas principales
-  const [lecList, setLecList] = useState([]);
+
   const [filteredLEC, setFilteredLEC] = useState([]);
-  const [centrosList, setCentrosList] = useState([]);
-  const [asignaciones, setAsignaciones] = useState([]);
+
   const [lecAsignado, setLecAsignado] = useState(null); // Nuevo estado para almacenar el LEC asignado
   const [lecsAsignados, setLecsAsignados] = useState([]); // Nuevo estado para almacenar los LECs asignados
   
@@ -262,6 +261,17 @@ const handleFilterChange = async () => {
         municipio: selectedCentro.municipio,
       });
 
+      // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
+      setEstado("");
+      setMunicipio("");
+      setLocalidad("");
+      setEstadoCentro("");
+      setMunicipioCentro("");
+      setFilteredLEC([]);
+      setCentrosFiltrados([]);
+      setSelectedLEC(null);
+      setSelectedCentro(null);
+
       toast.current.show({
         severity: 'success',
         summary: 'Éxito',
@@ -280,8 +290,6 @@ const handleFilterChange = async () => {
 
     setSelectedLEC(null);
     setSelectedCentro(null);
-    handleFilterChange();
-    handleBuscarCentros();
   };
 
   const handleCentroSelect = async (centro) => {

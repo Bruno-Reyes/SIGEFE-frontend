@@ -140,7 +140,7 @@ const HistorialAsignacionesLEC = () => {
           <Column field="centro" header="Centro" />
           <Column field="estado" header="Estado" />
           <Column field="municipio" header="Municipio" />
-          <Column field="fecha_asignacion" header="Fecha de asignación" />
+          <Column field="fecha_asignacion" header="Fecha de asignación y hora (UTC)" />
         </DataTable>
       </div>
     </div>

@@ -14,6 +14,7 @@ import ValidarAspirantes from "../components/captacion/ValidarAspirantes";
 import AsignarLEC from "../components/Asignación/AsignarLEC";
 import Candidatos from "../components/Candidatos/Candidatos";
 import RegistrarEquipoDisponible from "../components/Logistica/RegistrarEquipoDisponible";
+import HistorialAsignacionesLEC from "../components/Asignación/HistorialAsignacionesLEC";
 import '@fontsource/roboto'; // Fuente Roboto con pesos predeterminados
 import AsignarEquipoCentro from "../components/Logistica/AsignarEquipoCentro";
 // - Auxiliar de operacion
@@ -51,6 +52,8 @@ const HomePage = () => {
         return <RegistrarEquipoDisponible/>
       case "asignar_equipo_centro":
         return <AsignarEquipoCentro/>
+      case "historial_asignacionesLEC":
+        return <HistorialAsignacionesLEC />;
       default:
         return <DefaultContent />;
     }

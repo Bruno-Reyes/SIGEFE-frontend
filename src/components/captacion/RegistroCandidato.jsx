@@ -424,9 +424,20 @@ const RegistroCandidato = () => {
     { label: "Otro", value: "Otro" },
   ];
 
+  const handleHome = () => {
+    window.location.href = '/';
+  };
+
   return (
     <div className="p-d-flex p-flex-column p-ai-center p-mt-4">
       <Toast ref={toast} /> {/* Componente para notificaciones */}
+      <Button
+        label="Regresar"
+        icon="pi pi-home"
+        className="p-button-secondary"
+        onClick={handleHome}
+        style={{ alignSelf: 'flex-start', marginBottom: '1rem' }}
+      />
       <div
         className="p-card p-p-4 p-shadow-3 p-mb-4"
         style={{ width: "80%", margin: "0 auto" }}
@@ -1672,7 +1683,7 @@ const RegistroCandidato = () => {
             </div>
           </div>
           {/* Botón de Envío */}
-          <div style={{ marginTop: "4%" }}>
+          <div style={{ marginTop: "4%", display: "flex", justifyContent: "space-between" }}>
             <Button
               label="Registrar Candidato"
               icon="pi pi-check"

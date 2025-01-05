@@ -6,6 +6,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'; // Importar ConfirmDialog
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Paginator } from 'primereact/paginator';
 
 const Candidatos = () => {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ const Candidatos = () => {
     const [loading, setLoading] = useState(true);
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_URL;
+    const [first, setFirst] = useState(0);
+    const [rows, setRows] = useState(15);
 
     const refreshToken = async () => {
         try {
@@ -141,6 +144,13 @@ const Candidatos = () => {
         />
     );
 
+    const onPageChange = (event) => {
+        setFirst(event.first);
+        setRows(event.rows);
+    };
+
+    const paginatedCandidatos = Candidatos.slice(first, first + rows);
+
     return (
         <div style={{ padding: '16px' }}>
             <Toast ref={toast} />
@@ -148,13 +158,22 @@ const Candidatos = () => {
             {loading ? (
                 <p>Cargando...</p>
             ) : (
-                <DataTable value={Candidatos} responsiveLayout="scroll" header="Candidatos">
-                    <Column header="Ver Registro" body={viewButtonTemplate} style={{ width: '150px' }} />
-                    <Column field="nombres" header="Nombre" sortable />
-                    <Column field="apellido_paterno" header="Apellido Paterno" sortable />
-                    <Column field="apellido_materno" header="Apellido Materno" sortable />
-                    <Column body={actionBodyTemplate} header="Opciones" style={{ width: '250px' }} />
-                </DataTable>
+                <>
+                    <DataTable value={paginatedCandidatos} responsiveLayout="scroll" header="Candidatos" paginator={false}>
+                        <Column header="Ver Registro" body={viewButtonTemplate} style={{ width: '150px' }} />
+                        <Column field="nombres" header="Nombre" sortable />
+                        <Column field="apellido_paterno" header="Apellido Paterno" sortable />
+                        <Column field="apellido_materno" header="Apellido Materno" sortable />
+                        <Column body={actionBodyTemplate} header="Opciones" style={{ width: '250px' }} />
+                    </DataTable>
+                    <Paginator
+                        first={first}
+                        rows={rows}
+                        totalRecords={Candidatos.length}
+                        rowsPerPageOptions={[15, 30, 45]}
+                        onPageChange={onPageChange}
+                    />
+                </>
             )}
         </div>
     );

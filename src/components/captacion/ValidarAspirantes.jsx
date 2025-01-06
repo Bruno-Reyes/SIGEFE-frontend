@@ -11,6 +11,7 @@ const API_URL = import.meta.env.VITE_API_URL
 export const ValidarAspirantes = () => {
   const [candidatos, setCandidatos] = useState([])
   const [candidatoSeleccionado, setCandidatoSeleccionado] = useState(null)
+  const [actualizarDatos, setActualizarDatos] = useState(true)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState()
   const [lazyParams, setLazyParams] = useState({
@@ -20,10 +21,11 @@ export const ValidarAspirantes = () => {
     sortOrder: null
   })
   const toast = useRef(null)
+  const token = JSON.parse(localStorage.getItem('access-token'))
 
   const camposPersonales = () => {
     return [
-      { campo: 'CURP', valor: candidatoSeleccionado.curp},
+      { campo: 'CURP', valor: candidatoSeleccionado.curp },
       { campo: 'Nombres', valor: candidatoSeleccionado.nombres },
       { campo: 'Apellido Paterno', valor: candidatoSeleccionado.apellido_paterno },
       { campo: 'Apellido Materno', valor: candidatoSeleccionado.apellido_materno },
@@ -61,9 +63,9 @@ export const ValidarAspirantes = () => {
   }
   const camposIntereses = () => {
     return [
-      { 
-        campo: 'Interés en Desarrollo Comunitario', 
-        valor: candidatoSeleccionado.interes_desarrollo_comunitario ? 'Sí' : 'No' 
+      {
+        campo: 'Interés en Desarrollo Comunitario',
+        valor: candidatoSeleccionado.interes_desarrollo_comunitario ? 'Sí' : 'No'
       },
       { campo: 'Razones de Interés', valor: candidatoSeleccionado.razones_interes },
       { campo: 'Profesión de Interés', valor: candidatoSeleccionado.profesion_interes },
@@ -89,11 +91,10 @@ export const ValidarAspirantes = () => {
       { campo: 'Estado de Cuenta', valor: candidatoSeleccionado.estado_cuenta }
     ]
   }
-  
+
   // Función para cargar los candidatos desde el backend
   const obtenerCandidatos = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem('access-token'))
       const response = await fetch(`${API_URL}/captacion/candidatos/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -117,10 +118,30 @@ export const ValidarAspirantes = () => {
     }
   }
 
+  // Funcion para aceptar o rechazar un candidato
+  const validarCandidato = async (flag) => {
+    try {
+      let action = flag ? 'aceptar' : 'rechazar';
+      const response = await fetch(`${API_URL}/captacion/detalles_usuario/${candidatoSeleccionado.id}/${action}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      // Refrescar la lista de candidatos
+      setCandidatoSeleccionado(null)
+      setActualizarDatos(!actualizarDatos)
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || 'Error'
+      console.log(errorMessage)
+    }
+  }
+
   // Usamos useEffect para obtener las convocatorias al cargar el componente
   useEffect(() => {
     obtenerCandidatos()
-  }, [])
+  }, [actualizarDatos])
 
   const onLazyLoad = (event) => {
     const { first, rows, sortField, sortOrder } = event
@@ -152,7 +173,7 @@ export const ValidarAspirantes = () => {
   return (
     <>
       <Toast /> {/* Componente para notificaciones (en este caso, opcional si no se usa) */}
-      <main style={{ 
+      <main style={{
         maxWidth: '1080px',
         margin: 'auto',
         display: 'grid',
@@ -160,7 +181,7 @@ export const ValidarAspirantes = () => {
         columnGap: '40px'
       }}>
         <section>
-          <DataTable 
+          <DataTable
             value={data || candidatos}
             lazy
             paginator
@@ -171,7 +192,7 @@ export const ValidarAspirantes = () => {
             sortOrder={lazyParams.sortOrder}
             onSort={onLazyLoad}
             loading={loading}
-            totalRecords={candidatos.length} 
+            totalRecords={candidatos.length}
             selection={candidatoSeleccionado}
             selectionMode='single'
             onSelectionChange={e => setCandidatoSeleccionado(e.value)}
@@ -184,51 +205,51 @@ export const ValidarAspirantes = () => {
         </section>
         {candidatoSeleccionado &&
           <section style={{
-            height: '90vh', 
+            height: '90vh',
             overflow: 'hidden scroll',
             scrollbarWidth: 'thin',
             scrollbarGutter: 'auto'
           }}>
             <h3 style={{ textAlign: 'center' }}>Detalles del candidato</h3>
 
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Datos Personales'
               campos={camposPersonales()}
             />
 
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Información Física'
               campos={camposTallas()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Información de Salud'
               campos={camposSalud()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Información Bancaria'
               campos={camposBancarios()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Nivel de Estudios y Experiencia'
               campos={camposEstudiosYExpe()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Intereses'
               campos={camposIntereses()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Dirección'
               campos={camposDireccion()}
             />
-            <DatoAspirante 
+            <DatoAspirante
               titulo='Documentación'
               campos={camposDocumentacion()}
               link
             />
 
             <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '20px 0' }}>
-              <Button label="❌ Rechazar" severity="danger" outlined  />
-              <Button label="✅ Aceptar" severity="success" />
+              <Button label="❌ Rechazar" severity="danger" outlined onClick={() => validarCandidato(false)} />
+              <Button label="✅ Aceptar" severity="success" onClick={() => validarCandidato(true)} />
             </div>
           </section>
         }

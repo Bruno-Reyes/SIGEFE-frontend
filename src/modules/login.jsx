@@ -80,7 +80,7 @@ function Login() {
             <form onSubmit={formik.handleSubmit} className="p-fluid">
               <div className="p-field mb-3">
                 <label htmlFor="username" className="p-d-block">
-                  Usuario
+                  Correo electrónico
                 </label>
                 <InputText
                   id="username"
@@ -88,7 +88,7 @@ function Login() {
                   value={formik.values.username}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder="Ingrese su usuario"
+                  placeholder="Ingrese su correo electrónico"
                   className={`p-inputtext-lg ${formik.touched.username && formik.errors.username ? 'p-invalid' : ''}`}
                 />
                 {formik.touched.username && formik.errors.username ? (

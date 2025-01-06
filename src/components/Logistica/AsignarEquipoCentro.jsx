@@ -51,7 +51,6 @@ const AsignarEquipoCentro = () => {
                     },
                 });
                 setEquipos(response.data);
-                console.log("Equipos obtenidos:", response.data); // Agregar un log para verificar los datos obtenidos
             } catch (error) {
                 console.error('Error al obtener los equipos:', error);
                 toast.current.show({
@@ -77,6 +76,39 @@ const AsignarEquipoCentro = () => {
             setMunicipioCentro("");
         }
     }, [estadoCentro]);
+
+    
+    useEffect(() => {
+        const fetchAsignaciones = async () => {
+            try {
+                let token = JSON.parse(localStorage.getItem("access-token"));
+                if (!token) {
+                    token = await refreshToken();
+                }
+    
+                // Realizar el GET a la API para obtener las asignaciones
+                const response = await axios.get(`${apiUrl}/logistica/asignacion/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+    
+                // Guardar los datos en el estado del componente
+                setEquiposAsignados(response.data);
+            } catch (error) {
+                console.error("Error al obtener las asignaciones:", error);
+                toast.current.show({
+                    severity: "error",
+                    summary: "Error",
+                    detail: "Hubo un problema al obtener las asignaciones.",
+                    life: 3000,
+                });
+            }
+        };
+    
+        fetchAsignaciones();
+    }, []);
 
     const handleEstadoCentroChange = (e) => {
         setEstadoCentro(e.value);
@@ -121,38 +153,83 @@ const AsignarEquipoCentro = () => {
     const handleAsignarEquipo = async () => {
         if (!selectedEquipo || !selectedCentro) {
             toast.current.show({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'Por favor seleccione un equipo y un centro.',
+                severity: "warn",
+                summary: "Advertencia",
+                detail: "Por favor seleccione un equipo y un centro.",
                 life: 3000,
             });
             return;
         }
+    
+        if (cantidad <= 0 || cantidad > selectedEquipo.cantidad_disponible) {
+            toast.current.show({
+                severity: "warn",
+                summary: "Advertencia",
+                detail: "Por favor ingrese una cantidad válida.",
+                life: 3000,
+            });
+            return;
+        }
+    
+        const nuevaAsignacion = {
+            equipo_id: selectedEquipo.id, // El ID del equipo
+            centro_id: selectedCentro.id, // El ID del centro
+            cantidad_asignada: parseInt(cantidad, 10), // Cantidad de material asignado
+        };
 
+
+
+        const asignacion_front = {
+            idEquipo: selectedEquipo.id,
+            idCentro: selectedCentro.id,
+            cantidad: parseInt(cantidad, 10),
+            nombre_equipo: selectedEquipo.nombre_equipo,
+            categoria: selectedEquipo.categoria,
+            clave_centro_trabajo: selectedCentro.clave_centro_trabajo,
+            estado: estadoCentro,
+            municipio: municipioCentro,
+        }
+    
         try {
             let token = JSON.parse(localStorage.getItem("access-token"));
             if (!token) {
                 token = await refreshToken();
             }
-            
-        //API para registrar la asignación de un equipo a un centro comunitario
-
     
+            const response = await axios.post(`${apiUrl}/logistica/asignacion/crear/`, nuevaAsignacion, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
-            setEquiposAsignados([...equiposAsignados, response.data]);
+            console.log("Respuesta del servidor:", response.data);
+            
+    
+            // Actualiza la lista de asignaciones
+            setEquiposAsignados((prev) => [...prev, asignacion_front]);
+    
+            // Actualiza la cantidad disponible del equipo
+            setEquipos((prevEquipos) =>
+                prevEquipos.map((equipo) =>
+                    equipo.id === selectedEquipo.id
+                        ? { ...equipo, cantidad_disponible: equipo.cantidad_disponible - cantidad }
+                        : equipo
+                )
+            );
+    
             toast.current.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: 'Equipo asignado correctamente.',
+                severity: "success",
+                summary: "Éxito",
+                detail: "Equipo asignado correctamente.",
                 life: 3000,
             });
         } catch (error) {
-            console.error("Error al asignar equipo:", error);
-            console.error("Detalles del error:", error.response.data);
+            console.error("Error al asignar el equipo:", error);
             toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Hubo un problema al asignar el equipo.',
+                severity: "error",
+                summary: "Error",
+                detail: "No se pudo completar la asignación.",
                 life: 3000,
             });
         }
@@ -173,6 +250,7 @@ const AsignarEquipoCentro = () => {
                         <Column field="cantidad_disponible" header="Cantidad Disponible" sortable></Column>
                         <Column field="descripcion" header="Descripción" sortable></Column>
                         <Column field="categoria" header="Categoría" sortable></Column>
+                        <Column field="id" header="ID" sortable></Column>
                     </DataTable>
                 </div>
 
@@ -257,12 +335,11 @@ const AsignarEquipoCentro = () => {
                         responsiveLayout="scroll"
                     >
                         <Column field="nombre_equipo" header="Nombre del Equipo" />
-                        <Column field="cantidad_disponible" header="Cantidad" />
+                        <Column field="cantidad" header="Cantidad" />
                         <Column field="categoria" header="Categoría" />
                         <Column field="clave_centro_trabajo" header="CCT" />
                         <Column field="estado" header="Estado" />
                         <Column field="municipio" header="Municipio" />
-                        <Column field="localidad" header="Localidad" />
                     </DataTable>
                 </div>
             </div>

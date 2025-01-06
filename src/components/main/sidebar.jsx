@@ -36,13 +36,30 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="Alumnos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }}/>
                 </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Gestión de Pagos" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
+                </li>
             </ul>
         );
-    } else if (usuario === "\"lider_lec\"") { 
+    } else if (usuario === "\"dep_finanzas\"") { 
+        items = (
+            <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="dep_finanzas" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
+                </li>
+                    <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Pagos" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
+                </li>
+            </ul>
+        );
+    }else if (usuario === "\"lider_lec\"") { 
         items = (
             <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="lider_lec" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
+                </li>
+                    <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Pagos Pendientes" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
                 </li>
             </ul>
         );

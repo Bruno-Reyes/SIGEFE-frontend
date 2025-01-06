@@ -1,3 +1,3 @@
-import lugares from '../..tools/lugares_mexico.json';
+import lugares from '../..tools/lugares_mexico.json'
 
-export default lugares;
+export default lugares

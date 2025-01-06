@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Toast } from "primereact/toast"; // Importar Toast
 import lugares from "../../tools/lugares_mexico.json";
 
 const AsignarLEC = () => {
+  const toast = useRef(null); // Referencia para el Toast
+
   // Estado para las listas principales
-  const [lecList, setLecList] = useState([]);
+
   const [filteredLEC, setFilteredLEC] = useState([]);
-  const [centrosList, setCentrosList] = useState([]);
-  const [asignaciones, setAsignaciones] = useState([]);
+
   const [lecAsignado, setLecAsignado] = useState(null); // Nuevo estado para almacenar el LEC asignado
   const [lecsAsignados, setLecsAsignados] = useState([]); // Nuevo estado para almacenar los LECs asignados
   
@@ -133,6 +135,16 @@ const AsignarLEC = () => {
 
   // Función para buscar LEC
 const handleFilterChange = async () => {
+  if (!estado || !municipio || !localidad) {
+    toast.current.show({
+      severity: 'warn',
+      summary: 'Advertencia',
+      detail: 'Por favor complete todos los campos: Estado, Municipio y Localidad.',
+      life: 3000,
+    });
+    return;
+  }
+
   try {
     let token = JSON.parse(localStorage.getItem("access-token"));
     if (!token) {
@@ -152,13 +164,28 @@ const handleFilterChange = async () => {
     setFilteredLEC(response.data);
   } catch (error) {
     console.error("Error al buscar LECs:", error);
-    alert("Error al buscar LECs. Por favor, intente nuevamente.");
+    toast.current.show({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al buscar LECs. Por favor, intente nuevamente.',
+      life: 3000,
+    });
   }
 };
 
 
   // Función para buscar Centros
   const handleBuscarCentros = async () => {
+    if (!estadoCentro || !municipioCentro) {
+      toast.current.show({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Por favor complete todos los campos: Estado y Municipio.',
+        life: 3000,
+      });
+      return;
+    }
+
     try {
       let token = JSON.parse(localStorage.getItem("access-token"));
       if (!token) {
@@ -177,26 +204,41 @@ const handleFilterChange = async () => {
       setCentrosFiltrados(response.data);
     } catch (error) {
       console.error("Error al buscar centros:", error);
-      alert("Error al buscar centros. Por favor, intente nuevamente.");
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al buscar centros. Por favor, intente nuevamente.',
+        life: 3000,
+      });
     }
   };
 
   // Función para asignar LEC
   const handleAsignarLEC = async () => {
     if (!selectedLEC) {
-      alert("Por favor seleccione un LEC y un centro para asignar");
+      toast.current.show({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Por favor seleccione un LEC y un centro para asignar.',
+        life: 3000,
+      });
       return;
-    }else if (!selectedCentro) {
-      alert("Por favor seleccione un centro para asignar");
+    } else if (!selectedCentro) {
+      toast.current.show({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Por favor seleccione un centro para asignar.',
+        life: 3000,
+      });
       return;
     }
-  
+
     try {
       let token = JSON.parse(localStorage.getItem("access-token"));
       if (!token) {
         token = await refreshToken();
       }
-  
+
       const response = await axios.post(
         `${apiUrl}/asignacion/asignar-lec/`,
         {
@@ -210,90 +252,125 @@ const handleFilterChange = async () => {
           },
         }
       );
-  
-    // Actualizar el estado con la información del LEC asignado
-    setLecAsignado({
-      lecNombre: `${selectedLEC.nombre} `,
-      cct: selectedCentro.clave_centro_trabajo,
-      estado: selectedCentro.estado,
-      municipio: selectedCentro.municipio,
-    });
 
-    alert("LEC asignado correctamente.");
-  } catch (error) {
-    console.error("Error al asignar LEC:", error);
-    alert("Error al asignar LEC. Por favor, intente nuevamente.");
-  }
+      // Actualizar el estado con la información del LEC asignado
+      setLecAsignado({
+        lecNombre: `${selectedLEC.nombre} `,
+        cct: selectedCentro.clave_centro_trabajo,
+        estado: selectedCentro.estado,
+        municipio: selectedCentro.municipio,
+      });
+
+      // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
+      setEstado("");
+      setMunicipio("");
+      setLocalidad("");
+      setEstadoCentro("");
+      setMunicipioCentro("");
+      setFilteredLEC([]);
+      setCentrosFiltrados([]);
+      setSelectedLEC(null);
+      setSelectedCentro(null);
+
+      toast.current.show({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'LEC asignado correctamente.',
+        life: 3000,
+      });
+    } catch (error) {
+      console.error("Error al asignar LEC:", error);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al asignar LEC. Por favor, intente nuevamente.',
+        life: 3000,
+      });
+    }
 
     setSelectedLEC(null);
     setSelectedCentro(null);
-    handleFilterChange();
-    handleBuscarCentros();
-};
+  };
 
-const handleCentroSelect = async (centro) => {
-  setSelectedCentro(centro);
+  const handleCentroSelect = async (centro) => {
+    setSelectedCentro(centro);
 
-  try {
-    let token = JSON.parse(localStorage.getItem("access-token"));
-    if (!token) {
-      token = await refreshToken();
+    try {
+      let token = JSON.parse(localStorage.getItem("access-token"));
+      if (!token) {
+        token = await refreshToken();
+      }
+
+      const response = await axios.get(
+        `${apiUrl}/asignacion/lecs/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            centro_asignado: centro.id, // Filtrar por el centro asignado
+          },
+        }
+      );
+
+      setLecsAsignados(response.data); // Actualizar el estado con los LECs asignados
+    } catch (error) {
+      console.error("Error al obtener LECs asignados:", error);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al obtener LECs asignados. Por favor, intente nuevamente.',
+        life: 3000,
+      });
     }
+  };
 
-    const response = await axios.get(
-      `${apiUrl}/asignacion/lecs/`,
-      {
+  const handleEliminarLEC = async (lecId) => {
+    try {
+      let token = JSON.parse(localStorage.getItem("access-token"));
+      if (!token) {
+        token = await refreshToken();
+      }
+
+      await axios.delete(`${apiUrl}/asignacion/eliminar-lec/${lecId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        params: {
-          centro_asignado: centro.id, // Filtrar por el centro asignado
-        },
-      }
-    );
+      });
 
-    setLecsAsignados(response.data); // Actualizar el estado con los LECs asignados
-  } catch (error) {
-    console.error("Error al obtener LECs asignados:", error);
-    alert("Error al obtener LECs asignados. Por favor, intente nuevamente.");
-  }
-};
-
-const handleEliminarLEC = async (lecId) => {
-  try {
-    let token = JSON.parse(localStorage.getItem("access-token"));
-    if (!token) {
-      token = await refreshToken();
+      toast.current.show({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'LEC eliminado correctamente.',
+        life: 3000,
+      });
+      handleCentroSelect(selectedCentro); // Refrescar la lista de LECs asignados
+    } catch (error) {
+      console.error("Error al eliminar LEC:", error);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al eliminar LEC. Por favor, intente nuevamente.',
+        life: 3000,
+      });
     }
+  };
 
-    await axios.delete(`${apiUrl}/asignacion/eliminar-lec/${lecId}/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    alert("LEC eliminado correctamente.");
-    handleCentroSelect(selectedCentro); // Refrescar la lista de LECs asignados
-  } catch (error) {
-    console.error("Error al eliminar LEC:", error);
-    alert("Error al eliminar LEC. Por favor, intente nuevamente.");
-  }
-};
-
-const eliminarTemplate = (rowData) => {
-  return (
-    <Button
-      icon="pi pi-trash"
-      className="p-button-danger"
-      onClick={() => handleEliminarLEC(rowData.id)}
-    />
-  );
-};
+  const eliminarTemplate = (rowData) => {
+    return (
+      <Button
+        icon="pi pi-trash"
+        className="p-button-danger"
+        onClick={() => handleEliminarLEC(rowData.id)}
+      />
+    );
+  };
 
   return (
     <div style={{ display: "flex", marginRight: "5%" }}>
+      <Toast ref={toast} /> {/* Componente Toast */}
       {/* Sección de LEC Disponibles */}
       <div style={{ width: "33%", marginRight: "2%" }}>
         <h2>LEC Disponibles</h2>

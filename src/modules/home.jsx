@@ -12,7 +12,7 @@ import Convocatorias from '../components/main/convocatorias'
 import {ValidarAspirantes} from '../components/captacion/ValidarAspirantes'
 // - Coordinador Academico
 import AsignarLEC from '../components/Asignación/AsignarLEC'
-import Candidatos from '../components/Candidatos/Candidatos'
+import { Candidatos } from '../components/Candidatos/Candidatos'
 import RegistrarEquipoDisponible from '../components/Logistica/RegistrarEquipoDisponible'
 import HistorialAsignacionesLEC from '../components/Asignación/HistorialAsignacionesLEC'
 import '@fontsource/roboto' // Fuente Roboto con pesos predeterminados

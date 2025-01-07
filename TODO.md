@@ -1,3 +1,5 @@
-Agregar buscadores en validar candidatos
+* Crear ventana emergente con los datos del candidato
+Consultas a Emy
 
-* Mostrar documentos de los candidatos
+* Recargar la tabla en Candidatos cada que se acepte o rechaze alguno 
+* Mostrar aceptados/vacantes para aceptacion de candidatos

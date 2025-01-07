@@ -27,6 +27,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Validar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('validar_aspirantes')}/>
         </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Aceptar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('candidatos')} />
+        </li>
       </ul>
     )
   } else if (usuario === '"lider_lec"') { 
@@ -42,9 +45,6 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Asignación de LECs" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('asignar_LEC')} />
-        </li>
-        <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('candidatos')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Historial Asignaciones LECs" icon="pi pi-history" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('historial_asignacionesLEC')} />

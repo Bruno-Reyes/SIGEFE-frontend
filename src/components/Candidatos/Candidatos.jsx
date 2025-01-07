@@ -1,90 +1,84 @@
-import { useState, useEffect, useRef } from 'react'
+// Acceder a los candidatos validos -- backend
+import { useState, useEffect, useRef } from 'react';
+import { Dropdown } from 'primereact/dropdown';
 import { DataTable } from 'primereact/datatable'
-import { Column } from 'primereact/column'
-import { Button } from 'primereact/button'
 import { Toast } from 'primereact/toast'
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog' // Importar ConfirmDialog
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { Column } from 'primereact/column'
 import { Paginator } from 'primereact/paginator'
+import { Button } from 'primereact/button'
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog' // Importar ConfirmDialog
 
-const Candidatos = () => {
-  const navigate = useNavigate()
-  const [Candidatos, setCandidatos] = useState([])
-  const [loading, setLoading] = useState(true)
-  const toast = useRef(null)
-  const apiUrl = import.meta.env.VITE_API_URL
+export const Candidatos = () => {
+  const [convocatorias, setConvocatorias] = useState([])
+
+  const [selectedConvocatoria, setSelectedConvocatoria] = useState(null);
+  const [candidatos, setCandidatos] = useState([])
+  const [flag, setFlag] = useState(false)
+
   const [first, setFirst] = useState(0)
   const [rows, setRows] = useState(15)
+  const toast = useRef(null)
+  const API_URL = import.meta.env.VITE_API_URL
+  const token = JSON.parse(localStorage.getItem('access-token'))
 
-  const refreshToken = async () => {
-    try {
-      const refreshToken = JSON.parse(localStorage.getItem('refresh-token'))
-      const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
-        refresh: refreshToken,
-      })
-      const newAccessToken = response.data.access
-      localStorage.setItem('access-token', JSON.stringify(newAccessToken))
-      return newAccessToken
-    } catch (error) {
-      console.error('Error al refrescar el token:', error)
-      throw new Error('No se pudo renovar el token de acceso.')
+  const getConvocatorias = async () => {
+    const response = await fetch(`${API_URL}/captacion/consultar-convocatorias/`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     }
+    )
+    const data = await response.json()
+    setConvocatorias(data)
+    
   }
 
-  const obtenerCandidatos = async () => {
-    try {
-      let token = JSON.parse(localStorage.getItem('access-token'))
-      if (!token) {
-        token = await refreshToken()
-      }
-    
-      const response = await axios.get(`${apiUrl}/captacion/candidatos/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-    
-      // Filtrar candidatos con estado_aceptacion pendiente
-      const candidatosPendientes = response.data.filter(
-        (candidato) => candidato.estado_aceptacion === 'Pendiente'
-      )
-    
-      setCandidatos(candidatosPendientes)
-      setLoading(false)
-    } catch (error) {
-      setLoading(false)
-      console.error('Error al cargar los candidatos:', error)
+  const postData = async () => {
+    const { id } = convocatorias.find(element => element.lugar_convocatoria === selectedConvocatoria)
+    const response = await fetch(`${API_URL}/captacion/consultar-inscritos-validos/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ "id_convocatoria": id }),
     }
+    )
+    const data = await response.json()
+    const nuevosDatos = data.candidatos.map(item => {
+      return {
+        ...item.usuario,
+        inscripcion_id: item.inscripcion_id
+      };
+    });
+    setCandidatos(nuevosDatos);
   }
 
   useEffect(() => {
-    obtenerCandidatos()
+    getConvocatorias()
   }, [])
+
+  const ciudades = []
+  convocatorias.map(convocatoria => {
+    ciudades.push(convocatoria.lugar_convocatoria)
+  })
 
   const handleAction = async (id, action) => {
     try {
-      let token = JSON.parse(localStorage.getItem('access-token'))
-      if (!token) {
-        token = await refreshToken()
-      }
-
-      await axios.patch(`${apiUrl}/captacion/detalles_usuario/${id}/${action}/`, {}, {
+      await fetch(`${API_URL}/captacion/cambiar-aceptacion/${id}/${action}/`, {
+        method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
-
-      setCandidatos((prevCandidatos) =>
-        prevCandidatos.filter((candidato) => candidato.id !== id)
-      )
-
+      setFlag(!flag)
       toast.current.show({
         severity: action === 'aceptar' ? 'success' : 'warn',
         summary: `Candidato ${action === 'aceptar' ? 'Aceptado' : 'Rechazado'}`,
-        detail: `El candidato con ID ${id} ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}.`,
+        detail: `El candidato ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}.`,
         life: 3000,
       })
     } catch (error) {
@@ -100,7 +94,7 @@ const Candidatos = () => {
 
   const confirmAction = (id, action) => {
     confirmDialog({
-      message: `¿Estás seguro de que deseas ${action === 'aceptar' ? 'aceptar' : 'rechazar'} al candidato con ID ${id}?`,
+      message: `¿Estás seguro de que deseas ${action === 'aceptar' ? 'Aceptar' : 'Rechazar'} al candidato?`,
       header: `${action === 'aceptar' ? 'Aceptar' : 'Rechazar'} Candidato`,
       icon: `pi ${action === 'aceptar' ? 'pi-check-circle' : 'pi-times-circle'}`,
       acceptClassName: action === 'aceptar' ? 'p-button-success' : 'p-button-danger',
@@ -122,13 +116,13 @@ const Candidatos = () => {
         label="Aceptar"
         icon="pi pi-check"
         className="p-button-success"
-        onClick={() => confirmAction(rowData.id, 'aceptar')}
+        onClick={() => confirmAction(rowData.inscripcion_id, 'aceptar')}
       />
       <Button
         label="Rechazar"
         icon="pi pi-times"
         className="p-button-danger"
-        onClick={() => confirmAction(rowData.id, 'rechazar')}
+        onClick={() => confirmAction(rowData.inscripcion_id, 'rechazar')}
       />
     </div>
   )
@@ -138,7 +132,7 @@ const Candidatos = () => {
       icon="pi pi-pen-to-square"
       className="p-button-info"
       onClick={() => {
-        const candidato = Candidatos.find((candidato) => candidato.id === rowData.id)
+        const candidato = candidatos.find((candidato) => candidato.id === rowData.id)
         navigate(`/detalle/${rowData.id}`, { state: { candidato } })
       }}
     />
@@ -148,36 +142,39 @@ const Candidatos = () => {
     setFirst(event.first)
     setRows(event.rows)
   }
-
-  const paginatedCandidatos = Candidatos.slice(first, first + rows)
+  const paginatedCandidatos = candidatos.slice(first, first + rows)
 
   return (
-    <div style={{ padding: '16px' }}>
+    <>
       <Toast ref={toast} />
-      <ConfirmDialog /> {/* ConfirmDialog */}
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <>
-          <DataTable value={paginatedCandidatos} responsiveLayout="scroll" header="Candidatos" paginator={false}>
-            <Column header="Ver Registro" body={viewButtonTemplate} style={{ width: '150px' }} />
-            <Column field="nombres" header="Nombre" sortable />
-            <Column field="apellido_paterno" header="Apellido Paterno" sortable />
-            <Column field="apellido_materno" header="Apellido Materno" sortable />
-            <Column body={actionBodyTemplate} header="Opciones" style={{ width: '250px' }} />
-          </DataTable>
-          <Paginator
-            first={first}
-            rows={rows}
-            totalRecords={Candidatos.length}
-            rowsPerPageOptions={[15, 30, 45]}
-            onPageChange={onPageChange}
-          />
-        </>
-      )}
-    </div>
+      <h1>RUN B!</h1>
+      <div className="card flex justify-content-center">
+        <Dropdown
+          value={selectedConvocatoria}
+          onChange={(e) => setSelectedConvocatoria(e.value)}
+          options={ciudades}
+          optionLabel="name"
+          placeholder="Selecciona una convocatoria"
+          className="w-full md:w-14rem"
+          checkmark={true}
+          highlightOnSelect={false} />
+        <button onClick={postData}>Click me</button>
+      </div>
+      <ConfirmDialog />
+      <DataTable value={paginatedCandidatos} responsiveLayout="scroll" header="Candidatos" paginator={false}>
+        <Column header="Ver Registro" body={viewButtonTemplate} style={{ width: '150px' }} />
+        <Column field="nombres" header="Nombre" sortable />
+        <Column field="apellido_paterno" header="Apellido Paterno" sortable />
+        <Column field="apellido_materno" header="Apellido Materno" sortable />
+        <Column body={actionBodyTemplate} header="Opciones" style={{ width: '250px' }} />
+      </DataTable>
+      <Paginator
+        first={first}
+        rows={rows}
+        totalRecords={candidatos.length}
+        rowsPerPageOptions={[15, 30, 45]}
+        onPageChange={onPageChange}
+      />
+    </>
   )
 }
-
-export default Candidatos
-

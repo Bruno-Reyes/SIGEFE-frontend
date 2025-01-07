@@ -16,7 +16,7 @@ export const ValidarAspirantes = () => {
   const [data, setData] = useState()
   const [lazyParams, setLazyParams] = useState({
     first: 0,
-    rows: 18,
+    rows: 12,
     sortField: null,
     sortOrder: null
   })
@@ -174,7 +174,7 @@ export const ValidarAspirantes = () => {
     <>
       <Toast /> {/* Componente para notificaciones (en este caso, opcional si no se usa) */}
       <main style={{
-        maxWidth: '1080px',
+        maxWidth: '1440px',
         margin: 'auto',
         display: 'grid',
         gridTemplateColumns: '2fr 3fr',

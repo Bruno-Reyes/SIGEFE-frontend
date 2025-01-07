@@ -81,6 +81,8 @@ export const Candidatos = () => {
         detail: `El candidato ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}.`,
         life: 3000,
       })
+      // Llamar a postData para actualizar la tabla
+      postData();
     } catch (error) {
       console.error(`Error al ${action} al candidato:`, error)
       toast.current.show({
@@ -147,8 +149,8 @@ export const Candidatos = () => {
   return (
     <>
       <Toast ref={toast} />
-      <h1>RUN B!</h1>
-      <div className="card flex justify-content-center">
+      <h1>Aceptación de candidatos en convocatorias</h1>
+      <div className="card flex justify-content-center" style={{ marginTop: '1%', marginBottom: '1%' }}>
         <Dropdown
           value={selectedConvocatoria}
           onChange={(e) => setSelectedConvocatoria(e.value)}
@@ -157,8 +159,15 @@ export const Candidatos = () => {
           placeholder="Selecciona una convocatoria"
           className="w-full md:w-14rem"
           checkmark={true}
-          highlightOnSelect={false} />
-        <button onClick={postData}>Click me</button>
+          highlightOnSelect={false}
+        />
+        <Button
+          label="Buscar"
+          icon="pi pi-search"
+          onClick={postData}
+          className="p-button-rounded p-button-success"
+          style={{ marginLeft: '1%' }}
+        />
       </div>
       <ConfirmDialog />
       <DataTable value={paginatedCandidatos} responsiveLayout="scroll" header="Candidatos" paginator={false}>

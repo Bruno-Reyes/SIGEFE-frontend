@@ -215,87 +215,111 @@ const handleFilterChange = async () => {
   };
 
   // Función para asignar LEC
-  const handleAsignarLEC = async () => {
-    if (!selectedLEC) {
-      toast.current.show({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'Por favor seleccione un LEC y un centro para asignar.',
-        life: 3000,
-      });
-      return;
-    } else if (!selectedCentro) {
-      toast.current.show({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'Por favor seleccione un centro para asignar.',
-        life: 3000,
-      });
-      return;
+const handleAsignarLEC = async () => {
+  if (!selectedLEC) {
+    toast.current.show({
+      severity: 'warn',
+      summary: 'Advertencia',
+      detail: 'Por favor seleccione un LEC y un centro para asignar.',
+      life: 3000,
+    });
+    return;
+  } else if (!selectedCentro) {
+    toast.current.show({
+      severity: 'warn',
+      summary: 'Advertencia',
+      detail: 'Por favor seleccione un centro para asignar.',
+      life: 3000,
+    });
+    return;
+  }
+
+  try {
+    let token = JSON.parse(localStorage.getItem("access-token"));
+    if (!token) {
+      token = await refreshToken();
     }
 
-    try {
-      let token = JSON.parse(localStorage.getItem("access-token"));
-      if (!token) {
-        token = await refreshToken();
-      }
+    const lec_id = selectedLEC.id; // Definir lec_id
+    const centro_id = selectedCentro.id; // Definir centro_id
 
-      const response = await axios.post(
-        `${apiUrl}/asignacion/asignar-lec/`,
-        {
-          lec_id: selectedLEC.id, // Asegúrate de que selectedLEC tiene un campo `id`
-          centro_id: selectedCentro.id, // Asegúrate de que selectedCentro tiene un campo `id`
+    const response = await axios.post(
+      `${apiUrl}/asignacion/asignar-lec/`,
+      {
+        lec_id: lec_id, // Usar lec_id
+        centro_id: centro_id, // Usar centro_id
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        // Actualizar el estado con la información del LEC asignado
-        setLecAsignado({
-          lecNombre: `${selectedLEC.nombre} `,
-          cct: selectedCentro.clave_centro_trabajo,
-          estado: selectedCentro.estado,
-          municipio: selectedCentro.municipio,
-        });
-
-        // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
-        setEstado("");
-        setMunicipio("");
-        setLocalidad("");
-        setEstadoCentro("");
-        setMunicipioCentro("");
-        setFilteredLEC([]);
-        setCentrosFiltrados([]);
-        setSelectedLEC(null);
-        setSelectedCentro(null);
-
-        toast.current.show({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'LEC asignado correctamente.',
-          life: 3000,
-        });
-      } else {
-        throw new Error('Error en la asignación');
       }
-    } catch (error) {
-      console.error("Error al asignar LEC:", error);
+    );
+
+    if (response.status === 200) {
+      // Actualizar el estado con la información del LEC asignado
+      setLecAsignado({
+        lecNombre: `${selectedLEC.nombre} `,
+        cct: selectedCentro.clave_centro_trabajo,
+        estado: selectedCentro.estado,
+        municipio: selectedCentro.municipio,
+      });
+
+      // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
+      setEstado("");
+      setMunicipio("");
+      setLocalidad("");
+      setEstadoCentro("");
+      setMunicipioCentro("");
+      setFilteredLEC([]);
+      setCentrosFiltrados([]);
+      setSelectedLEC(null);
+      setSelectedCentro(null);
+
       toast.current.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Error al asignar LEC. Por favor, intente nuevamente.',
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'LEC asignado correctamente.',
         life: 3000,
       });
-    }
 
-    setSelectedLEC(null);
-    setSelectedCentro(null);
-  };
+      // Actualizar el tipo de usuario a lider_lec
+      //REVISAR EL ID DE LA INSCRIPCIÓN NO ES EL CORRECTO
+      const inscripcionId = selectedLEC.inscripcion_id; // Asegúrate de que tienes este campo
+      
+      console.log('Inscripción ID:', inscripcionId);
+      if (inscripcionId) {
+        console.log('Entro a actualización');
+        const updateResponse = await axios.patch(
+          `${apiUrl}/asignacion/actualizar-tipo-usuario/${inscripcionId}/`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log('Respuesta de actualización:', updateResponse.data);
+      }
+
+    } else {
+      throw new Error('Error en la asignación');
+    }
+  } catch (error) {
+    console.error("Error al asignar LEC:", error);
+    toast.current.show({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al asignar LEC. Por favor, intente nuevamente.',
+      life: 3000,
+    });
+  }
+
+  setSelectedLEC(null);
+  setSelectedCentro(null);
+};
 
   const handleCentroSelect = async (centro) => {
     setSelectedCentro(centro);

@@ -70,7 +70,7 @@ export const Candidatos = () => {
       await fetch(`${API_URL}/captacion/cambiar-aceptacion/${id}/${action}/`, {
         method: 'PATCH',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Incluir el token de acceso
           'Content-Type': 'application/json',
         },
       })

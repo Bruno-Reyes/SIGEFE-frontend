@@ -30,7 +30,7 @@ const AsignarLEC = () => {
 
   // Estado para filtros de Centros
   const [estadoCentro, setEstadoCentro] = useState("");
-  const [municipioCentro, setMunicipioCentro] = useState("");
+  const [municipioCentro, setMunicipioCentro] = useState([]);
   const [municipiosCentro, setMunicipiosCentro] = useState([]);
   const [centrosFiltrados, setCentrosFiltrados] = useState([]);
 
@@ -159,6 +159,7 @@ const handleFilterChange = async () => {
         estado,
         municipio,
         localidad,
+        estado_aceptacion: "Aceptado" // Filtrar por LEC aceptados
       },
     });
     setFilteredLEC(response.data);
@@ -253,31 +254,35 @@ const handleFilterChange = async () => {
         }
       );
 
-      // Actualizar el estado con la información del LEC asignado
-      setLecAsignado({
-        lecNombre: `${selectedLEC.nombre} `,
-        cct: selectedCentro.clave_centro_trabajo,
-        estado: selectedCentro.estado,
-        municipio: selectedCentro.municipio,
-      });
+      if (response.status === 200) {
+        // Actualizar el estado con la información del LEC asignado
+        setLecAsignado({
+          lecNombre: `${selectedLEC.nombre} `,
+          cct: selectedCentro.clave_centro_trabajo,
+          estado: selectedCentro.estado,
+          municipio: selectedCentro.municipio,
+        });
 
-      // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
-      setEstado("");
-      setMunicipio("");
-      setLocalidad("");
-      setEstadoCentro("");
-      setMunicipioCentro("");
-      setFilteredLEC([]);
-      setCentrosFiltrados([]);
-      setSelectedLEC(null);
-      setSelectedCentro(null);
+        // Limpiar las búsquedas realizadas previamente de los dropdown y los resultados de las tablas
+        setEstado("");
+        setMunicipio("");
+        setLocalidad("");
+        setEstadoCentro("");
+        setMunicipioCentro("");
+        setFilteredLEC([]);
+        setCentrosFiltrados([]);
+        setSelectedLEC(null);
+        setSelectedCentro(null);
 
-      toast.current.show({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'LEC asignado correctamente.',
-        life: 3000,
-      });
+        toast.current.show({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'LEC asignado correctamente.',
+          life: 3000,
+        });
+      } else {
+        throw new Error('Error en la asignación');
+      }
     } catch (error) {
       console.error("Error al asignar LEC:", error);
       toast.current.show({

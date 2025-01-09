@@ -162,6 +162,7 @@ const handleFilterChange = async () => {
         estado_aceptacion: "Aceptado" // Filtrar por LEC aceptados
       },
     });
+    console.log('Response:', response.data); 
     setFilteredLEC(response.data);
   } catch (error) {
     console.error("Error al buscar LECs:", error);
@@ -287,8 +288,9 @@ const handleAsignarLEC = async () => {
       // Actualizar el tipo de usuario a lider_lec
       //REVISAR EL ID DE LA INSCRIPCIÓN NO ES EL CORRECTO
       const inscripcionId = selectedLEC.inscripcion_id; // Asegúrate de que tienes este campo
-      
+      console.log('SelectedLEC:', selectedLEC);
       console.log('Inscripción ID:', inscripcionId);
+
       if (inscripcionId) {
         console.log('Entro a actualización');
         const updateResponse = await axios.patch(

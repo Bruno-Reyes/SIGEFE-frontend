@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { useNavigate } from "react-router";
 import axios from "axios";
 import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
@@ -7,13 +6,14 @@ import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { useFormik } from "formik";
+
 import * as Yup from "yup";
 
 const apiUrl = import.meta.env.VITE_API_URL
 
 
 function Login() {
-  const navigate = useNavigate();
+
   const toast = useRef(null);
 
   const formik = useFormik({
@@ -108,6 +108,7 @@ function Login() {
                   feedback={false}
                   placeholder="Ingrese su contraseña"
                   className={`p-inputtext-lg ${formik.touched.password && formik.errors.password ? "p-invalid" : ""}`}
+                  toggleMask
                 />
                 {formik.touched.password && formik.errors.password ? (
                   <small className="p-error">{formik.errors.password}</small>

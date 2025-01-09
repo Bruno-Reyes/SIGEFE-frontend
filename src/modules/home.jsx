@@ -14,6 +14,9 @@ import Convocatorias from "../components/main/convocatorias";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
+import MostrarPagosPendientes from "../components/registro_pagos/MostrarPagosPendientes";
+import RegistrarPago from "../components/registro_pagos/RegistrarPago";
+import Becas from "../components/apoyos_economicos/asignarBeca";
 
 const HomePage = () => {
 
@@ -28,6 +31,12 @@ const HomePage = () => {
     switch (activeComponent) {
       case "convocatorias":
         return <Convocatorias />;
+      case "pagos":
+          return <MostrarPagosPendientes />;
+      case "registrar-pago":
+          return <RegistrarPago />;
+      case "becas":
+          return <Becas />;
       default:
         return <DefaultContent />;
     }

@@ -39,6 +39,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
                 <li style={{ margin: '10px 0', width: '100%' }}>
                     <Button label="Gestión de Pagos" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
                 </li>
+                <li style={{ margin: '10px 0', width: '100%' }}>
+                    <Button label="Asignar Becas" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("becas")} />
+                </li>
             </ul>
         );
     } else if (usuario === "\"dep_finanzas\"") { 

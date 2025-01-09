@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
@@ -10,62 +11,78 @@ import './MainView.css';
 
 const Becas = () => {
   const [selectedCharacteristic, setSelectedCharacteristic] = useState(null);
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Juan Pérez', status: 'Beca Completa', characteristic: 'Rojo' },
-    { id: 2, name: 'María López', status: 'Sin asignar', characteristic: 'Azul' },
-    { id: 3, name: 'Carlos Ruiz', status: 'Beca Parcial', characteristic: 'Verde' },
-    { id: 4, name: 'Ana Torres', status: 'Sin asignar', characteristic: 'Rojo' },
-    { id: 5, name: 'Luis Gómez', status: 'Beca Completa', characteristic: 'Azul' },
-    { id: 6, name: 'Elena Fernández', status: 'Beca Parcial', characteristic: 'Verde' },
-  ]);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isBulkDialogVisible, setIsBulkDialogVisible] = useState(false);
-  const [tiposBecas, setTiposBecas] = useState(null);
+  const [tiposBecas, setTiposBecas] = useState([]);
+
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const refreshToken = async () => {
     try {
-      const refreshToken = JSON.parse(localStorage.getItem("refresh-token"));
+      const refreshToken = JSON.parse(localStorage.getItem('refresh-token'));
       const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
         refresh: refreshToken,
       });
       const newAccessToken = response.data.access;
-      localStorage.setItem("access-token", JSON.stringify(newAccessToken));
+      localStorage.setItem('access-token', JSON.stringify(newAccessToken));
       return newAccessToken;
     } catch (error) {
-      console.error("Error al refrescar el token:", error);
-      throw new Error("No se pudo renovar el token de acceso.");
+      console.error('Error al refrescar el token:', error);
+      throw new Error('No se pudo renovar el token de acceso.');
     }
   };
 
-    const apiUrl = import.meta.env.VITE_API_URL;
-    let token = JSON.parse(localStorage.getItem("access-token"));
-    if (!token) {
-        token = refreshToken();
+  let token = JSON.parse(localStorage.getItem('access-token'));
+  if (!token) {
+    token = refreshToken();
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const mappedUsers = response.data.map((user) => ({
+        id: user.usuario_id,
+        name: user.email,
+        status: user.tipo_beca_asignada || 'Sin asignar',
+        characteristic: 'Lider LEC',
+      }));
+      setUsers(mappedUsers);
+      console.log('Usuarios:', mappedUsers);
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
     }
+  };
 
   useEffect(() => {
-    fetch(`${apiUrl}/pagos/tipos_becas`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-          const mappedScholarships = data.map((item) => item.tipo);
-          setTiposBecas(mappedScholarships)
-          console.log('Tipos de becas:', mappedScholarships);
-      })
-      .catch((error) => console.error('Error al obtener tipos de becas:', error));
+    const fetchTiposBecas = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/pagos/tipos_becas`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const mappedScholarships = response.data.map((item) => ({ id: item.id, tipo: item.tipo }));
+        setTiposBecas(mappedScholarships);
+        console.log('Tipos de becas:', mappedScholarships);
+      } catch (error) {
+        console.error('Error al obtener tipos de becas:', error);
+      }
+    };
+
+  
+    fetchTiposBecas();
+    fetchUsers();
   }, [token]);
 
-  const characteristics = ['Rojo', 'Azul', 'Verde'];
-  const scholarships = ['Beca Completa', 'Beca Parcial', 'Beca Transporte'];
-
   const filteredUsers = selectedCharacteristic
-    ? users.filter(user => user.characteristic === selectedCharacteristic)
+    ? users.filter((user) => user.characteristic === selectedCharacteristic)
     : users;
 
   const openAssignDialog = (user) => {
@@ -73,14 +90,27 @@ const Becas = () => {
     setIsDialogVisible(true);
   };
 
-  const assignScholarship = () => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === selectedUser.id ? { ...user, status: selectedScholarship } : user
-      )
-    );
-    setIsDialogVisible(false);
-    setSelectedScholarship(null);
+  const assignScholarship = async () => {
+    try {
+      await axios.post(
+        `${apiUrl}/pagos/asignar-beca/`,
+        {
+          tipo_beca: tiposBecas.find((beca) => beca.tipo === selectedScholarship)?.id,
+          usuario: selectedUser.id,
+          estatus: 1,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setIsDialogVisible(false);
+      setSelectedScholarship(null);
+      await fetchUsers(); // Recarga los usuarios
+    } catch (error) {
+      console.error('Error al asignar la beca:', error);
+    }
   };
 
   const openBulkAssignDialog = () => {
@@ -124,7 +154,7 @@ const Becas = () => {
             <Dropdown
               id="characteristic-filter"
               value={selectedCharacteristic}
-              options={characteristics}
+              options={['Lider LEC']}
               onChange={(e) => setSelectedCharacteristic(e.value)}
               placeholder="Selecciona una característica"
               className="w-100"
@@ -160,7 +190,7 @@ const Becas = () => {
         <p>Seleccione el tipo de beca para {selectedUser?.name}:</p>
         <Dropdown
           value={selectedScholarship}
-          options={tiposBecas}
+          options={tiposBecas.map((beca) => beca.tipo)}
           onChange={(e) => setSelectedScholarship(e.value)}
           placeholder="Selecciona una beca"
           className="w-100"
@@ -182,7 +212,7 @@ const Becas = () => {
         <p>Seleccione el tipo de beca para el grupo de "{selectedCharacteristic}"</p>
         <Dropdown
           value={selectedScholarship}
-          options={tiposBecas}
+          options={tiposBecas.map((beca) => beca.tipo)}
           onChange={(e) => setSelectedScholarship(e.value)}
           placeholder="Selecciona una beca"
           className="w-100"

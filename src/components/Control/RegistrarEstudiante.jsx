@@ -110,9 +110,13 @@ const RegistrarEstudiante = () => {
   };
 
   return (
-    <div style={{ padding: '16px', maxWidth: '600px', margin: 'auto' }}>
+    <div>
       <Toast ref={toast} />
-      <h2>Registrar Estudiante</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '5%', marginTop: '2%' }}>
+            <h1>Registrar Estudiante</h1>
+            </div>
+
+    <div  style={{maxWidth: '33%', margin:'auto'}}>
       <form onSubmit={handleSubmit}>
         <div className="p-field" style={{ marginBottom: '16px' }}>
           <label htmlFor="nombre">Nombre</label>
@@ -190,6 +194,7 @@ const RegistrarEstudiante = () => {
         </div>
         <Button type="submit" label="Registrar Estudiante" icon="pi pi-save" className="p-button-success" />
       </form>
+      </div>
     </div>
   );
 };

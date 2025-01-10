@@ -7,6 +7,11 @@ import DefaultContent from '../components/main/loader'
 
 // Componentes por tipo usuario
 // - Lider para la Educacion Comunitaria
+import RegistrarEstudiante from '../components/Control/RegistrarEstudiante'
+import RegistrarCalificaciones from '../components/Control/RegistrarCalificaciones'
+import ReinscribirEstudiante from '../components/Control/ReinscribirEstudiante'
+import HistorialAcademicoEstudiante from '../components/Control/HistorialAcademicoEstudiante'
+import GestionHistorialMigratorio from '../components/Control/GestionHistorialMigratorio'
 // - Coordinador Nacional de Recursos Humanos
 import Convocatorias from '../components/main/convocatorias'
 import {ValidarAspirantes} from '../components/captacion/ValidarAspirantes'
@@ -21,7 +26,6 @@ import AsignarEquipoCentro from '../components/Logistica/AsignarEquipoCentro'
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
 import '@fontsource/roboto' // Fuente Roboto con pesos predeterminados
-import RegistrarEstudiante from '../components/Control/RegistrarEstudiante'
 
 const HomePage = () => {
 
@@ -53,6 +57,14 @@ const HomePage = () => {
       return <HistorialAsignacionesLEC />
     case 'registrar_estudiante':
       return <RegistrarEstudiante/>
+    case 'registrar_calificaciones':
+      return <RegistrarCalificaciones/>
+    case 'reinscribir_estudiante':
+      return <ReinscribirEstudiante/>
+    case 'historial_academico_estudiante':
+      return <HistorialAcademicoEstudiante/>
+    case 'gestion_historial_migratorio':
+      return <GestionHistorialMigratorio/>
     default:
       return <DefaultContent /> 
     }

@@ -41,7 +41,23 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         </li>
 
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Registrar Estudiante" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_estudiante')} />
+          <Button label="Registrar Estudiante" icon="pi pi-user-plus" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_estudiante')} />
+        </li>
+
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Registrar Calificaciones" icon="pi pi-pencil" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_calificaciones')} />
+        </li>
+
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Reinscribir Estudiante" icon="pi pi-refresh" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('reinscribir_estudiante')} />
+        </li>
+
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Historial Académico del Estudiante" icon="pi pi-book" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('historial_academico_estudiante')} />
+        </li>
+
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Gestión Historial Migratorio del estudiante" icon="pi pi-globe" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('gestion_historial_migratorio')} />
         </li>
 
       </ul>

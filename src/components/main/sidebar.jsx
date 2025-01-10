@@ -35,9 +35,15 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
   } else if (usuario === '"lider_lec"') { 
     items = (
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
+
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="lider_lec" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
         </li>
+
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Registrar Estudiante" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_estudiante')} />
+        </li>
+
       </ul>
     )
   } else if (usuario === '"coord_academico"') { 

@@ -21,6 +21,7 @@ import AsignarEquipoCentro from '../components/Logistica/AsignarEquipoCentro'
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
 import '@fontsource/roboto' // Fuente Roboto con pesos predeterminados
+import RegistrarEstudiante from '../components/Control/RegistrarEstudiante'
 
 const HomePage = () => {
 
@@ -50,13 +51,15 @@ const HomePage = () => {
       return <AsignarEquipoCentro/>
     case 'historial_asignacionesLEC':
       return <HistorialAsignacionesLEC />
+    case 'registrar_estudiante':
+      return <RegistrarEstudiante/>
     default:
-      return <DefaultContent />
+      return <DefaultContent /> 
     }
   }
   
   return(
-    <div>
+    <div style={{fontFamily: 'Roboto, sans-serif'}}>
       <Menu toggleSidebar={toggleSidebar}/>
       <Sidebar visible={visible} onHide={() => setVisible(false)} setActiveComponent={setActiveComponent}/>
       <div>{renderContent()}</div>

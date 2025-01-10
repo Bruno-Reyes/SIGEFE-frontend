@@ -3,6 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import { Dropdown } from 'primereact/dropdown'; // Importar Dropdown
 
 import axios from 'axios';
 
@@ -36,13 +37,14 @@ const RegistrarEstudiante = () => {
     promedio: null,
     centroEducativo: '',
     procedencia: estado,
-    contacto: ''
+    contacto: '',
+    nivelEducativo: '' // Agregar campo nivelEducativo
   });
   const toast = React.useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.nombre && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.centroEducativo && formData.procedencia && formData.contacto) {
+    if (formData.nombre && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.centroEducativo && formData.procedencia && formData.contacto && formData.nivelEducativo) {
       try {
         let token = JSON.parse(localStorage.getItem('access-token'));
         if (!token) {
@@ -57,6 +59,7 @@ const RegistrarEstudiante = () => {
           centroEducativo: formData.centroEducativo,
           procedencia: formData.procedencia,
           contacto: formData.contacto,
+          nivelEducativo: formData.nivelEducativo // Agregar campo nivelEducativo
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,7 +81,8 @@ const RegistrarEstudiante = () => {
           promedio: null,
           centroEducativo: '',
           procedencia: '',
-          contacto: ''
+          contacto: '',
+          nivelEducativo: '' // Resetear campo nivelEducativo
         });
       } catch (error) {
         console.error('Error al enviar los datos:', error);
@@ -108,6 +112,12 @@ const RegistrarEstudiante = () => {
       });
     }
   };
+
+  const nivelesEducativos = [
+    { label: 'Preescolar', value: 'Preescolar' },
+    { label: 'Primaria', value: 'Primaria' },
+    { label: 'Secundaria', value: 'Secundaria' }
+  ];
 
   return (
     <div>
@@ -192,6 +202,17 @@ const RegistrarEstudiante = () => {
             style={{ width: '100%' }}
           />
         </div>
+        <div className="p-field" style={{ marginBottom: '16px' }}>
+            <label htmlFor="nivelEducativo">Nivel Educativo</label>
+            <Dropdown
+              id="nivelEducativo"
+              value={formData.nivelEducativo}
+              options={nivelesEducativos}
+              onChange={(e) => setFormData({ ...formData, nivelEducativo: e.value })}
+              placeholder="Seleccione el nivel educativo"
+              style={{ width: '100%' }}
+            />
+          </div>
         <Button type="submit" label="Registrar Estudiante" icon="pi pi-save" className="p-button-success" />
       </form>
       </div>

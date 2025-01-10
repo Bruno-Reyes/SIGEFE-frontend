@@ -1,0 +1,41 @@
+{
+    "Preescolar": {
+      "Materias": [
+        "Desarrollo Personal y Social",
+        "Lenguaje y Comunicación",
+        "Pensamiento Matemático",
+        "Exploración y Conocimiento del Mundo",
+        "Expresión y Apreciación Artísticas",
+        "Desarrollo Físico y Salud"
+      ]
+    },
+    "Primaria": {
+      "Materias": [
+        "Español",
+        "Matemáticas",
+        "Ciencias Naturales",
+        "Historia",
+        "Geografía",
+        "Formación Cívica y Ética",
+        "Educación Artística",
+        "Educación Física"
+      ]
+    },
+    "Secundaria": {
+      "Materias": [
+        "Español",
+        "Matemáticas",
+        "Biología",
+        "Física",
+        "Química",
+        "Historia de México",
+        "Historia Universal",
+        "Geografía",
+        "Formación Cívica y Ética",
+        "Educación Artística",
+        "Educación Física",
+        "Tecnología"
+      ]
+    }
+  }
+  

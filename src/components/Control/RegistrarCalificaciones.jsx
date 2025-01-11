@@ -23,9 +23,36 @@ const refreshToken = async () => {
     }
 };
 
+
 const RegistrarCalificaciones = () => {
     const [grupo, setGrupo] = useState('');
     const [data, setData] = useState([]);
+
+
+    useEffect(() => {
+
+        const fetchEstudiante = async () => {
+          try {
+            let token = JSON.parse(localStorage.getItem('access-token'));
+            if (!token) {
+              token = await refreshToken();
+            }
+            const response = await axios.get(`${apiUrl}/control_escolar/estudiantes/`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+    
+            setData(response.data);
+            
+          } catch (error) {
+            console.error('Error al obtener los detalles de los estudiantes:', error);
+          }
+        };
+    
+        fetchEstudiante();
+      }, []);
 
     return (
         <div>
@@ -46,8 +73,9 @@ const RegistrarCalificaciones = () => {
                     style={{ marginLeft: '10px' }} 
                 />
             </div>
+
             <DataTable value={data} style={{ width: '88%' , marginLeft: '5%'}} autoLayout>
-                <Column field="nombreCompleto" header="Nombre completo" />
+                <Column field="nombre" header="Nombre completo" />
                 <Column field="grado" header="Grado" />
                 <Column field="grupo" header="Grupo" />
                 <Column field="bimestre1" header="Bimestre 1">

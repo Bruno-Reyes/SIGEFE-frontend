@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { Dropdown } from 'primereact/dropdown'; // Importar Dropdown
-
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const refreshToken = async () => {
   try {
@@ -26,8 +25,10 @@ const refreshToken = async () => {
 
 const RegistrarEstudiante = () => {
 
+  const email = localStorage.getItem('email');
 
-  const [estado, setEstado] = useState('');
+  const [centro, setCentro] = useState('');
+  const [idLEC, setIdLEC] = useState('');
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -35,31 +36,55 @@ const RegistrarEstudiante = () => {
     grado: '',
     grupo: '',
     promedio: null,
-    centroEducativo: '',
-    procedencia: estado,
+    procedencia: '',
     contacto: '',
-    nivelEducativo: '' // Agregar campo nivelEducativo
+    nivelEducativo: '' 
   });
   const toast = React.useRef(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.nombre && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.centroEducativo && formData.procedencia && formData.contacto && formData.nivelEducativo) {
+  useEffect(() => {
+    const fetchLECDetails = async () => {
       try {
         let token = JSON.parse(localStorage.getItem('access-token'));
         if (!token) {
           token = await refreshToken();
         }
-        const response = await axios.post(`${apiUrl}/estudiantes/crear/`, {
+        const response = await axios.get(`${apiUrl}/asignacion/lec/email/${email}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setCentro(response.data.centro_asignado);
+        setIdLEC(response.data.id);
+        
+      } catch (error) {
+        console.error('Error al obtener los detalles del LEC:', error);
+      }
+    };
+
+    fetchLECDetails();
+  }, [email]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.nombre && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.procedencia && formData.contacto) {
+      try {
+        let token = JSON.parse(localStorage.getItem('access-token'));
+        if (!token) {
+          token = await refreshToken();
+        }
+
+        const response = await axios.post(`${apiUrl}/control_escolar/estudiantes/`, {
+          id_lec: idLEC,
           nombre: formData.nombre,
           edad: formData.edad,
           grado: formData.grado,
           grupo: formData.grupo,
-          promedio: formData.promedio,
-          centroEducativo: formData.centroEducativo,
+          promedio_global: formData.promedio,
+          centro_educativo: centro,
           procedencia: formData.procedencia,
-          contacto: formData.contacto,
-          nivelEducativo: formData.nivelEducativo // Agregar campo nivelEducativo
+          contacto: formData.contacto
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -79,10 +104,9 @@ const RegistrarEstudiante = () => {
           grado: '',
           grupo: '',
           promedio: null,
-          centroEducativo: '',
           procedencia: '',
           contacto: '',
-          nivelEducativo: '' // Resetear campo nivelEducativo
+          nivelEducativo: '' // Agregar campo nivelEducativo
         });
       } catch (error) {
         console.error('Error al enviar los datos:', error);
@@ -113,20 +137,10 @@ const RegistrarEstudiante = () => {
     }
   };
 
-  const nivelesEducativos = [
-    { label: 'Preescolar', value: 'Preescolar' },
-    { label: 'Primaria', value: 'Primaria' },
-    { label: 'Secundaria', value: 'Secundaria' }
-  ];
-
   return (
-    <div>
+    <div style={{ padding: '16px', maxWidth: '600px', margin: 'auto' }}>
       <Toast ref={toast} />
-      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '5%', marginTop: '2%' }}>
-            <h1>Registrar Estudiante</h1>
-            </div>
-
-    <div  style={{maxWidth: '33%', margin:'auto'}}>
+      <h2>Registrar Estudiante</h2>
       <form onSubmit={handleSubmit}>
         <div className="p-field" style={{ marginBottom: '16px' }}>
           <label htmlFor="nombre">Nombre</label>
@@ -202,20 +216,8 @@ const RegistrarEstudiante = () => {
             style={{ width: '100%' }}
           />
         </div>
-        <div className="p-field" style={{ marginBottom: '16px' }}>
-            <label htmlFor="nivelEducativo">Nivel Educativo</label>
-            <Dropdown
-              id="nivelEducativo"
-              value={formData.nivelEducativo}
-              options={nivelesEducativos}
-              onChange={(e) => setFormData({ ...formData, nivelEducativo: e.value })}
-              placeholder="Seleccione el nivel educativo"
-              style={{ width: '100%' }}
-            />
-          </div>
         <Button type="submit" label="Registrar Estudiante" icon="pi pi-save" className="p-button-success" />
       </form>
-      </div>
     </div>
   );
 };

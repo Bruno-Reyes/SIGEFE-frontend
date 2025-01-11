@@ -133,7 +133,7 @@ const AsignarEquipoCentro = () => {
           municipio: municipioCentro,
         },
       })
-      setCentrosFiltrados(response.data)
+      setCentrosFiltrados(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
       console.error('Error al buscar centros:', error)
       toast.current.show({
@@ -243,7 +243,7 @@ const AsignarEquipoCentro = () => {
                 {/* Sección de Equipos */}
                 <div style={{ flex: 1, width: "33%" }}>
                     <h3>Equipos Disponibles</h3>
-                    <DataTable value={equipos} paginator rows={10} responsiveLayout="scroll" selection={selectedEquipo} onSelectionChange={(e) => setSelectedEquipo(e.value)} selectionMode="single">
+                    <DataTable value={Array.isArray(equipos) ? equipos : []} paginator rows={10} responsiveLayout="scroll" selection={selectedEquipo} onSelectionChange={(e) => setSelectedEquipo(e.value)} selectionMode="single">
                         <Column selectionMode="single" headerStyle={{ width: "3rem" }} />
                         <Column field="nombre_equipo" header="Nombre del Equipo" sortable></Column>
                         <Column field="cantidad_disponible" header="Cantidad Disponible" sortable></Column>
@@ -291,7 +291,7 @@ const AsignarEquipoCentro = () => {
           </div>
 
           <DataTable
-            value={centrosFiltrados}
+            value={Array.isArray(centrosFiltrados) ? centrosFiltrados : []}
             selection={selectedCentro}
             onSelectionChange={(e) => handleCentroSelect(e.value)}
             selectionMode="single"
@@ -312,7 +312,7 @@ const AsignarEquipoCentro = () => {
         {/* Sección de Asignación */}
         <div style={{ flex: 1, width: '33%' }}>
           <h3>Asignación de Equipos a centros comunitarios</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1rem', marginBottom: '2rem', width: '50%' }}>
             <label>Cantidad:</label>
             <input
               type="number"
@@ -330,7 +330,7 @@ const AsignarEquipoCentro = () => {
           />
 
                     <DataTable
-                        value={equiposAsignados}
+                        value={Array.isArray(equiposAsignados) ? equiposAsignados : []}
                         responsiveLayout="scroll"
                     >
                         <Column field="nombre_equipo" header="Nombre del Equipo" />

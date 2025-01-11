@@ -3,6 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import { Dropdown } from 'primereact/dropdown';
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -30,6 +31,12 @@ const RegistrarEstudiante = () => {
   const [centro, setCentro] = useState('');
   const [idLEC, setIdLEC] = useState('');
 
+  const nivelEducativoOptions = [
+    { label: 'Preescolar', value: 'Preescolar' },
+    { label: 'Primaria', value: 'Primaria' },
+    { label: 'Secundaria', value: 'Secundaria' },
+  ]
+
   const [formData, setFormData] = useState({
     nombre: '',
     edad: null,
@@ -38,7 +45,7 @@ const RegistrarEstudiante = () => {
     promedio: null,
     procedencia: '',
     contacto: '',
-    nivelEducativo: '' 
+    nivel_educativo: '' 
   });
   const toast = React.useRef(null);
 
@@ -84,7 +91,8 @@ const RegistrarEstudiante = () => {
           promedio_global: formData.promedio,
           centro_educativo: centro,
           procedencia: formData.procedencia,
-          contacto: formData.contacto
+          contacto: formData.contacto,
+          nivel_educativo: formData.nivel_educativo
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -213,6 +221,17 @@ const RegistrarEstudiante = () => {
             value={formData.contacto}
             onChange={(e) => setFormData({ ...formData, contacto: e.target.value })}
             placeholder="Ingrese los datos de contacto del estudiante"
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div className="p-field" style={{ marginBottom: '16px' }}>
+          <label htmlFor="nivelEducativo">Nivel Educativo</label>
+          <Dropdown
+            id="nivelEducativo"
+            value={formData.nivel_educativo}
+            options={nivelEducativoOptions}
+            onChange={(e) => setFormData({ ...formData, nivel_educativo: e.value })}
+            placeholder="Seleccione el nivel educativo"
             style={{ width: '100%' }}
           />
         </div>

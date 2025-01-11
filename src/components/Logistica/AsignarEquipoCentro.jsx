@@ -93,7 +93,6 @@ const AsignarEquipoCentro = () => {
                         "Content-Type": "application/json",
                     },
                 });
-    
                 // Guardar los datos en el estado del componente
                 setEquiposAsignados(response.data);
             } catch (error) {

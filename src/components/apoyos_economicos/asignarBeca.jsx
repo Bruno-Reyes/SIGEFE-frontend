@@ -10,7 +10,8 @@ import 'primeicons/primeicons.css';
 import './MainView.css';
 
 const Becas = () => {
-  const [selectedCharacteristic, setSelectedCharacteristic] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedMunicipality, setSelectedMunicipality] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
@@ -40,23 +41,45 @@ const Becas = () => {
     token = refreshToken();
   }
 
-  const fetchUsers = async () => {
+  const fetchCombinedUsers = async () => {
     try {
-      const response = await axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // Realizar las tres peticiones en paralelo
+      const [usersResponse, detailsResponse, scholarshipsResponse] = await Promise.all([
+        axios.get(`${apiUrl}/auth/lec/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiUrl}/captacion/lecs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const usersData = usersResponse.data;
+      const detailsData = detailsResponse.data;
+      const scholarshipsData = scholarshipsResponse.data;
+
+      // Combinar los datos usando el ID del usuario como clave común
+      const combinedData = usersData.map((user) => {
+        const userDetails = detailsData.find((detail) => detail.usuario === user.id) || {};
+        const userScholarship = scholarshipsData.find((scholarship) => scholarship.usuario === user.id) || null;
+
+        return {
+          id: user.id,
+          name: `${userDetails.nombres || ''} ${userDetails.apellido_paterno || ''} ${userDetails.apellido_materno || ''}`.trim(),
+          email: user.email,
+          status: userScholarship ? userScholarship.tipo_beca.tipo : 'Sin asignar',
+          acceptanceState: userDetails.estado_aceptacion || 'Pendiente',
+          state: userDetails.estado || 'N/A',
+          municipality: userDetails.municipio || 'N/A',
+        };
       });
-      const mappedUsers = response.data.map((user) => ({
-        id: user.usuario_id,
-        name: user.email,
-        status: user.tipo_beca_asignada || 'Sin asignar',
-        characteristic: 'Lider LEC',
-      }));
-      setUsers(mappedUsers);
-      console.log('Usuarios:', mappedUsers);
+
+      setUsers(combinedData);
+      console.log('Usuarios combinados:', combinedData);
     } catch (error) {
-      console.error('Error al obtener usuarios:', error);
+      console.error('Error al obtener datos combinados:', error);
     }
   };
 
@@ -64,9 +87,7 @@ const Becas = () => {
     const fetchTiposBecas = async () => {
       try {
         const response = await axios.get(`${apiUrl}/pagos/tipos_becas`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const mappedScholarships = response.data.map((item) => ({ id: item.id, tipo: item.tipo }));
         setTiposBecas(mappedScholarships);
@@ -76,14 +97,16 @@ const Becas = () => {
       }
     };
 
-  
     fetchTiposBecas();
-    fetchUsers();
+    fetchCombinedUsers();
   }, [token]);
 
-  const filteredUsers = selectedCharacteristic
-    ? users.filter((user) => user.characteristic === selectedCharacteristic)
-    : users;
+  const filteredUsers = users.filter((user) => {
+    return (
+      (!selectedState || user.state === selectedState) &&
+      (!selectedMunicipality || user.municipality === selectedMunicipality)
+    );
+  });
 
   const openAssignDialog = (user) => {
     setSelectedUser(user);
@@ -100,14 +123,12 @@ const Becas = () => {
           estatus: 1,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setIsDialogVisible(false);
       setSelectedScholarship(null);
-      await fetchUsers(); // Recarga los usuarios
+      fetchCombinedUsers(); // Recarga los usuarios combinados
     } catch (error) {
       console.error('Error al asignar la beca:', error);
     }
@@ -120,7 +141,9 @@ const Becas = () => {
   const assignScholarshipToGroup = () => {
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
-        user.characteristic === selectedCharacteristic ? { ...user, status: selectedScholarship } : user
+        user.state === selectedState && user.municipality === selectedMunicipality
+          ? { ...user, status: selectedScholarship }
+          : user
       )
     );
     setIsBulkDialogVisible(false);
@@ -137,8 +160,12 @@ const Becas = () => {
   };
 
   const clearFilter = () => {
-    setSelectedCharacteristic(null);
+    setSelectedState(null);
+    setSelectedMunicipality(null);
   };
+
+  const uniqueStates = [...new Set(users.map((user) => user.state))].filter((state) => state !== 'N/A');
+  const uniqueMunicipalities = [...new Set(users.map((user) => user.municipality))].filter((municipality) => municipality !== 'N/A');
 
   return (
     <div className="container mt-4 gov-mx-style">
@@ -149,18 +176,26 @@ const Becas = () => {
 
       <main>
         <div className="mb-3">
-          <label htmlFor="characteristic-filter" className="form-label">Filtrar por Característica:</label>
+          <label htmlFor="state-filter" className="form-label">Filtrar por Estado y Municipio:</label>
           <div className="d-flex align-items-center gap-2">
             <Dropdown
-              id="characteristic-filter"
-              value={selectedCharacteristic}
-              options={['Lider LEC']}
-              onChange={(e) => setSelectedCharacteristic(e.value)}
-              placeholder="Selecciona una característica"
+              id="state-filter"
+              value={selectedState}
+              options={uniqueStates}
+              onChange={(e) => setSelectedState(e.value)}
+              placeholder="Selecciona un estado"
+              className="w-100"
+            />
+            <Dropdown
+              id="municipality-filter"
+              value={selectedMunicipality}
+              options={uniqueMunicipalities}
+              onChange={(e) => setSelectedMunicipality(e.value)}
+              placeholder="Selecciona un municipio"
               className="w-100"
             />
             <button className="btn btn-secondary" onClick={clearFilter}>Limpiar Filtro</button>
-            {selectedCharacteristic && (
+            {selectedState && selectedMunicipality && (
               <button className="btn btn-primary" onClick={openBulkAssignDialog}>Asignar Beca a Grupo</button>
             )}
           </div>
@@ -169,8 +204,11 @@ const Becas = () => {
         <DataTable value={filteredUsers} className="p-datatable-striped">
           <Column field="id" header="ID" sortable></Column>
           <Column field="name" header="Nombre" sortable></Column>
-          <Column field="status" header="Estatus" sortable></Column>
-          <Column field="characteristic" header="Característica" sortable></Column>
+          <Column field="email" header="Email" sortable></Column>
+          <Column field="acceptanceState" header="Estado de Aceptación" sortable></Column>
+          <Column field="state" header="Estado" sortable></Column>
+          <Column field="municipality" header="Municipio" sortable></Column>
+          <Column field="status" header="Tipo de Beca" sortable></Column>
           <Column header="Opciones" body={actionTemplate}></Column>
         </DataTable>
       </main>
@@ -209,7 +247,7 @@ const Becas = () => {
           </div>
         }
       >
-        <p>Seleccione el tipo de beca para el grupo de "{selectedCharacteristic}"</p>
+        <p>Seleccione el tipo de beca para el grupo de "{selectedState} - {selectedMunicipality}"</p>
         <Dropdown
           value={selectedScholarship}
           options={tiposBecas.map((beca) => beca.tipo)}

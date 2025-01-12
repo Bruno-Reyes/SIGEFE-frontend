@@ -5,7 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    historyApiFallback: true, // Permite manejar rutas SPA
+    open: true,
+    host: true,
+    port: 5173,
+    // ⚠️ Permite rutas dinámicas
+    historyApiFallback: true,
   },
   
 })

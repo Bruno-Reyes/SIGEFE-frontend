@@ -39,6 +39,8 @@ const RegistrarEstudiante = () => {
 
   const [formData, setFormData] = useState({
     nombre: '',
+    apellido_paterno: '',
+    apellido_materno: '',
     edad: null,
     grado: '',
     grupo: '',
@@ -75,7 +77,7 @@ const RegistrarEstudiante = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.nombre && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.procedencia && formData.contacto) {
+    if (formData.nombre && formData.apellido_paterno && formData.apellido_materno && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.procedencia && formData.contacto) {
       try {
         let token = JSON.parse(localStorage.getItem('access-token'));
         if (!token) {
@@ -85,6 +87,8 @@ const RegistrarEstudiante = () => {
         const response = await axios.post(`${apiUrl}/control_escolar/estudiantes/`, {
           id_lec: idLEC,
           nombre: formData.nombre,
+          apellido_paterno: formData.apellido_paterno,
+          apellido_materno: formData.apellido_materno,
           edad: formData.edad,
           grado: formData.grado,
           grupo: formData.grupo,
@@ -108,13 +112,15 @@ const RegistrarEstudiante = () => {
         });
         setFormData({
           nombre: '',
+          apellido_paterno: '',
+          apellido_materno: '',
           edad: null,
           grado: '',
           grupo: '',
           promedio: null,
           procedencia: '',
           contacto: '',
-          nivelEducativo: '' // Agregar campo nivelEducativo
+          nivel_educativo: ''
         });
       } catch (error) {
         console.error('Error al enviar los datos:', error);
@@ -157,6 +163,26 @@ const RegistrarEstudiante = () => {
             value={formData.nombre}
             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
             placeholder="Ingrese el nombre del estudiante"
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div className="p-field" style={{ marginBottom: '16px' }}>
+          <label htmlFor="apellido_paterno">Apellido Paterno</label>
+          <InputText
+            id="apellido_paterno"
+            value={formData.apellido_paterno}
+            onChange={(e) => setFormData({ ...formData, apellido_paterno: e.target.value })}
+            placeholder="Ingrese el apellido paterno del estudiante"
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div className="p-field" style={{ marginBottom: '16px' }}>
+          <label htmlFor="apellido_materno">Apellido Materno</label>
+          <InputText
+            id="apellido_materno"
+            value={formData.apellido_materno}
+            onChange={(e) => setFormData({ ...formData, apellido_materno: e.target.value })}
+            placeholder="Ingrese el apellido materno del estudiante"
             style={{ width: '100%' }}
           />
         </div>

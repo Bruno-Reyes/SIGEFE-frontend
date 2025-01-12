@@ -84,6 +84,8 @@ const RegistrarEstudiante = () => {
           token = await refreshToken();
         }
 
+        const fechaInscripcion = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+
         const response = await axios.post(`${apiUrl}/control_escolar/estudiantes/`, {
           id_lec: idLEC,
           nombre: formData.nombre,
@@ -96,7 +98,8 @@ const RegistrarEstudiante = () => {
           centro_educativo: centro,
           procedencia: formData.procedencia,
           contacto: formData.contacto,
-          nivel_educativo: formData.nivel_educativo
+          nivel_educativo: formData.nivel_educativo,
+          fecha_inscripcion_centro: fechaInscripcion // Agregar la fecha de inscripción
         }, {
           headers: {
             Authorization: `Bearer ${token}`,

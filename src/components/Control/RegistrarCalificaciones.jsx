@@ -45,6 +45,15 @@ const RegistrarCalificaciones = () => {
     const toast = useRef(null);
 
     const handleSearch = async () => {
+        if (!grado || !grupo || !nivelEducativo) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Por favor, complete todos los campos: Grado, Grupo y Nivel Educativo.',
+                life: 3000,
+            });
+            return;
+        }
         try {
             let token = JSON.parse(localStorage.getItem('access-token'));
             if (!token) {
@@ -59,6 +68,7 @@ const RegistrarCalificaciones = () => {
                     grado: grado || undefined,
                     grupo: grupo || undefined,
                     nivel_educativo: nivelEducativo || undefined,
+                    // nombre: nombreCompleto || undefined, // Nuevo parámetro para filtrar por nombre completo
                 },
             });
 
@@ -113,6 +123,7 @@ const RegistrarCalificaciones = () => {
                     <Column header="Bimestre 1" colSpan={materiasNivel.length} style={{ border: '1px solid black', textAlign: 'center', justifyContent: 'center' }} />
                     <Column header="Bimestre 2" colSpan={materiasNivel.length} style={{ border: '1px solid black', textAlign: 'center', justifyContent: 'center' }} />
                     <Column header="Bimestre 3" colSpan={materiasNivel.length} style={{ border: '1px solid black', textAlign: 'center', justifyContent: 'center' }} />
+                    <Column header="Promedio" rowSpan={2} style={{ width: '1%', border: '1px solid black' }} />
                 </Row>
                 <Row>
                     {[1, 2, 3].map(bimestre => (
@@ -143,6 +154,12 @@ const RegistrarCalificaciones = () => {
         }));
     };
 
+    const calculatePromedio = (calificaciones) => {
+        const values = Object.values(calificaciones).filter(value => value !== undefined && value !== null);
+        const sum = values.reduce((acc, value) => acc + parseFloat(value), 0);
+        return values.length > 0 ? (sum / values.length).toFixed(2) : null;
+    };
+
     const handleConfirm = async () => {
         setShowConfirmDialog(false);
         try {
@@ -153,6 +170,7 @@ const RegistrarCalificaciones = () => {
 
             const calificacionesArray = [];
             for (const estudianteId in calificaciones) {
+                let promedio = calculatePromedio(calificaciones[estudianteId]);
                 for (let bimestre = 1; bimestre <= 3; bimestre++) {
                     const nivel = nivelEducativo || undefined;
                     const materiasNivel = materias[nivel]?.Materias || [];
@@ -165,7 +183,8 @@ const RegistrarCalificaciones = () => {
                                 calificacion: parseFloat(calificacion), // Asegúrate de que la calificación sea un número
                                 grado,
                                 grupo,
-                                bimestre
+                                bimestre,
+                                promedio: parseFloat(promedio) // Guardar el promedio
                             });
                         }
                     });
@@ -233,6 +252,19 @@ const RegistrarCalificaciones = () => {
                 );
             });
         });
+
+        // Agregar columna de promedio
+        columns.push(
+            <Column
+                key="promedio"
+                header="Promedio"
+                body={(rowData) => {
+                    const promedio = calculatePromedio(calificaciones[rowData.id] || {});
+                    return <span>{promedio}</span>;
+                }}
+                bodyStyle={{ border: '1px solid black', textAlign: 'center' }}
+            />
+        );
 
         return columns;
     };

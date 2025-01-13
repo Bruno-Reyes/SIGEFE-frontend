@@ -3,8 +3,8 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-
 import axios from 'axios';
+import jsPDF from 'jspdf';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -12,7 +12,7 @@ const refreshToken = async () => {
     try {
         const refreshToken = JSON.parse(localStorage.getItem('refresh-token'));
         const response = await axios.post(`${apiUrl}/auth/token/refresh/`, {
-        refresh: refreshToken,
+            refresh: refreshToken,
         });
         const newAccessToken = response.data.access;
         localStorage.setItem('access-token', JSON.stringify(newAccessToken));
@@ -90,10 +90,14 @@ const ReinscribirEstudiante = () => {
         console.log('materiasInscritas:', materiasInscritas);
         console.log('materiasCalificadas:', materiasCalificadas);
         console.log('promedio:', promedio);
-        
 
         if (materiasCalificadas === materiasInscritas && promedio >= 6) {
-            return <span style={{ backgroundColor: 'green', borderRadius: '10px', padding: '5px', color: 'white' }}>Ciclo Escolar Completado</span>;
+            return (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ backgroundColor: 'green', borderRadius: '10px', padding: '5px', color: 'white' }}>Ciclo Escolar Completado</span>
+                    <Button label="Generar Certificado" icon="pi pi-file-pdf" className="p-button-secondary" style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} onClick={() => generarCertificado(estudiante)} />
+                </div>
+            );
         } else if (materiasCalificadas < materiasInscritas) {
             return <span style={{ backgroundColor: 'gray', borderRadius: '10px', padding: '5px', color: 'white' }}>Cursando Ciclo Escolar</span>;
         } else if (materiasCalificadas === materiasInscritas && promedio < 6) {
@@ -106,6 +110,15 @@ const ReinscribirEstudiante = () => {
         const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null);
         const promedio = materiasCalificadas.length > 0 ? materiasCalificadas.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas.length : 0;
         return promedio.toFixed(2);
+    };
+
+    const generarCertificado = (estudiante) => {
+        const doc = new jsPDF();
+        doc.text(`Certificado de Finalización`, 20, 20);
+        doc.text(`El alumno ${estudiante.nombre} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`, 20, 30);
+        doc.text(`inscrito en el grado ${estudiante.grado} y grupo ${estudiante.grupo},`, 20, 40);
+        doc.text(`ha completado exitosamente el ciclo escolar.`, 20, 50);
+        doc.save(`Certificado_${estudiante.nombre}_${estudiante.apellido_paterno}.pdf`);
     };
 
     return (

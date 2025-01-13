@@ -84,7 +84,7 @@ const RegistrarEstudiante = () => {
           token = await refreshToken();
         }
 
-        const fechaInscripcion = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+        const fechaInscripcion = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
 
         const response = await axios.post(`${apiUrl}/control_escolar/estudiantes/`, {
           id_lec: idLEC,
@@ -99,32 +99,35 @@ const RegistrarEstudiante = () => {
           procedencia: formData.procedencia,
           contacto: formData.contacto,
           nivel_educativo: formData.nivel_educativo,
-          fecha_inscripcion_centro: fechaInscripcion // Agregar la fecha de inscripción
         }, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
-        console.log('Datos enviados:', response.data);
-        toast.current.show({
-          severity: 'success',
-          summary: 'Estudiante Registrado',
-          detail: 'El estudiante se ha registrado correctamente.',
-          life: 3000,
-        });
-        setFormData({
-          nombre: '',
-          apellido_paterno: '',
-          apellido_materno: '',
-          edad: null,
-          grado: '',
-          grupo: '',
-          promedio: null,
-          procedencia: '',
-          contacto: '',
-          nivel_educativo: ''
-        });
+
+        if (response.status === 201) {
+          const estudianteId = response.data.id;
+          const historialResponse = await axios.post(`${apiUrl}/control_escolar/historial_migratorio/`, {
+            id_estudiante: estudianteId,
+            fecha_inscripcion: fechaInscripcion,
+            clave_centro_trabajo: centro
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            }
+          });
+
+          toast.current.show({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: `El estudiante ${formData.nombre} ha sido registrado correctamente.`,
+            life: 3000,
+          });
+        } else {
+          throw new Error('Error al registrar el estudiante');
+        }
       } catch (error) {
         console.error('Error al enviar los datos:', error);
         if (error.response) {

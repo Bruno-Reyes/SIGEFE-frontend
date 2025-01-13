@@ -139,28 +139,53 @@ const GestionHistorialMigratorio = () => {
             });
 
             if (estudianteResponse.data.length > 0) {
-                const centroTrabajo = estudianteResponse.data[0].centro_educativo;
+                const estudianteId = estudianteResponse.data[0].id;
 
-                // Obtener los detalles del centro de trabajo
-                const centroResponse = await axios.get(`${apiUrl}/asignacion/centros/`, {
+                // Obtener el historial migratorio del alumno
+                const historialResponse = await axios.get(`${apiUrl}/control_escolar/historial_migratorio/`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                     params: {
-                        clave_centro_trabajo: centroTrabajo,
+                        id_estudiante: estudianteId,
                     },
                 });
 
-                if (centroResponse.headers['content-type'].includes('application/json')) {
-                    const centroData = centroResponse.data.map(item => ({
-                        ...item,
-                        fecha_inscripcion_centro: estudianteResponse.data[0].fecha_inscripcion_centro // Agregar la fecha de inscripción
-                    }));
-                    setData(centroData);
+                if (historialResponse.status === 200) {
+                    const historialData = historialResponse.data;
+
+                    // Obtener detalles del centro comunitario
+                    const centroPromises = historialData.map(async (historial) => {
+                        const centroResponse = await axios.get(`${apiUrl}/asignacion/centros/`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            params: {
+                                clave_centro_trabajo: historial.clave_centro_trabajo,
+                            },
+                        });
+
+                        if (centroResponse.status === 200 && centroResponse.data.length > 0) {
+                            const centro = centroResponse.data[0];
+                            return {
+                                ...historial,
+                                estado: centro.estado,
+                                municipio: centro.municipio,
+                                nombre_localidad: centro.nombre_localidad,
+                            };
+                        } else {
+                            return historial;
+                        }
+                    });
+
+                    const historialCompleto = await Promise.all(centroPromises);
+                    setData(historialCompleto);
                     setIsSearchSuccessful(true); // Habilitar el botón
                 } else {
-                    throw new Error('La respuesta no es JSON');
+                    console.error("Error al obtener el historial migratorio:", historialResponse.data);
+                    throw new Error('Error al obtener el historial migratorio');
                 }
             } else {
                 setData([]);
@@ -180,15 +205,78 @@ const GestionHistorialMigratorio = () => {
         setShowConfirmDialog(true);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         setShowConfirmDialog(false);
-        // Lógica para inscribir al alumno en el nuevo centro
-        toast.current.show({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: `El alumno ${apellido_paterno} ${apellido_materno} ${nombreAlumno} ha sido inscrito en el centro ${cct}.`,
-            life: 3000,
-        });
+        try {
+            let token = JSON.parse(localStorage.getItem('access-token'));
+            if (!token) {
+                token = await refreshToken();
+            }
+
+            // Obtener el ID del estudiante
+            const estudianteResponse = await axios.get(`${apiUrl}/control_escolar/estudiantes/`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                params: {
+                    nombre: nombreAlumno,
+                    apellido_paterno: apellido_paterno,
+                    apellido_materno: apellido_materno,
+                },
+            });
+
+            if (estudianteResponse.data.length > 0) {
+                const estudianteId = estudianteResponse.data[0].id;
+
+                // Registrar el nuevo historial migratorio
+                const fechaInscripcion = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+                const historialResponse = await axios.post(`${apiUrl}/control_escolar/historial_migratorio/`, {
+                    id_estudiante: estudianteId,
+                    fecha_inscripcion: fechaInscripcion,
+                    clave_centro_trabajo: cct
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (historialResponse.status === 201) {
+                    toast.current.show({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: `El alumno ${apellido_paterno} ${apellido_materno} ${nombreAlumno} ha sido inscrito en el centro ${cct}.`,
+                        life: 3000,
+                    });
+                    handleSearch(); // Actualizar la tabla con el nuevo historial
+                } else {
+                    console.error("Error al registrar el historial migratorio:", historialResponse.data);
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Hubo un problema al inscribir al alumno en el nuevo centro.',
+                        life: 3000,
+                    });
+                }
+            } else {
+                console.error("No se encontró el estudiante.");
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se encontró el estudiante.',
+                    life: 3000,
+                });
+            }
+        } catch (error) {
+            console.error('Error al inscribir al alumno en el nuevo centro:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Hubo un problema al inscribir al alumno en el nuevo centro.',
+                life: 3000,
+            });
+        }
     };
 
     const handleCancel = () => {
@@ -295,7 +383,7 @@ const GestionHistorialMigratorio = () => {
                 <Column field="municipio" header="Municipio" />
                 <Column field="nombre_localidad" header="Localidad" />
                 <Column field="clave_centro_trabajo" header="CCT" />
-                <Column field="fecha_inscripcion_centro" header="Fecha de inscripción al centro" body={(rowData) => formatDate(rowData.fecha_inscripcion_centro)} />
+                <Column field="fecha_inscripcion" header="Fecha de inscripción al centro" body={(rowData) => formatDate(rowData.fecha_inscripcion)} />
             </DataTable>
             <Dialog
                 header="Confirmación"

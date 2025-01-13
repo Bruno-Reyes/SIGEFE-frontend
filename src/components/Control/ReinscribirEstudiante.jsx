@@ -84,8 +84,13 @@ const ReinscribirEstudiante = () => {
     const calcularEstatus = (estudiante) => {
         const calificacionesEstudiante = calificaciones.filter(cal => cal.id_estudiante === estudiante.id);
         const materiasInscritas = calificacionesEstudiante.length;
-        const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null).length;
+        const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null && parseFloat(cal.calificacion) > 0).length;
         const promedio = materiasCalificadas > 0 ? calificacionesEstudiante.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas : 0;
+        console.log('calificacionesEstudiante:', calificacionesEstudiante);
+        console.log('materiasInscritas:', materiasInscritas);
+        console.log('materiasCalificadas:', materiasCalificadas);
+        console.log('promedio:', promedio);
+        
 
         if (materiasCalificadas === materiasInscritas && promedio >= 6) {
             return <span style={{ backgroundColor: 'green', borderRadius: '10px', padding: '5px', color: 'white' }}>Ciclo Escolar Completado</span>;
@@ -94,6 +99,13 @@ const ReinscribirEstudiante = () => {
         } else if (materiasCalificadas === materiasInscritas && promedio < 6) {
             return <span style={{ backgroundColor: 'red', borderRadius: '10px', padding: '5px', color: 'white' }}>Ciclo Escolar Reprobado</span>;
         }
+    };
+
+    const calcularPromedio = (estudiante) => {
+        const calificacionesEstudiante = calificaciones.filter(cal => cal.id_estudiante === estudiante.id);
+        const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null);
+        const promedio = materiasCalificadas.length > 0 ? materiasCalificadas.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas.length : 0;
+        return promedio.toFixed(2);
     };
 
     return (
@@ -132,7 +144,7 @@ const ReinscribirEstudiante = () => {
                 <Column field="nivel_educativo" header="Nivel Escolar" />
                 <Column field="grado" header="Grado" />
                 <Column field="grupo" header="Grupo" />
-                <Column field="promedio_global" header="Promedio" />
+                <Column header="Promedio" body={calcularPromedio} />
                 <Column field="estatus" header="Estatus" body={calcularEstatus} />
             </DataTable>
         </div>

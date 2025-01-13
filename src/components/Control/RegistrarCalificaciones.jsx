@@ -35,6 +35,27 @@ const nivelEducativoOptions = [
     { label: 'Secundaria', value: 'Secundaria' },
 ];
 
+const gradoOptions = {
+    'Preescolar': [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+    ],
+    'Primaria': [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+        { label: '4', value: '4' },
+        { label: '5', value: '5' },
+        { label: '6', value: '6' },
+    ],
+    'Secundaria': [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+    ],
+};
+
 const RegistrarCalificaciones = () => {
     const [grupo, setGrupo] = useState('');
     const [grado, setGrado] = useState('');
@@ -220,20 +241,29 @@ const RegistrarCalificaciones = () => {
                     const materiasNivel = materias[nivel]?.Materias || [];
                     materiasNivel.forEach((materia, index) => {
                         const calificacion = calificaciones[estudianteId][`bimestre${bimestre}_materia${index}`];
-                        if (calificacion !== undefined && calificacion !== null) {
-                            calificacionesArray.push({
-                                id_estudiante: estudianteId,
-                                materia,
-                                calificacion: parseFloat(calificacion), // Asegúrate de que la calificación sea un número
-                                grado,
-                                grupo,
-                                bimestre,
-                                promedio: parseFloat(promedio), // Guardar el promedio
-                                email // Agregar el email al payload
-                            });
-                        }
+                        console.log('Calificación:', calificacion);
+                        calificacionesArray.push({
+                            id_estudiante: estudianteId,
+                            materia,
+                            calificacion: calificacion !== undefined ? parseFloat(calificacion) : 0, // Registrar calificación o 0
+                            grado,
+                            grupo,
+                            bimestre,
+                            promedio: parseFloat(promedio), // Guardar el promedio
+                            email // Agregar el email al payload
+                        });
                     });
                 }
+            }
+
+            if (calificacionesArray.length === 0) {
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'No hay calificaciones para registrar.',
+                    life: 3000,
+                });
+                return;
             }
 
             await axios.post(`${apiUrl}/control_escolar/calificaciones/bulk_create/`, calificacionesArray, {
@@ -288,6 +318,7 @@ const RegistrarCalificaciones = () => {
                                 onValueChange={(e) => handleCalificacionChange(e.value, rowData.id, bimestre, index)}
                                 min={0}
                                 max={10}
+                                placeholder='0'
                                 mode="decimal"
                                 inputStyle={{ width: '100%', padding: '0' }}
                             />
@@ -329,31 +360,40 @@ const RegistrarCalificaciones = () => {
                 <h1>Registrar Calificaciones</h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2%', marginLeft: '5%' }}>
-                <InputText
+            <Dropdown
+                    value={nivelEducativo}
+                    options={nivelEducativoOptions}
+                    onChange={(e) => {
+                        setNivelEducativo(e.value);
+                        setGrado('');
+                        setGrupo('');
+                    }}
+                    placeholder="Nivel Educativo"
+                    style={{ width: '15%', marginLeft: '1%' }}
+                />
+                <Dropdown
                     value={grado}
-                    onChange={(e) => setGrado(e.target.value)}
+                    options={gradoOptions[nivelEducativo] || []}
+                    onChange={(e) => setGrado(e.value)}
                     placeholder="Grado"
-                    style={{ width: '10%' }}
+                    style={{ width: '10%', marginLeft: '1%' }}
+                    disabled={!nivelEducativo}
                 />
                 <InputText
                     value={grupo}
                     onChange={handleGrupoChange}
                     placeholder="Grupo"
                     style={{ width: '10%', marginLeft: '1%' }}
+                    disabled={!grado}
                 />
-                <Dropdown
-                    value={nivelEducativo}
-                    options={nivelEducativoOptions}
-                    onChange={(e) => setNivelEducativo(e.value)}
-                    placeholder="Nivel Educativo"
-                    style={{ width: '15%', marginLeft: '1%' }}
-                />
+                
                 <Button
                     label="Buscar"
                     icon="pi pi-search"
                     className="p-button-success"
                     style={{ marginLeft: '1%' }}
                     onClick={handleSearch}
+                    disabled={!grupo}
                 />
                 <Button
                     label="Registrar Calificaciones"
@@ -361,6 +401,7 @@ const RegistrarCalificaciones = () => {
                     className="p-button-info" 
                     style={{ marginLeft: '1%'}}
                     onClick={handleRegisterClick}
+                    disabled={!grupo}
                 />
             </div>
 

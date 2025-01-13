@@ -84,6 +84,11 @@ const RegistrarEstudiante = () => {
           token = await refreshToken();
         }
 
+        const email = localStorage.getItem('email'); // Obtener el email del local storage
+        if (!email) {
+          throw new Error('No se pudo obtener el email del local storage.');
+        }
+
         const fechaInscripcion = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
 
         const response = await axios.post(`${apiUrl}/control_escolar/estudiantes/`, {
@@ -111,12 +116,27 @@ const RegistrarEstudiante = () => {
           const historialResponse = await axios.post(`${apiUrl}/control_escolar/historial_migratorio/`, {
             id_estudiante: estudianteId,
             fecha_inscripcion: fechaInscripcion,
-            clave_centro_trabajo: centro
+            clave_centro_trabajo: centro,
+            email // Agregar el email al payload
           }, {
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             }
+          });
+
+          // Limpiar los campos del formulario
+          setFormData({
+            nombre: '',
+            apellido_paterno: '',
+            apellido_materno: '',
+            edad: null,
+            grado: '',
+            grupo: '',
+            promedio: null,
+            procedencia: '',
+            contacto: '',
+            nivel_educativo: ''
           });
 
           toast.current.show({

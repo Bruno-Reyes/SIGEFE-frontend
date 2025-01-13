@@ -45,6 +45,8 @@ const GestionHistorialMigratorio = () => {
     const [municipios, setMunicipios] = useState([]);
     const [localidades, setLocalidades] = useState([]);
     const [ccts, setCcts] = useState([]);
+    const [cctCentroAsignado, setCctCentroAsignado] = useState(''); // Estado para almacenar el CCT del LEC
+    const [cctEstudiante, setCctEstudiante] = useState(''); // Estado para almacenar el CCT del estudiante
 
     useEffect(() => {
         if (estado && lugares[estado]) {
@@ -140,6 +142,7 @@ const GestionHistorialMigratorio = () => {
 
             if (estudianteResponse.data.length > 0) {
                 const estudianteId = estudianteResponse.data[0].id;
+                setCctEstudiante(estudianteResponse.data[0].centro_educativo); // Guardar el CCT del estudiante
 
                 // Obtener el historial migratorio del alumno
                 const historialResponse = await axios.get(`${apiUrl}/control_escolar/historial_migratorio/`, {
@@ -183,6 +186,21 @@ const GestionHistorialMigratorio = () => {
                     const historialCompleto = await Promise.all(centroPromises);
                     setData(historialCompleto);
                     setIsSearchSuccessful(true); // Habilitar el botón
+
+                    // Obtener el email del LEC desde el local storage
+                    const email = localStorage.getItem('email');
+
+                    // Obtener el CCT del LEC
+                    const lecResponse = await axios.get(`${apiUrl}/asignacion/lecs?email=${email}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (lecResponse.status === 200 && lecResponse.data.length > 0) {
+                        setCctCentroAsignado(lecResponse.data[0].cct_centro_asignado); // Guardar el CCT del LEC
+                    }
                 } else {
                     console.error("Error al obtener el historial migratorio:", historialResponse.data);
                     throw new Error('Error al obtener el historial migratorio');
@@ -199,10 +217,87 @@ const GestionHistorialMigratorio = () => {
 
     const handleRegisterChange = () => {
         setShowDropdowns(true);
+        setIsDropdownsSelected(false); // Deshabilitar el botón de "Inscribir a nuevo centro"
     };
 
-    const handleInscribirClick = () => {
-        setShowConfirmDialog(true);
+    const handleInscribirClick = async () => {
+        try {
+            let token = JSON.parse(localStorage.getItem('access-token'));
+            if (!token) {
+                token = await refreshToken();
+            }
+
+            // Obtener el ID del estudiante
+            const estudianteResponse = await axios.get(`${apiUrl}/control_escolar/estudiantes/`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                params: {
+                    nombre: nombreAlumno,
+                    apellido_paterno: apellido_paterno,
+                    apellido_materno: apellido_materno,
+                },
+            });
+
+            if (estudianteResponse.data.length > 0) {
+                const estudianteId = estudianteResponse.data[0].id;
+
+                // Obtener el email del LEC desde el local storage
+                const email = localStorage.getItem('email');
+
+                // Obtener el CCT del LEC
+                const lecResponse = await axios.get(`${apiUrl}/asignacion/lecs?email=${email}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (lecResponse.status !== 200) {
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se pudo obtener el CCT del LEC.',
+                        life: 3000,
+                    });
+                    return;
+                }
+
+                const lecData = lecResponse.data[0]; // Acceder al primer elemento del array
+                const cct_centro_asignado = lecData.cct_centro_asignado;
+                console.log('CCT LEC:', cct_centro_asignado);
+                console.log('CCT Estudiante:', estudianteResponse.data[0].centro_educativo);
+
+                // Verificar si el LEC tiene control sobre el estudiante
+                if (estudianteResponse.data[0].centro_educativo !== cct_centro_asignado) {
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'El LEC no tiene control sobre este estudiante.',
+                        life: 3000,
+                    });
+                    return;
+                }
+
+                setShowConfirmDialog(true);
+            } else {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se encontró el estudiante.',
+                    life: 3000,
+                });
+            }
+        } catch (error) {
+            console.error('Error al verificar el control del LEC sobre el estudiante:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Hubo un problema al verificar el control del LEC sobre el estudiante.',
+                life: 3000,
+            });
+        }
     };
 
     const handleConfirm = async () => {
@@ -231,16 +326,19 @@ const GestionHistorialMigratorio = () => {
 
                 // Registrar el nuevo historial migratorio
                 const fechaInscripcion = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+                const email = localStorage.getItem('email'); // Obtener el email del local storage
+
                 const historialResponse = await axios.post(`${apiUrl}/control_escolar/historial_migratorio/`, {
-                    id_estudiante: estudianteId,
-                    fecha_inscripcion: fechaInscripcion,
-                    clave_centro_trabajo: cct
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    }
-                });
+                            id_estudiante: estudianteId,
+                            fecha_inscripcion: fechaInscripcion,
+                            clave_centro_trabajo: cct,
+                            email: localStorage.getItem('email'),
+                          }, {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                              'Content-Type': 'application/json',
+                            }
+                          });
 
                 if (historialResponse.status === 201) {
                     toast.current.show({
@@ -250,6 +348,10 @@ const GestionHistorialMigratorio = () => {
                         life: 3000,
                     });
                     handleSearch(); // Actualizar la tabla con el nuevo historial
+
+                    // Ocultar la sección de selección de datos del nuevo centro
+                    setShowDropdowns(false);
+                    setIsDropdownsSelected(false); // Deshabilitar el botón de "Inscribir a nuevo centro"
                 } else {
                     console.error("Error al registrar el historial migratorio:", historialResponse.data);
                     toast.current.show({
@@ -327,7 +429,7 @@ const GestionHistorialMigratorio = () => {
                     style={{ marginLeft: '10px' }} 
                     icon="pi pi-arrow-right-arrow-left"
                     onClick={handleRegisterChange}
-                    disabled={!isSearchSuccessful} // Deshabilitar botón
+                    disabled={!isSearchSuccessful || cctCentroAsignado !== cctEstudiante} // Deshabilitar botón
                 />
                 <Button 
                     label="Inscribir a nuevo centro" 

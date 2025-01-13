@@ -68,11 +68,43 @@ const RegistrarCalificaciones = () => {
                     grado: grado || undefined,
                     grupo: grupo || undefined,
                     nivel_educativo: nivelEducativo || undefined,
-                    // nombre: nombreCompleto || undefined, // Nuevo parámetro para filtrar por nombre completo
                 },
             });
 
-            setData(response.data);
+            console.log('Estudiantes obtenidos:', response.data);
+
+            // Obtener el email del LEC desde el local storage
+            const email = localStorage.getItem('email');
+            console.log('Email del LEC:', localStorage.email);
+
+            // Filtrar estudiantes por centro educativo del LEC
+            const lecResponse = await axios.get(`${apiUrl}/asignacion/lecs?email=${email}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (lecResponse.status !== 200) {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo obtener el CCT del LEC.',
+                    life: 3000,
+                });
+                return;
+            }
+
+            const lecData = lecResponse.data[0]; // Acceder al primer elemento del array
+            const cct_centro_asignado = lecData.cct_centro_asignado;
+
+            console.log('CCT del LEC:', lecResponse);
+
+            const filteredData = response.data.filter(estudiante => estudiante.centro_educativo === cct_centro_asignado);
+
+            console.log('Estudiantes filtrados:', filteredData);
+
+            setData(filteredData);
 
             // Obtener calificaciones existentes
             const calificacionesResponse = await axios.get(`${apiUrl}/control_escolar/calificaciones/`, {
@@ -168,8 +200,16 @@ const RegistrarCalificaciones = () => {
                 token = await refreshToken();
             }
 
+            const email = localStorage.getItem('email'); // Obtener el email del local storage
+
             const calificacionesArray = [];
+            const estudiantesFiltradosIds = data.map(estudiante => estudiante.id); // Obtener los IDs de los estudiantes filtrados
+
             for (const estudianteId in calificaciones) {
+                if (!estudiantesFiltradosIds.includes(parseInt(estudianteId))) {
+                    continue; // Saltar estudiantes que no están en la lista filtrada
+                }
+
                 let promedio = calculatePromedio(calificaciones[estudianteId]);
                 for (let bimestre = 1; bimestre <= 3; bimestre++) {
                     const nivel = nivelEducativo || undefined;
@@ -184,7 +224,8 @@ const RegistrarCalificaciones = () => {
                                 grado,
                                 grupo,
                                 bimestre,
-                                promedio: parseFloat(promedio) // Guardar el promedio
+                                promedio: parseFloat(promedio), // Guardar el promedio
+                                email // Agregar el email al payload
                             });
                         }
                     });

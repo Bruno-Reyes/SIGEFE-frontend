@@ -44,6 +44,10 @@ const RegistrarCalificaciones = () => {
     const [calificaciones, setCalificaciones] = useState({});
     const toast = useRef(null);
 
+    const handleGrupoChange = (e) => {
+        setGrupo(e.target.value.toUpperCase());
+    };
+
     const handleSearch = async () => {
         if (!grado || !grupo || !nivelEducativo) {
             toast.current.show({
@@ -280,9 +284,9 @@ const RegistrarCalificaciones = () => {
                         key={`bimestre${bimestre}_materia${index}`}
                         body={(rowData) => (
                             <InputNumber
-                                value={calificaciones[rowData.id]?.[`bimestre${bimestre}_materia${index}`] || ''}
+                                value={calificaciones[rowData.id]?.[`bimestre${bimestre}_materia${index}`] ?? 0}
                                 onValueChange={(e) => handleCalificacionChange(e.value, rowData.id, bimestre, index)}
-                                min={1}
+                                min={0}
                                 max={10}
                                 mode="decimal"
                                 inputStyle={{ width: '100%', padding: '0' }}
@@ -333,7 +337,7 @@ const RegistrarCalificaciones = () => {
                 />
                 <InputText
                     value={grupo}
-                    onChange={(e) => setGrupo(e.target.value)}
+                    onChange={handleGrupoChange}
                     placeholder="Grupo"
                     style={{ width: '10%', marginLeft: '1%' }}
                 />

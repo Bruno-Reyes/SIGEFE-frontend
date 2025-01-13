@@ -94,6 +94,10 @@ const RegistrarEstudiante = () => {
     fetchLECDetails();
   }, [email]);
 
+  const handleGrupoChange = (e) => {
+    setFormData({ ...formData, grupo: e.target.value.toUpperCase() });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.nombre && formData.apellido_paterno && formData.apellido_materno && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.procedencia && formData.contacto) {
@@ -270,7 +274,7 @@ const RegistrarEstudiante = () => {
           <InputText
             id="grupo"
             value={formData.grupo}
-            onChange={(e) => setFormData({ ...formData, grupo: e.target.value })}
+            onChange={handleGrupoChange}
             placeholder="Ingrese el grupo del estudiante"
             style={{ width: '100%' }}
           />

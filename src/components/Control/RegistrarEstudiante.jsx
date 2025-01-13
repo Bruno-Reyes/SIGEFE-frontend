@@ -51,6 +51,25 @@ const RegistrarEstudiante = () => {
   });
   const toast = React.useRef(null);
 
+  const [gradoOptions, setGradoOptions] = useState([]);
+  const [isGradoDisabled, setIsGradoDisabled] = useState(true);
+
+  const handleNivelEducativoChange = (e) => {
+    const nivel = e.value;
+    setFormData({ ...formData, nivel_educativo: nivel });
+
+    let options = [];
+    if (nivel === 'Preescolar') {
+      options = [1, 2, 3];
+    } else if (nivel === 'Primaria') {
+      options = [1, 2, 3, 4, 5, 6];
+    } else if (nivel === 'Secundaria') {
+      options = [1, 2, 3];
+    }
+    setGradoOptions(options.map((grado) => ({ label: grado, value: grado })));
+    setIsGradoDisabled(false);
+  };
+
   useEffect(() => {
     const fetchLECDetails = async () => {
       try {
@@ -224,13 +243,26 @@ const RegistrarEstudiante = () => {
           />
         </div>
         <div className="p-field" style={{ marginBottom: '16px' }}>
+          <label htmlFor="nivelEducativo">Nivel Educativo</label>
+          <Dropdown
+            id="nivelEducativo"
+            value={formData.nivel_educativo}
+            options={nivelEducativoOptions}
+            onChange={handleNivelEducativoChange}
+            placeholder="Seleccione el nivel educativo"
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div className="p-field" style={{ marginBottom: '16px' }}>
           <label htmlFor="grado">Grado</label>
-          <InputText
+          <Dropdown
             id="grado"
             value={formData.grado}
-            onChange={(e) => setFormData({ ...formData, grado: e.target.value })}
-            placeholder="Ingrese el grado del estudiante"
+            options={gradoOptions}
+            onChange={(e) => setFormData({ ...formData, grado: e.value })}
+            placeholder="Seleccione el grado"
             style={{ width: '100%' }}
+            disabled={isGradoDisabled}
           />
         </div>
         <div className="p-field" style={{ marginBottom: '16px' }}>
@@ -276,17 +308,7 @@ const RegistrarEstudiante = () => {
             style={{ width: '100%' }}
           />
         </div>
-        <div className="p-field" style={{ marginBottom: '16px' }}>
-          <label htmlFor="nivelEducativo">Nivel Educativo</label>
-          <Dropdown
-            id="nivelEducativo"
-            value={formData.nivel_educativo}
-            options={nivelEducativoOptions}
-            onChange={(e) => setFormData({ ...formData, nivel_educativo: e.value })}
-            placeholder="Seleccione el nivel educativo"
-            style={{ width: '100%' }}
-          />
-        </div>
+        
         <Button type="submit" label="Registrar Estudiante" icon="pi pi-save" className="p-button-success" />
       </form>
     </div>

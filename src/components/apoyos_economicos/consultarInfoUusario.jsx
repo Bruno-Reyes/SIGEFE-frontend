@@ -1,44 +1,123 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Toast } from 'primereact/toast';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import 'primereact/resources/themes/saga-green/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import './UserDetailView.css';
 
 const UserDetailView = () => {
-  //const id = localStorage.getItem('id_to_check');
-  const id = 19
-
+  const id = localStorage.getItem('usuario-to-check-id');
+  const email = localStorage.getItem('usuario-to-check-email');
+  const nombre = localStorage.getItem('usuario-to-check-nombre');
   const [userDetails, setUserDetails] = useState(null);
   const [scholarship, setScholarship] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [newPaymentDialog, setNewPaymentDialog] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    usuario: id,
+    concepto: '',
+    monto: '',
+    estatus: 'pendiente',
+  });
+  const toast = React.useRef(null);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const token = JSON.parse(localStorage.getItem('access-token'));
-        const userResponse = await axios.get(`${apiUrl}/captacion/lec/${id}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const scholarshipResponse = await axios.get(`${apiUrl}/pagos/beca-lec/${id}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  // Función para obtener los detalles del usuario
+  const fetchUserDetails = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('access-token'));
 
-        setUserDetails(userResponse.data);
-        // Verifica que el array no esté vacío antes de acceder al objeto
-        if (scholarshipResponse.data.length > 0) {
-            setScholarship(scholarshipResponse.data[0].tipo_beca);
-        } else {
-            setScholarship(null);
-        }
-      } catch (error) {
-        console.error('Error al obtener detalles del usuario:', error);
+      const userResponse = await axios.get(`${apiUrl}/captacion/lec/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const scholarshipResponse = await axios.get(`${apiUrl}/pagos/beca-lec/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setUserDetails(userResponse.data);
+
+      if (scholarshipResponse.data.length > 0) {
+        setScholarship(scholarshipResponse.data[0].tipo_beca);
+        setNewPayment((prevPayment) => ({
+          ...prevPayment,
+          concepto: scholarshipResponse.data[0].tipo_beca.tipo,
+        }));
+      } else {
+        setScholarship(null);
       }
-    };
+    } catch (error) {
+      console.error('Error al obtener detalles del usuario:', error);
+    }
+  };
 
+  // Función para obtener el historial de pagos
+  const fetchUserPayments = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('access-token'));
+      const paymentsResponse = await axios.get(`${apiUrl}/pagos/usuario/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setPayments(paymentsResponse.data);
+    } catch (error) {
+      console.error('Error al obtener historial de pagos:', error);
+    }
+  };
+
+  // Función para agregar un nuevo pago
+  const agregarPago = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('access-token'));
+
+      const response = await axios.post(`${apiUrl}/pagos/registrar/`, newPayment, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.current.show({ severity: 'success', summary: 'Pago Creado', detail: 'Nuevo pago registrado con éxito', life: 3000 });
+
+      await fetchUserPayments();
+
+      setNewPaymentDialog(false);
+      setNewPayment({
+        usuario: id,
+        concepto: scholarship?.tipo || '',
+        monto: '',
+        estatus: 'pendiente',
+      });
+    } catch (error) {
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el pago', life: 3000 });
+    }
+  };
+
+  // Función para eliminar un pago
+  const eliminarPago = async (pagoId) => {
+    try {
+      const token = JSON.parse(localStorage.getItem('access-token'));
+
+      await axios.delete(`${apiUrl}/pagos/eliminar/${pagoId}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.current.show({ severity: 'success', summary: 'Pago Eliminado', detail: 'El pago ha sido eliminado con éxito', life: 3000 });
+
+      await fetchUserPayments();
+    } catch (error) {
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el pago', life: 3000 });
+    }
+  };
+
+  useEffect(() => {
     fetchUserDetails();
+    fetchUserPayments();
   }, [id]);
 
   if (!userDetails) {
@@ -48,62 +127,89 @@ const UserDetailView = () => {
   return (
     <div className="container mt-4 gov-mx-style">
       <header className="text-center mb-4">
-        <h1>Detalles del Líder Educativo</h1>
+        <h1>{nombre}</h1>
       </header>
 
       <main>
-        <div className="user-details">
-          <h2>{`${userDetails.nombres} ${userDetails.apellido_paterno} ${userDetails.apellido_materno}`}</h2>
-          <p><strong>CURP:</strong> {userDetails.curp}</p>
-          <p><strong>Fecha de Nacimiento:</strong> {userDetails.fecha_nacimiento}</p>
-          <p><strong>Género:</strong> {userDetails.genero === 'M' ? 'Masculino' : 'Femenino'}</p>
-          <p><strong>Talla de Playera:</strong> {userDetails.talla_playera}</p>
-          <p><strong>Talla de Pantalón:</strong> {userDetails.talla_pantalon}</p>
-          <p><strong>Talla de Calzado:</strong> {userDetails.talla_calzado}</p>
-          <p><strong>Peso:</strong> {userDetails.peso} kg</p>
-          <p><strong>Estatura:</strong> {userDetails.estatura} cm</p>
-          <p><strong>Afecciones:</strong> {userDetails.afecciones}</p>
-          <p><strong>Banco:</strong> {userDetails.banco}</p>
-          <p><strong>CLABE:</strong> {userDetails.clabe}</p>
-          <p><strong>Nivel de Estudios:</strong> {userDetails.nivel_estudios}</p>
-          <p><strong>Nivel de Estudios Deseado:</strong> {userDetails.nivel_estudios_deseado}</p>
-          <p><strong>Experiencia en Ciencias:</strong> {userDetails.experiencia_ciencia}</p>
-          <p><strong>Experiencia en Arte:</strong> {userDetails.experiencia_arte}</p>
-          <p><strong>Interés en Desarrollo Comunitario:</strong> {userDetails.interes_desarrollo_comunitario ? 'Sí' : 'No'}</p>
-          <p><strong>Razones de Interés:</strong> {userDetails.razones_interes}</p>
-          <p><strong>Profesión de Interés:</strong> {userDetails.profesion_interes}</p>
-          <p><strong>Interés en Incorporación:</strong> {userDetails.interes_incorporacion}</p>
-          <p><strong>Código Postal:</strong> {userDetails.codigo_postal}</p>
-          <p><strong>Estado:</strong> {userDetails.estado}</p>
-          <p><strong>Municipio:</strong> {userDetails.municipio}</p>
-          <p><strong>Localidad:</strong> {userDetails.localidad}</p>
-          <p><strong>Calle:</strong> {userDetails.calle}</p>
-          <p><strong>Número Exterior:</strong> {userDetails.numero_exterior}</p>
-          <p><strong>Número Interior:</strong> {userDetails.numero_interior || 'N/A'}</p>
-          <p><strong>Estado de Aceptación:</strong> {userDetails.estado_aceptacion}</p>
-          <p><strong>Tipo de Beca Asignada:</strong> {scholarship?.tipo || 'Sin asignar'}</p>
-          <p><strong>Monto de la Beca:</strong> ${scholarship?.monto || 'N/A'}</p>
-
-          <h3>Documentos</h3>
-          <ul>
-            <li>
-              <a href={userDetails.certificado} target="_blank" rel="noopener noreferrer">
-                Certificado
-              </a>
-            </li>
-            <li>
-              <a href={userDetails.identificacion} target="_blank" rel="noopener noreferrer">
-                Identificación
-              </a>
-            </li>
-            <li>
-              <a href={userDetails.estado_cuenta} target="_blank" rel="noopener noreferrer">
-                Estado de Cuenta
-              </a>
-            </li>
-          </ul>
+        {/* Información del usuario */}
+        <div className="user-details-grid">
+            <div>
+                <h3>Información Personal</h3>
+                <p><strong>CURP:</strong> {userDetails.curp}</p>
+                <p><strong>Fecha de Nacimiento:</strong> {userDetails.fecha_nacimiento}</p>
+                <p><strong>Género:</strong> {userDetails.genero === 'M' ? 'Masculino' : 'Femenino'}</p>
+                <p><strong>Talla de Playera:</strong> {userDetails.talla_playera}</p>
+                <p><strong>Talla de Pantalón:</strong> {userDetails.talla_pantalon}</p>
+                <p><strong>Talla de Calzado:</strong> {userDetails.talla_calzado}</p>
+                <p><strong>Peso:</strong> {userDetails.peso} kg</p>
+                <p><strong>Estatura:</strong> {userDetails.estatura} cm</p>
+                <p><strong>Afecciones:</strong> {userDetails.afecciones}</p>
+            </div>
+            <div>
+                <h3>Información de Contacto</h3>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Estado:</strong> {userDetails.estado}</p>
+                <p><strong>Municipio:</strong> {userDetails.municipio}</p>
+                <p><strong>Localidad:</strong> {userDetails.localidad}</p>
+                <p><strong>Calle:</strong> {userDetails.calle}</p>
+                <p><strong>Número Exterior:</strong> {userDetails.numero_exterior}</p>
+                <p><strong>Número Interior:</strong> {userDetails.numero_interior || 'N/A'}</p>
+                <p><strong>Estado de Aceptación:</strong> {userDetails.estado_aceptacion}</p>
+            </div>
         </div>
+
+        {/* Información de beca */}
+        <div className="scholarship-info">
+          <h3>Información de Beca</h3>
+          <div className="scholarship-card">
+            <p><strong>Tipo de Beca Asignada:</strong> {scholarship?.tipo || 'Sin asignar'}</p>
+            <p><strong>Monto de la Beca:</strong> ${scholarship?.monto || 'N/A'}</p>
+          </div>
+        </div>
+
+        {/* Historial de Pagos */}
+        <h3 className="mt-4">Historial de Pagos</h3>
+        <Button label="Agregar Nuevo Pago" icon="pi pi-plus" className="mb-3" onClick={() => setNewPaymentDialog(true)} />
+        <DataTable value={payments} className="p-datatable-striped">
+          <Column field="fecha_pago" header="Fecha de Pago" sortable></Column>
+          <Column field="concepto" header="Concepto"></Column>
+          <Column field="monto" header="Monto"></Column>
+          <Column field="estatus" header="Estatus"></Column>
+          <Column
+            header="Opciones"
+            body={(rowData) => (
+              <Button icon="pi pi-trash" className="p-button-danger" onClick={() => eliminarPago(rowData.id)} />
+            )}
+          />
+        </DataTable>
+
+        {/* Diálogo para agregar nuevo pago */}
+        <Dialog
+          header="Agregar Nuevo Pago"
+          visible={newPaymentDialog}
+          style={{ width: '50vw' }}
+          onHide={() => setNewPaymentDialog(false)}
+          footer={
+            <div>
+              <Button label="Cancelar" icon="pi pi-times" onClick={() => setNewPaymentDialog(false)} />
+              <Button label="Guardar" icon="pi pi-check" onClick={agregarPago} />
+            </div>
+          }
+        >
+          <div className="p-fluid">
+            <div className="p-field">
+              <label htmlFor="concepto">Concepto</label>
+              <InputText id="concepto" value={newPayment.concepto} onChange={(e) => setNewPayment({ ...newPayment, concepto: e.target.value })} disabled />
+            </div>
+            <div className="p-field">
+              <label htmlFor="monto">Monto</label>
+              <InputText id="monto" value={newPayment.monto} onChange={(e) => setNewPayment({ ...newPayment, monto: e.target.value })} />
+            </div>
+          </div>
+        </Dialog>
       </main>
+
+      <Toast ref={toast} />
 
       <footer className="text-center mt-4">
         <p>&copy; 2024 Administración Pública. Todos los derechos reservados.</p>

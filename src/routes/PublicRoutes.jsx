@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import LandingPage from '../modules/landingPage';
 import Login from '../modules/login';
 import Register from '../components/captacion/RegistroCandidato';

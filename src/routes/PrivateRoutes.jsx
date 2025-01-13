@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import HomePage from '../modules/home';
 import Becas from '../components/apoyos_economicos/asignarBeca';
 import UserDetailView from '../components/apoyos_economicos/consultarInfoUusario';

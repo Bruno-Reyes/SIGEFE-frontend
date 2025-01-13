@@ -4,6 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
+import { useNavigate } from 'react-router-dom';
 import 'primereact/resources/themes/saga-green/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -12,12 +13,15 @@ import './MainView.css';
 const Becas = () => {
   const [selectedState, setSelectedState] = useState(null);
   const [selectedMunicipality, setSelectedMunicipality] = useState(null);
+  const [curpSearch, setCurpSearch] = useState('');
+  const [selectedScholarshipFilter, setSelectedScholarshipFilter] = useState(null); // NUEVA VARIABLE PARA FILTRO DE TIPO DE BECA
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isBulkDialogVisible, setIsBulkDialogVisible] = useState(false);
   const [tiposBecas, setTiposBecas] = useState([]);
+  const navigate = useNavigate();
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -43,7 +47,6 @@ const Becas = () => {
 
   const fetchCombinedUsers = async () => {
     try {
-      // Realizar las tres peticiones en paralelo
       const [usersResponse, detailsResponse, scholarshipsResponse] = await Promise.all([
         axios.get(`${apiUrl}/auth/lec/`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -60,7 +63,6 @@ const Becas = () => {
       const detailsData = detailsResponse.data;
       const scholarshipsData = scholarshipsResponse.data;
 
-      // Combinar los datos usando el ID del usuario como clave común
       const combinedData = usersData.map((user) => {
         const userDetails = detailsData.find((detail) => detail.usuario === user.id) || {};
         const userScholarship = scholarshipsData.find((scholarship) => scholarship.usuario === user.id) || null;
@@ -69,6 +71,7 @@ const Becas = () => {
           id: user.id,
           name: `${userDetails.nombres || ''} ${userDetails.apellido_paterno || ''} ${userDetails.apellido_materno || ''}`.trim(),
           email: user.email,
+          curp: userDetails.curp || 'N/A',
           status: userScholarship ? userScholarship.tipo_beca.tipo : 'Sin asignar',
           acceptanceState: userDetails.estado_aceptacion || 'Pendiente',
           state: userDetails.estado || 'N/A',
@@ -77,7 +80,6 @@ const Becas = () => {
       });
 
       setUsers(combinedData);
-      console.log('Usuarios combinados:', combinedData);
     } catch (error) {
       console.error('Error al obtener datos combinados:', error);
     }
@@ -91,7 +93,6 @@ const Becas = () => {
         });
         const mappedScholarships = response.data.map((item) => ({ id: item.id, tipo: item.tipo }));
         setTiposBecas(mappedScholarships);
-        console.log('Tipos de becas:', mappedScholarships);
       } catch (error) {
         console.error('Error al obtener tipos de becas:', error);
       }
@@ -101,11 +102,14 @@ const Becas = () => {
     fetchCombinedUsers();
   }, [token]);
 
+  // Actualizamos la función de filtrado para buscar por CURP y tipo de beca
   const filteredUsers = users.filter((user) => {
-    return (
-      (!selectedState || user.state === selectedState) &&
-      (!selectedMunicipality || user.municipality === selectedMunicipality)
-    );
+    const curpMatch = curpSearch === '' || user.curp.toLowerCase().includes(curpSearch.toLowerCase());
+    const stateMatch = !selectedState || user.state === selectedState;
+    const municipalityMatch = !selectedMunicipality || user.municipality === selectedMunicipality;
+    const scholarshipMatch = !selectedScholarshipFilter || user.status === selectedScholarshipFilter;
+
+    return curpMatch && stateMatch && municipalityMatch && scholarshipMatch;
   });
 
   const openAssignDialog = (user) => {
@@ -113,48 +117,19 @@ const Becas = () => {
     setIsDialogVisible(true);
   };
 
-  const assignScholarship = async () => {
-    try {
-      await axios.post(
-        `${apiUrl}/pagos/asignar-beca/`,
-        {
-          tipo_beca: tiposBecas.find((beca) => beca.tipo === selectedScholarship)?.id,
-          usuario: selectedUser.id,
-          estatus: 1,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setIsDialogVisible(false);
-      setSelectedScholarship(null);
-      fetchCombinedUsers(); // Recarga los usuarios combinados
-    } catch (error) {
-      console.error('Error al asignar la beca:', error);
-    }
-  };
+  const handleConsultClick = (rowData) => {
+    localStorage.setItem('usuario-to-check-id', rowData.id);
+    localStorage.setItem('usuario-to-check-email', rowData.email);
+    localStorage.setItem('usuario-to-check-nombre', rowData.name);
 
-  const openBulkAssignDialog = () => {
-    setIsBulkDialogVisible(true);
-  };
-
-  const assignScholarshipToGroup = () => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.state === selectedState && user.municipality === selectedMunicipality
-          ? { ...user, status: selectedScholarship }
-          : user
-      )
-    );
-    setIsBulkDialogVisible(false);
-    setSelectedScholarship(null);
+    navigate('/usuario');
   };
 
   const actionTemplate = (rowData) => {
     return (
       <div className="actions">
         <button className="btn-action" onClick={() => openAssignDialog(rowData)}>Asignar beca</button>
-        <button className="btn-action">Consultar</button>
+        <button className="btn-action" onClick={() => handleConsultClick(rowData)}>Consultar</button>
       </div>
     );
   };
@@ -162,6 +137,8 @@ const Becas = () => {
   const clearFilter = () => {
     setSelectedState(null);
     setSelectedMunicipality(null);
+    setCurpSearch('');
+    setSelectedScholarshipFilter(null);
   };
 
   const uniqueStates = [...new Set(users.map((user) => user.state))].filter((state) => state !== 'N/A');
@@ -176,6 +153,16 @@ const Becas = () => {
 
       <main>
         <div className="mb-3">
+          <label htmlFor="curp-search" className="form-label">Buscar por CURP:</label>
+          <input
+            type="text"
+            id="curp-search"
+            value={curpSearch}
+            onChange={(e) => setCurpSearch(e.target.value)}
+            placeholder="Ingresa el CURP"
+            className="form-control mb-3"
+          />
+
           <label htmlFor="state-filter" className="form-label">Filtrar por Estado y Municipio:</label>
           <div className="d-flex align-items-center gap-2">
             <Dropdown
@@ -194,17 +181,26 @@ const Becas = () => {
               placeholder="Selecciona un municipio"
               className="w-100"
             />
-            <button className="btn btn-secondary" onClick={clearFilter}>Limpiar Filtro</button>
-            {selectedState && selectedMunicipality && (
-              <button className="btn btn-primary" onClick={openBulkAssignDialog}>Asignar Beca a Grupo</button>
-            )}
           </div>
+
+          <label htmlFor="scholarship-filter" className="form-label">Filtrar por Tipo de Beca:</label>
+          <Dropdown
+            id="scholarship-filter"
+            value={selectedScholarshipFilter}
+            options={tiposBecas.map((beca) => beca.tipo)}
+            onChange={(e) => setSelectedScholarshipFilter(e.value)}
+            placeholder="Selecciona un tipo de beca"
+            className="w-100"
+          />
+
+          <button className="btn btn-secondary mt-3" onClick={clearFilter}>Limpiar Filtros</button>
         </div>
 
         <DataTable value={filteredUsers} className="p-datatable-striped">
           <Column field="id" header="ID" sortable></Column>
           <Column field="name" header="Nombre" sortable></Column>
           <Column field="email" header="Email" sortable></Column>
+          <Column field="curp" header="CURP" sortable></Column>
           <Column field="acceptanceState" header="Estado de Aceptación" sortable></Column>
           <Column field="state" header="Estado" sortable></Column>
           <Column field="municipality" header="Municipio" sortable></Column>
@@ -212,54 +208,6 @@ const Becas = () => {
           <Column header="Opciones" body={actionTemplate}></Column>
         </DataTable>
       </main>
-
-      <Dialog
-        header="Asignar Beca"
-        visible={isDialogVisible}
-        style={{ width: '30vw' }}
-        onHide={() => setIsDialogVisible(false)}
-        footer={
-          <div>
-            <button className="btn btn-primary" onClick={assignScholarship} disabled={!selectedScholarship}>Aceptar</button>
-            <button className="btn btn-secondary" onClick={() => setIsDialogVisible(false)}>Cancelar</button>
-          </div>
-        }
-      >
-        <p>Seleccione el tipo de beca para {selectedUser?.name}:</p>
-        <Dropdown
-          value={selectedScholarship}
-          options={tiposBecas.map((beca) => beca.tipo)}
-          onChange={(e) => setSelectedScholarship(e.value)}
-          placeholder="Selecciona una beca"
-          className="w-100"
-        />
-      </Dialog>
-
-      <Dialog
-        header="Asignar Beca a Grupo"
-        visible={isBulkDialogVisible}
-        style={{ width: '30vw' }}
-        onHide={() => setIsBulkDialogVisible(false)}
-        footer={
-          <div>
-            <button className="btn btn-primary" onClick={assignScholarshipToGroup} disabled={!selectedScholarship}>Aceptar</button>
-            <button className="btn btn-secondary" onClick={() => setIsBulkDialogVisible(false)}>Cancelar</button>
-          </div>
-        }
-      >
-        <p>Seleccione el tipo de beca para el grupo de "{selectedState} - {selectedMunicipality}"</p>
-        <Dropdown
-          value={selectedScholarship}
-          options={tiposBecas.map((beca) => beca.tipo)}
-          onChange={(e) => setSelectedScholarship(e.value)}
-          placeholder="Selecciona una beca"
-          className="w-100"
-        />
-      </Dialog>
-
-      <footer className="text-center mt-4">
-        <p>&copy; 2024 Administración Pública. Todos los derechos reservados.</p>
-      </footer>
     </div>
   );
 };

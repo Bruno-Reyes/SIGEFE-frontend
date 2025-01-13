@@ -53,4 +53,38 @@
     font-size: 14px;
     color: #666;
   }
+
+  .user-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .user-details-grid div {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .scholarship-info {
+    margin-top: 20px;
+  }
+  
+  .scholarship-card {
+    background-color: #f0f9ff;
+    border: 1px solid #d0eaff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scholarship-card p {
+    margin: 5px 0;
+    font-size: 16px;
+  }
+  
+  .scholarship-card strong {
+    color: #004085;
+  }
   

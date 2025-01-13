@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 
@@ -29,6 +30,8 @@ const ReinscribirEstudiante = () => {
     const [apellido_materno, setApellidoMaterno] = useState('');
     const [data, setData] = useState([]);
     const [calificaciones, setCalificaciones] = useState([]);
+    const [mostrarBotonReinscribir, setMostrarBotonReinscribir] = useState(false);
+    const toast = useRef(null);
 
     useEffect(() => {
         // Aquí puedes cargar los datos desde un JSON o una API
@@ -41,6 +44,16 @@ const ReinscribirEstudiante = () => {
     }, []);
 
     const handleSearch = async () => {
+        if (!nombreAlumno || !apellido_paterno || !apellido_materno) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Por favor, complete todos los campos: Nombre, Apellido Paterno y Apellido Materno.',
+                life: 3000,
+            });
+            return;
+        }
+
         try {
             let token = JSON.parse(localStorage.getItem('access-token'));
             if (!token) {
@@ -72,6 +85,16 @@ const ReinscribirEstudiante = () => {
                     },
                 });
                 setCalificaciones(calificacionesResponse.data);
+
+                // Verificar si algún estudiante tiene el estatus "Ciclo Escolar Completado"
+                const mostrarBoton = estudiantes.some(est => {
+                    const calificacionesEstudiante = calificacionesResponse.data.filter(cal => cal.id_estudiante === est.id);
+                    const materiasInscritas = calificacionesEstudiante.length;
+                    const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null && parseFloat(cal.calificacion) > 0).length;
+                    const promedio = materiasCalificadas > 0 ? calificacionesEstudiante.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas : 0;
+                    return materiasCalificadas === materiasInscritas && promedio >= 6;
+                });
+                setMostrarBotonReinscribir(mostrarBoton);
             } else {
                 setData([]);
                 console.warn('No se encontraron estudiantes con los criterios de búsqueda proporcionados.');
@@ -86,10 +109,6 @@ const ReinscribirEstudiante = () => {
         const materiasInscritas = calificacionesEstudiante.length;
         const materiasCalificadas = calificacionesEstudiante.filter(cal => cal.calificacion !== null && parseFloat(cal.calificacion) > 0).length;
         const promedio = materiasCalificadas > 0 ? calificacionesEstudiante.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas : 0;
-        console.log('calificacionesEstudiante:', calificacionesEstudiante);
-        console.log('materiasInscritas:', materiasInscritas);
-        console.log('materiasCalificadas:', materiasCalificadas);
-        console.log('promedio:', promedio);
 
         if (materiasCalificadas === materiasInscritas && promedio >= 6) {
             return (
@@ -121,8 +140,14 @@ const ReinscribirEstudiante = () => {
         doc.save(`Certificado_${estudiante.nombre}_${estudiante.apellido_paterno}.pdf`);
     };
 
+    const reinscribirSiguienteGrupo = () => {
+        // Lógica para reinscribir al siguiente grupo
+        console.log('Reinscribir al siguiente grupo');
+    };
+
     return (
         <div>
+            <Toast ref={toast} />
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '5%', marginTop: '2%' }}>
                 <h1>Reinscribir Estudiante</h1>
             </div>
@@ -149,9 +174,18 @@ const ReinscribirEstudiante = () => {
                     label="Buscar" 
                     icon="pi pi-search" 
                     className="p-button-success" 
-                    style={{ marginLeft: '10px' }} 
+                    style={{ marginLeft: '1%' }} 
                     onClick={handleSearch}
                 />
+                {mostrarBotonReinscribir && (
+                    <Button 
+                        label="Reinscribir al siguiente grado" 
+                        icon="pi pi-pencil" 
+                        className="p-button-info" 
+                        style={{ marginLeft: '1%' }} 
+                        onClick={reinscribirSiguienteGrupo}
+                    />
+                )}
             </div>
             <DataTable value={data} style={{ width: '88%' , marginLeft: '5%'}} autoLayout>
                 <Column field="nivel_educativo" header="Nivel Escolar" />

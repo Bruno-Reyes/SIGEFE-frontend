@@ -6,9 +6,8 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog"; 
-import { InputText } from "primereact/inputtext";
+import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
-import { Calendar } from "primereact/calendar";
 import axios from "axios";
 import "./PagosView.css";
 import * as XLSX from 'xlsx';
@@ -24,6 +23,13 @@ const MostrarPagosPendientes = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPago, setSelectedPago] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [newPaymentDialog, setNewPaymentDialog] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    usuario: '',
+    monto: '',
+    estatus: 'pendiente',
+  });
+  const [usuariosConBecas, setUsuariosConBecas] = useState([]);
   const toast = useRef(null);
 
   // Obtener información del usuario desde localStorage
@@ -45,16 +51,27 @@ const MostrarPagosPendientes = () => {
     { label: "Fallido", value: "fallido" }
   ];
 
-//TODO: Bloquear cuando el valor de confirmación pase a recibido
-
   const conceptos = [
     { label: "Beca", value: "Beca" },
     { label: "Seguimiento", value: "Seguimiento" },
     { label: "Continuación", value: "Continuación" }
   ];
 
-  // Función para actualizar el monto del pago
+  // Función para actualizar el monto del pagoå
+  const fetchUsuariosConBecas = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('access-token'));
+      const response = await axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsuariosConBecas(response.data);
+    } catch (error) {
+      console.error('Error al obtener usuarios con becas:', error);
+    }
+  };
   
+
+
   const actualizarMonto = async (pagoId, nuevoMonto) => {
     try {
         // Convertir el monto a número y asegurarnos de que no sea NaN
@@ -105,19 +122,26 @@ const MostrarPagosPendientes = () => {
 
 
 const montoTemplate = (rowData) => {
-    if (userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") {
-        return (
-            <InputNumber
-                value={rowData.monto}
-                onValueChange={(e) => actualizarMonto(rowData.id, e.value)}
-                mode="currency"
-                currency="USD"
-                locale="en-US"
-                minFractionDigits={2}
-            />
-        );
-    }
+  // Deshabilitar edición si la confirmación LEC es "recibido"
+  if (rowData.confirmacion_lec === "recibido") {
     return <span>${parseFloat(rowData.monto).toFixed(2)}</span>;
+  }
+
+  // Permitir edición solo para usuarios autorizados
+  if (userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") {
+    return (
+      <InputNumber
+        value={rowData.monto}
+        onValueChange={(e) => actualizarMonto(rowData.id, e.value)}
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        minFractionDigits={2}
+      />
+    );
+  }
+
+  return <span>${parseFloat(rowData.monto).toFixed(2)}</span>;
 };
 
   // Función para obtener pagos pendientes
@@ -140,35 +164,32 @@ const montoTemplate = (rowData) => {
     }
   };
 
-  // Función para agregar un nuevo pago
   const agregarPago = async () => {
     try {
-      const token = JSON.parse(localStorage.getItem("access-token"));
-      const nuevoPago = {
-        usuario: usuario.id,
-        concepto: "Beca",
-        monto: 4123.5,
-        estatus: "pendiente"
-      };
-      const response = await axios.post(`${apiUrl}/pagos/registrar/`, nuevoPago, {
-        headers: { Authorization: `Bearer ${token}` }
+      const token = JSON.parse(localStorage.getItem('access-token'));
+      await axios.post(`${apiUrl}/pagos/registrar/`, newPayment, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setPagos((prevPagos) => [...prevPagos, response.data]);
+  
       toast.current.show({
-        severity: "success",
-        summary: "Pago agregado",
-        detail: "El pago ha sido registrado con éxito.",
-        life: 3000
+        severity: 'success',
+        summary: 'Pago Registrado',
+        detail: 'El nuevo pago ha sido registrado con éxito',
+        life: 3000,
       });
+  
+      setNewPaymentDialog(false);
+      obtenerPagosPendientes();
     } catch (error) {
       toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo registrar el pago.",
-        life: 3000
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo registrar el pago',
+        life: 3000,
       });
     }
   };
+  
 
   // Función para eliminar un pago
   const eliminarPago = async (pagoId) => {
@@ -237,6 +258,36 @@ const montoTemplate = (rowData) => {
     }
   };
 
+  const confirmarActualizacionDirecta = async (pago, nuevaConfirmacion) => {
+    try {
+      const token = JSON.parse(localStorage.getItem("access-token"));
+      const endpoint = nuevaConfirmacion === "recibido"
+        ? `${apiUrl}/pagos/confirmar/${pago.id}/`
+        : `${apiUrl}/pagos/rechazar/${pago.id}/`;
+  
+      await axios.patch(endpoint, { confirmacion_lec: nuevaConfirmacion }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      toast.current.show({
+        severity: "success",
+        summary: "Confirmación Actualizada",
+        detail: "La confirmación ha sido actualizada con éxito.",
+        life: 3000,
+      });
+  
+      obtenerPagosPendientes();
+    } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudo actualizar la confirmación.",
+        life: 3000,
+      });
+    }
+  };
+  
+
   // Función para manejar la selección en el Dropdown
   const handleConfirmacionChange = (pago, nuevaConfirmacion) => {
     setSelectedPago({ ...pago, confirmacion_lec: nuevaConfirmacion });
@@ -245,6 +296,17 @@ const montoTemplate = (rowData) => {
 
   // Función para renderizar la columna de Confirmación LEC
   const confirmacionTemplate = (rowData) => {
+    // Validación: Mostrar solo texto si el usuario es coord_nac_rrhh@example.com o dep_finanzas@example.com
+    if (userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") {
+      return <span>{rowData.confirmacion_lec || "Sin Confirmación"}</span>;
+    }
+  
+    // Validación: Si el valor es "Recibido", mostrar solo texto y bloquear edición
+    if (rowData.confirmacion_lec === "recibido") {
+      return <span>{rowData.confirmacion_lec}</span>;
+    }
+  
+    // Mostrar Dropdown solo si el usuario tiene permisos y el valor no es "Recibido"
     if (puedeEditar) {
       return (
         <Dropdown
@@ -255,8 +317,11 @@ const montoTemplate = (rowData) => {
         />
       );
     }
+  
+    // Mostrar el valor como texto si no se cumplen las condiciones anteriores
     return <span>{rowData.confirmacion_lec || "Sin Confirmación"}</span>;
   };
+  
 
   // Función para exportar a Excel
     const exportarAExcel = () => {
@@ -318,15 +383,56 @@ const montoTemplate = (rowData) => {
             />
         </div>
 
-      <ConfirmDialog
-        visible={showConfirmDialog}
-        onHide={() => setShowConfirmDialog(false)}
-        message={`¿Estás seguro de actualizar la confirmación a "${selectedPago?.confirmacion_lec}"?`}
-        header="Confirmar Actualización"
-        icon="pi pi-exclamation-triangle"
-        accept={confirmarActualizacion}
-        reject={() => setShowConfirmDialog(false)}
+        <ConfirmDialog
+          visible={showConfirmDialog}
+          onHide={() => setShowConfirmDialog(false)}
+          message={`¿Estás seguro de actualizar la confirmación a "Recibido"? Esta acción no se podrá deshacer.`}
+          header="Confirmar Actualización"
+          icon="pi pi-exclamation-triangle"
+          accept={() => confirmarActualizacionDirecta(selectedPago, selectedPago.confirmacion_lec)}
+          reject={() => setShowConfirmDialog(false)}
+        />
+        <Dialog
+          header="Agregar Nuevo Pago"
+          visible={newPaymentDialog}
+          style={{ width: '50vw' }}
+          onHide={() => setNewPaymentDialog(false)}
+          footer={
+            <div>
+              <Button label="Cancelar" icon="pi pi-times" onClick={() => setNewPaymentDialog(false)} />
+              <Button label="Guardar" icon="pi pi-check" onClick={agregarPago} />
+            </div>
+          }
+        >
+  <div className="p-fluid">
+    <div className="p-field">
+      <label htmlFor="usuario">Usuario</label>
+      <Dropdown
+        id="usuario"
+        value={newPayment.usuario}
+        options={usuariosConBecas.map((u) => ({
+          label: `${u.nombre} - ${u.tipo_beca.tipo}`,
+          value: u.usuario,
+        }))}
+        onChange={(e) => setNewPayment({ ...newPayment, usuario: e.value, concepto: usuariosConBecas.find((u) => u.usuario === e.value)?.tipo_beca.tipo })}
+        placeholder="Seleccionar Usuario"
       />
+    </div>
+    <div className="p-field">
+      <label htmlFor="monto">Monto</label>
+      <InputNumber
+        id="monto"
+        value={newPayment.monto}
+        onValueChange={(e) => setNewPayment({ ...newPayment, monto: e.value })}
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        minFractionDigits={2}
+      />
+    </div>
+  </div>
+</Dialog>
+
 
       <div className="summary-cards">
         <Card title="Total Pagos" className="p-shadow-2">
@@ -340,15 +446,21 @@ const montoTemplate = (rowData) => {
         </Card>
       </div>
 
-      {puedeEditar && (
-        <Button label="Agregar Pago" icon="pi pi-plus" onClick={agregarPago} />
+      {(userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") && (
+        <Button
+          label="Agregar Pago"
+          icon="pi pi-plus"
+          onClick={() => {
+            fetchUsuariosConBecas();
+            setNewPaymentDialog(true);
+          }}
+        />
       )}
 
       <DataTable value={pagos} loading={loading} responsiveLayout="scroll" dataKey="id">
         <Column field="usuario" header="Usuario" sortable />
         <Column field="concepto" header="Concepto" sortable />
         <Column field="monto" header="Monto" body={montoTemplate} sortable />
-        <Column field="estatus" header="Estatus" sortable />
         <Column field="fecha_pago" header="Fecha de Pago" sortable />
         <Column field="confirmacion_lec" header="Confirmación LEC" body={confirmacionTemplate} />
       </DataTable>

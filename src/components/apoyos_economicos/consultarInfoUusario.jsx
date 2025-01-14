@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 import 'primereact/resources/themes/saga-green/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -20,6 +21,8 @@ const UserDetailView = () => {
   const [scholarship, setScholarship] = useState(null);
   const [payments, setPayments] = useState([]);
   const [newPaymentDialog, setNewPaymentDialog] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
   const [newPayment, setNewPayment] = useState({
     usuario: id,
     concepto: '',
@@ -98,22 +101,38 @@ const UserDetailView = () => {
     }
   };
 
-  // Función para eliminar un pago
-  const eliminarPago = async (pagoId) => {
-    try {
-      const token = JSON.parse(localStorage.getItem('access-token'));
+  const confirmarEliminarPago = (pagoId) => {
+    setSelectedPaymentId(pagoId);
+    setShowConfirmDialog(true);
+  };
 
-      await axios.delete(`${apiUrl}/pagos/eliminar/${pagoId}/`, {
+  const eliminarPago = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem("access-token"));
+      await axios.delete(`${apiUrl}/pagos/eliminar/${selectedPaymentId}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      toast.current.show({ severity: 'success', summary: 'Pago Eliminado', detail: 'El pago ha sido eliminado con éxito', life: 3000 });
-
+  
+      toast.current.show({
+        severity: "success",
+        summary: "Pago Eliminado",
+        detail: "El pago ha sido eliminado con éxito",
+        life: 3000,
+      });
+  
       await fetchUserPayments();
+      setShowConfirmDialog(false);
     } catch (error) {
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el pago', life: 3000 });
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudo eliminar el pago",
+        life: 3000,
+      });
     }
   };
+  
+  
 
   useEffect(() => {
     fetchUserDetails();
@@ -174,13 +193,20 @@ const UserDetailView = () => {
           <Column field="fecha_pago" header="Fecha de Pago" sortable></Column>
           <Column field="concepto" header="Concepto"></Column>
           <Column field="monto" header="Monto"></Column>
-          <Column field="estatus" header="Estatus"></Column>
+          <Column field="confirmacion_lec" header="Confirmación LEC"></Column>
           <Column
             header="Opciones"
             body={(rowData) => (
-              <Button icon="pi pi-trash" className="p-button-danger" onClick={() => eliminarPago(rowData.id)} />
+              <Button
+                icon="pi pi-trash"
+                className="p-button-danger"
+                onClick={() => confirmarEliminarPago(rowData.id)}
+                disabled={rowData.confirmacion_lec === "recibido"}
+                tooltip={rowData.confirmacion_lec === "recibido" ? "No se puede eliminar un pago confirmado" : "Eliminar"}
+              />
             )}
           />
+
         </DataTable>
 
         {/* Diálogo para agregar nuevo pago */}
@@ -207,6 +233,17 @@ const UserDetailView = () => {
             </div>
           </div>
         </Dialog>
+
+        <ConfirmDialog
+          visible={showConfirmDialog}
+          onHide={() => setShowConfirmDialog(false)}
+          message="¿Estás seguro de que deseas eliminar este pago? Esta acción no se puede deshacer."
+          header="Confirmar Eliminación"
+          icon="pi pi-exclamation-triangle"
+          accept={eliminarPago}
+          reject={() => setShowConfirmDialog(false)}
+        />
+
       </main>
 
       <Toast ref={toast} />

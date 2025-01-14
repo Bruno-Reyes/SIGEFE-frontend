@@ -31,7 +31,7 @@ const MostrarPagosPendientes = () => {
   const userEmail = localStorage.getItem("email");
 
   // Validaciones basadas en el correo electrónico
-  const puedeEditar = userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com";
+  const puedeEditar = true;//userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com";
 
   const estadosConfirmacion = [
     { label: "Recibido", value: "recibido" },
@@ -44,6 +44,8 @@ const MostrarPagosPendientes = () => {
     { label: "Pagado", value: "pagado" },
     { label: "Fallido", value: "fallido" }
   ];
+
+//TODO: Bloquear cuando el valor de confirmación pase a recibido
 
   const conceptos = [
     { label: "Beca", value: "Beca" },

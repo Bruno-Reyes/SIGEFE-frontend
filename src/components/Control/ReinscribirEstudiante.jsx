@@ -41,6 +41,7 @@ const ReinscribirEstudiante = () => {
     const [isReinscribirFieldsFilled, setIsReinscribirFieldsFilled] = useState(false);
     const [selectedEstudiante, setSelectedEstudiante] = useState(null);
     const [nivelesEducativosDisponibles, setNivelesEducativosDisponibles] = useState([]);
+    const [gradosDisponibles, setGradosDisponibles] = useState([]);
 
     const nivelEducativoOptions = [
         { label: 'Preescolar', value: 'Preescolar' },
@@ -323,7 +324,8 @@ const ReinscribirEstudiante = () => {
         const estudiante = selectedEstudiante;
         
         const siguienteGrado = getNextGrado(estudiante.nivel_educativo, estudiante.grado);
-        setNuevoGrado(siguienteGrado);
+        setNuevoGrado(siguienteGrado.defaultValue);
+        setGradosDisponibles(siguienteGrado.options);
 
         const siguienteNivel = getNextNivelEducativo(estudiante.nivel_educativo, estudiante.grado);
         setNuevoNivelEducativo(siguienteNivel.defaultValue);
@@ -333,9 +335,18 @@ const ReinscribirEstudiante = () => {
 
     const getNextGrado = (nivelEducativo, gradoActual) => {
         if ((nivelEducativo === 'Preescolar' && gradoActual === '3') || (nivelEducativo === 'Primaria' && gradoActual === '6')) {
-            return '1';
+            return {
+                defaultValue: '1',
+                options: gradoOptions[nivelEducativo] || []
+            };
         }
-        return (parseInt(gradoActual) + 1).toString();
+        const siguienteGrado = (parseInt(gradoActual) + 1).toString();
+        return {
+            defaultValue: siguienteGrado,
+            options: (gradoOptions[nivelEducativo] || []).filter(
+                grado => parseInt(grado.value) >= parseInt(siguienteGrado)
+            )
+        };
     };
 
     const getNextNivelEducativo = (nivelActual, gradoActual) => {
@@ -407,6 +418,12 @@ const ReinscribirEstudiante = () => {
             });
         }
     };
+
+    useEffect(() => {
+        if (nuevoNivelEducativo) {
+            setGradosDisponibles(gradoOptions[nuevoNivelEducativo] || []);
+        }
+    }, [nuevoNivelEducativo]);
 
     const esUltimoGradoSecundaria = selectedEstudiante && selectedEstudiante.nivel_educativo === 'Secundaria' && selectedEstudiante.grado === '3';
 
@@ -480,7 +497,7 @@ const ReinscribirEstudiante = () => {
                     />
                     <Dropdown
                         value={nuevoGrado}
-                        options={getGradoOptions(nuevoNivelEducativo, nuevoGrado)}
+                        options={gradosDisponibles}
                         onChange={(e) => setNuevoGrado(e.value)}
                         placeholder="Seleccione el grado"
                         style={{ width: '100%' }}

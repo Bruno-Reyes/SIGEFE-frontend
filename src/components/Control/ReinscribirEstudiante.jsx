@@ -40,6 +40,7 @@ const ReinscribirEstudiante = () => {
     const [nuevoGrupo, setNuevoGrupo] = useState('');
     const [isReinscribirFieldsFilled, setIsReinscribirFieldsFilled] = useState(false);
     const [selectedEstudiante, setSelectedEstudiante] = useState(null);
+    const [nivelesEducativosDisponibles, setNivelesEducativosDisponibles] = useState([]);
 
     const nivelEducativoOptions = [
         { label: 'Preescolar', value: 'Preescolar' },
@@ -140,6 +141,10 @@ const ReinscribirEstudiante = () => {
                     return materiasCalificadas === materiasInscritas && promedio >= 6;
                 });
                 setMostrarBotonReinscribir(mostrarBoton);
+
+                if (mostrarBoton) {
+                    setSelectedEstudiante(estudiantes[0]);
+                }
             } else {
                 setData([]);
                 console.warn('No se encontraron estudiantes con los criterios de búsqueda proporcionados.');
@@ -156,10 +161,18 @@ const ReinscribirEstudiante = () => {
         const promedio = materiasCalificadas > 0 ? calificacionesEstudiante.reduce((acc, cal) => acc + parseFloat(cal.calificacion), 0) / materiasCalificadas : 0;
 
         if (materiasCalificadas === materiasInscritas && promedio >= 6) {
+            const esUltimoGrado = 
+                (estudiante.nivel_educativo === 'Preescolar' && estudiante.grado === '3') ||
+                (estudiante.nivel_educativo === 'Primaria' && estudiante.grado === '6') ||
+                (estudiante.nivel_educativo === 'Secundaria' && estudiante.grado === '3');
+
             return (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <span style={{ backgroundColor: 'green', borderRadius: '10px', padding: '5px', color: 'white' }}>Ciclo Escolar Completado</span>
-                    <Button label="Generar Certificado" icon="pi pi-file-pdf" className="p-button-secondary" style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} onClick={() => generarCertificado(estudiante)} />
+                    <Button label="Generar Certificado" icon="pi pi-file-pdf" className="p-button-secondary" style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} onClick={() => generarCertificado_grado(estudiante)} />
+                    {esUltimoGrado && (
+                        <Button label="Generar Certificado de Nivel Escolar" icon="pi pi-file-pdf" className="p-button-secondary" style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} onClick={() => generarCertificado_nivel(estudiante)} />
+                    )}
                 </div>
             );
         } else if (materiasCalificadas < materiasInscritas) {
@@ -176,7 +189,7 @@ const ReinscribirEstudiante = () => {
         return promedio.toFixed(2);
     };
 
-    const generarCertificado = (estudiante) => {
+    const generarCertificado_grado = (estudiante) => {
         const doc = new jsPDF();
     
         // Dibujar un borde decorativo
@@ -218,7 +231,7 @@ const ReinscribirEstudiante = () => {
     
         // Sección decorativa para la fecha y firma
         doc.setFont('times', 'italic');
-        doc.text('Dado en la ciudad el día:', 20, 150);
+        doc.text('Emitido el día: ', 20, 150);
         doc.setFont('times', 'bold');
         doc.text(new Date().toLocaleDateString(), 70, 150);
         
@@ -239,11 +252,119 @@ const ReinscribirEstudiante = () => {
         doc.circle(105, 280, 3, 'S'); // Círculo decorativo
     
         // Guardar el archivo
-        doc.save(`Certificado_${estudiante.nombre}_${estudiante.apellido_paterno}.pdf`);
+        doc.save(`Certificado_${estudiante.nombre}_${estudiante.apellido_paterno}_${estudiante.apellido_materno}.pdf`);
+    };
+    
+    const generarCertificado_nivel = (estudiante) => {
+        const doc = new jsPDF();
+    
+        // Dibujar un borde decorativo
+        doc.setLineWidth(1);
+        doc.setDrawColor(0, 0, 0); // Negro
+        doc.rect(10, 10, 190, 277, 'S'); // Rectángulo del borde
+    
+        // Título principal con un marco decorativo
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.setTextColor(0, 102, 204); // Azul
+        doc.text('Certificado de Finalización de Nivel Educativo', 105, 40, { align: 'center' });
+        doc.setLineWidth(0.5);
+        doc.setDrawColor(0, 102, 204);
+        doc.line(50, 45, 160, 45); // Línea decorativa bajo el título
+    
+        // Subtítulo
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Otorgado en reconocimiento al logro académico del estudiante', 105, 55, { align: 'center' });
+    
+        // Información del estudiante
+        doc.setFont('times', 'normal');
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Por la presente se certifica que:`, 20, 80);
+        doc.setFont('times', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(0, 51, 153);
+        doc.text(`${estudiante.nombre} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`, 105, 90, { align: 'center' });
+    
+        doc.setFont('times', 'normal');
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Ha completado exitosamente el nivel educativo: ${estudiante.nivel_educativo}`, 20, 110);
+    
+        // Sección decorativa para la fecha y firma
+        doc.setFont('times', 'italic');
+        doc.text('Emitido el día: ', 20, 130);
+        doc.setFont('times', 'bold');
+        doc.text(new Date().toLocaleDateString(), 70, 130);
+        
+        // Firma decorativa
+        doc.line(130, 150, 190, 150); // Línea para la firma
+        doc.setFont('times', 'normal');
+        doc.text('Firma del Director(a):', 130, 155);
+    
+        // Elementos decorativos en el pie de página
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text('Sistema Integral de Gestión Educativa - SIGEFE', 105, 275, { align: 'center' });
+    
+        // Dibujar un pequeño diseño decorativo en el footer
+        doc.setDrawColor(0, 102, 204);
+        doc.line(60, 280, 150, 280); // Línea horizontal
+        doc.circle(105, 280, 3, 'S'); // Círculo decorativo
+    
+        // Guardar el archivo
+        doc.save(`Certificado_Nivel_${estudiante.nombre}_${estudiante.apellido_paterno}_${estudiante.apellido_materno}.pdf`);
     };
     
     const handleReinscribirClick = () => {
+        const estudiante = selectedEstudiante;
+        
+        const siguienteGrado = getNextGrado(estudiante.nivel_educativo, estudiante.grado);
+        setNuevoGrado(siguienteGrado);
+
+        const siguienteNivel = getNextNivelEducativo(estudiante.nivel_educativo, estudiante.grado);
+        setNuevoNivelEducativo(siguienteNivel.defaultValue);
+        setNivelesEducativosDisponibles(siguienteNivel.options);
         setShowReinscribirDialog(true);
+    };
+
+    const getNextGrado = (nivelEducativo, gradoActual) => {
+        if ((nivelEducativo === 'Preescolar' && gradoActual === '3') || (nivelEducativo === 'Primaria' && gradoActual === '6')) {
+            return '1';
+        }
+        return (parseInt(gradoActual) + 1).toString();
+    };
+
+    const getNextNivelEducativo = (nivelActual, gradoActual) => {
+        if (nivelActual === 'Preescolar' && gradoActual === '3') {
+            return { 
+                defaultValue: 'Primaria',
+                options: [
+                    { label: 'Primaria', value: 'Primaria' },
+                    { label: 'Secundaria', value: 'Secundaria' }
+                ]
+            };
+        }
+        if (nivelActual === 'Primaria' && gradoActual === '6') {
+            return {
+                defaultValue: 'Secundaria',
+                options: [
+                    { label: 'Secundaria', value: 'Secundaria' }
+                ]
+            };
+        }
+        return {
+            defaultValue: nivelActual,
+            options: [{ label: nivelActual, value: nivelActual }]
+        };
+    };
+
+    const getGradoOptions = (nivelEducativo, gradoActual) => {
+        const grados = gradoOptions[nivelEducativo] || [];
+        return grados.filter(grado => parseInt(grado.value) >= parseInt(gradoActual));
     };
 
     const handleConfirmReinscripcion = async () => {
@@ -252,11 +373,7 @@ const ReinscribirEstudiante = () => {
             if (!token) {
                 token = await refreshToken();
             }
-            // console.log('Reinscribir al estudiante...');
-            // console.log('id_estudiante:', selectedEstudiante);
-            // console.log('nuevo_nivel_educativo:', nuevoNivelEducativo);
-            // console.log('nuevo_grado:', nuevoGrado);
-            // console.log('nuevo_grupo:', nuevoGrupo);
+            
             const response = await axios.post(`${apiUrl}/control_escolar/reinscribir_estudiante/`, {
                 id_estudiante: selectedEstudiante.id,
                 nuevo_nivel_educativo: nuevoNivelEducativo,
@@ -291,6 +408,8 @@ const ReinscribirEstudiante = () => {
         }
     };
 
+    const esUltimoGradoSecundaria = selectedEstudiante && selectedEstudiante.nivel_educativo === 'Secundaria' && selectedEstudiante.grado === '3';
+
     return (
         <div>
             <Toast ref={toast} />
@@ -323,17 +442,16 @@ const ReinscribirEstudiante = () => {
                     style={{ marginLeft: '1%' }} 
                     onClick={handleSearch}
                 />
-                {mostrarBotonReinscribir && selectedEstudiante && (
-                    <Button 
-                        label="Reinscribir Alumno" 
-                        icon="pi pi-pencil" 
-                        className="p-button-info" 
-                        style={{ marginLeft: '1%' }} 
-                        onClick={() => handleReinscribirClick(selectedEstudiante)}
-                    />
-                )}
+                <Button 
+                    label="Reinscribir Alumno" 
+                    icon="pi pi-pencil" 
+                    className="p-button-info" 
+                    style={{ marginLeft: '1%' }} 
+                    onClick={handleReinscribirClick}
+                    disabled={!mostrarBotonReinscribir || esUltimoGradoSecundaria}
+                />
             </div>
-            <DataTable value={data} style={{ width: '88%' , marginLeft: '5%'}} autoLayout selectionMode="single" onSelectionChange={(e) => setSelectedEstudiante(e.value)}>
+            <DataTable value={data} style={{ width: '88%' , marginLeft: '5%'}} autoLayout>
                 <Column field="nivel_educativo" header="Nivel Escolar" />
                 <Column field="grado" header="Grado" />
                 <Column field="grupo" header="Grupo" />
@@ -355,25 +473,23 @@ const ReinscribirEstudiante = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <Dropdown
                         value={nuevoNivelEducativo}
-                        options={nivelEducativoOptions}
+                        options={nivelesEducativosDisponibles}
                         onChange={(e) => setNuevoNivelEducativo(e.value)}
                         placeholder="Seleccione el nivel educativo"
                         style={{ width: '100%' }}
                     />
                     <Dropdown
                         value={nuevoGrado}
-                        options={gradoOptions[nuevoNivelEducativo] || []}
+                        options={getGradoOptions(nuevoNivelEducativo, nuevoGrado)}
                         onChange={(e) => setNuevoGrado(e.value)}
                         placeholder="Seleccione el grado"
                         style={{ width: '100%' }}
-                        disabled={!nuevoNivelEducativo}
                     />
                     <InputText
                         value={nuevoGrupo}
                         onChange={(e) => setNuevoGrupo(e.target.value.toUpperCase())}
                         placeholder="Ingrese el grupo"
                         style={{ width: '100%' }}
-                        disabled={!nuevoGrado}
                     />
                 </div>
             </Dialog>

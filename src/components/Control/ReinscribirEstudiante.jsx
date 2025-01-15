@@ -42,6 +42,7 @@ const ReinscribirEstudiante = () => {
     const [selectedEstudiante, setSelectedEstudiante] = useState(null);
     const [nivelesEducativosDisponibles, setNivelesEducativosDisponibles] = useState([]);
     const [gradosDisponibles, setGradosDisponibles] = useState([]);
+    const [inscripcionesPasadas, setInscripcionesPasadas] = useState([]);
 
     const nivelEducativoOptions = [
         { label: 'Preescolar', value: 'Preescolar' },
@@ -115,6 +116,19 @@ const ReinscribirEstudiante = () => {
             if (response.data.length > 0) {
                 const estudiantes = response.data;
                 setData(estudiantes);
+                setSelectedEstudiante(estudiantes[0]);
+
+                // Obtener inscripciones pasadas
+                const historialResponse = await axios.get(`${apiUrl}/control_escolar/reinscribir_estudiante/${estudiantes[0].id}/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (historialResponse.data.reinscripciones) {
+                    setInscripcionesPasadas(historialResponse.data.reinscripciones);
+                }
 
                 const calificacionesResponse = await axios.get(`${apiUrl}/control_escolar/calificaciones/`, {
                     headers: {
@@ -427,6 +441,36 @@ const ReinscribirEstudiante = () => {
 
     const esUltimoGradoSecundaria = selectedEstudiante && selectedEstudiante.nivel_educativo === 'Secundaria' && selectedEstudiante.grado === '3';
 
+    const calcularEstatusPasado = (inscripcion) => {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ backgroundColor: 'green', borderRadius: '10px', padding: '5px', color: 'white' }}>
+                    Ciclo Escolar Completado
+                </span>
+                <Button 
+                    label="Generar Certificado" 
+                    icon="pi pi-file-pdf" 
+                    className="p-button-secondary" 
+                    style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} 
+                    onClick={() => generarCertificado_grado({ ...inscripcion })} 
+                />
+                {(
+                    (inscripcion.nivel_educativo === 'Preescolar' && inscripcion.grado === '3') ||
+                    (inscripcion.nivel_educativo === 'Primaria' && inscripcion.grado === '6') ||
+                    (inscripcion.nivel_educativo === 'Secundaria' && inscripcion.grado === '3')
+                ) && (
+                    <Button 
+                        label="Generar Certificado de Nivel Escolar" 
+                        icon="pi pi-file-pdf" 
+                        className="p-button-secondary" 
+                        style={{ marginLeft: '10px', borderRadius: '10px', padding: '5px', color: 'white' }} 
+                        onClick={() => generarCertificado_nivel({ ...inscripcion })} 
+                    />
+                )}
+            </div>
+        );
+    };
+
     return (
         <div>
             <Toast ref={toast} />
@@ -467,6 +511,25 @@ const ReinscribirEstudiante = () => {
                     onClick={handleReinscribirClick}
                     disabled={!mostrarBotonReinscribir || esUltimoGradoSecundaria}
                 />
+            </div>
+            {/* Tabla de inscripciones pasadas */}
+            {inscripcionesPasadas.length > 0 && (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: '5%', marginTop: '2%' }}>
+                        <h2>Historial de Inscripciones</h2>
+                    </div>
+                    <DataTable value={inscripcionesPasadas} style={{ width: '88%' , marginLeft: '5%'}} autoLayout>
+                        <Column field="nivel_educativo" header="Nivel Escolar" />
+                        <Column field="grado" header="Grado" />
+                        <Column field="grupo" header="Grupo" />
+                        <Column field="promedio_global" header="Promedio" />
+                        <Column header="Estatus" body={calcularEstatusPasado} />
+                    </DataTable>
+                </>
+            )}
+            {/* Tabla de inscripción actual */}
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '5%', marginTop: '2%' }}>
+                <h2>Inscripción Actual</h2>
             </div>
             <DataTable value={data} style={{ width: '88%' , marginLeft: '5%'}} autoLayout>
                 <Column field="nivel_educativo" header="Nivel Escolar" />

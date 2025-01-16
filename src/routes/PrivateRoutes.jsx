@@ -5,6 +5,7 @@ import Becas from '../components/apoyos_economicos/asignarBeca';
 import UserDetailView from '../components/apoyos_economicos/consultarInfoUusario';
 
 export const PrivateRoutes = () => {
+<<<<<<< Updated upstream
   return (
     <Routes>
       <Route path='/home' element={<HomePage />} />
@@ -15,3 +16,14 @@ export const PrivateRoutes = () => {
     </Routes>
   )
 }
+=======
+    return (
+        <Routes>
+            <Route path='/home' element={<HomePage />} />
+            <Route path='/becas' element={<Becas />} />
+            <Route path='/usuario' element={<UserDetailView />} />
+            <Route path='*' element={<Navigate to='/home' replace />} />
+        </Routes>
+    );
+};
+>>>>>>> Stashed changes

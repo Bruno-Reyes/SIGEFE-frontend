@@ -1,13 +1,17 @@
 import { Navigate, Route, Routes } from 'react-router'
 import HomePage from '../modules/home'
 import DetalleCandidato from '../components/Candidatos/DetalleCandidato'
+import Becas from '../components/apoyos_economicos/asignarBeca';
+import UserDetailView from '../components/apoyos_economicos/consultarInfoUusario';
 
 export const PrivateRoutes = () => {
   return (
     <Routes>
       <Route path='/home' element={<HomePage />} />
-      <Route path='*' element={<Navigate to='/home' replace />} />
       <Route path="/detalle/:id" element={<DetalleCandidato />} />
+      <Route path='/becas' element={<Becas />} />
+      <Route path='/usuario' element={<UserDetailView />} />
+      <Route path='*' element={<Navigate to='/home' replace />} />
     </Routes>
   )
 }

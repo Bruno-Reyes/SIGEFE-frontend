@@ -37,7 +37,7 @@ export default function Menu( {toggleSidebar} ) {
 
   const items = [
     {
-      label: 'Home',
+      label: 'Inicio',
       icon: 'pi pi-home',
       command : toggleSidebar
     },

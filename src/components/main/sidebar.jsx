@@ -81,16 +81,7 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         </li>
       </ul>
     )
-    
-  } else if (usuario === '"aux_operacion"') { 
-    items = (
-      <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
-        <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="aux_operacion" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} />
-        </li>
-      </ul>
-    )
-  }
+  } 
   else if (usuario === '"coord_nac_logistica"') { 
     items = (
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
@@ -99,6 +90,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Asignar equipo a Centros Comunitarios" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('asignar_equipo_centro')}/>
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Generar Rutas de Distribucion" icon="pi pi-map" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('generar_rutas_distribucion')}/>
         </li>
       </ul>
     )

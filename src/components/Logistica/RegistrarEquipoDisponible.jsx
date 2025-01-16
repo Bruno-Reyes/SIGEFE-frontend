@@ -44,7 +44,7 @@ const RegistrarEquipoDisponible = () => {
   const categorias = [
     { label: 'Papelería', value: 'Papelería' },
     { label: 'Utilería', value: 'Utilería' },
-    { label: 'Tecnología', value: 'Tecnología' },
+    { label: 'Ropa y Calzado', value: 'Ropa y Calzado' },
     { label: 'Mobiliario', value: 'Mobiliario' },
   ]
 

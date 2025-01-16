@@ -30,6 +30,12 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Aceptar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('candidatos')} />
         </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+            <Button label="Gestión de Pagos" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+            <Button label="Asignar Becas" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("becas")} />
+        </li>
       </ul>
     )
   } else if (usuario === '"lider_lec"') { 
@@ -58,6 +64,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
 
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Gestión Historial Migratorio del estudiante" icon="pi pi-globe" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('gestion_historial_migratorio')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+            <Button label="Pagos Pendientes" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
         </li>
 
       </ul>

@@ -22,6 +22,9 @@ import RegistrarEquipoDisponible from '../components/Logistica/RegistrarEquipoDi
 import HistorialAsignacionesLEC from '../components/Asignación/HistorialAsignacionesLEC'
 import '@fontsource/roboto' // Fuente Roboto con pesos predeterminados
 import AsignarEquipoCentro from '../components/Logistica/AsignarEquipoCentro'
+import MostrarPagosPendientes from "../components/registro_pagos/MostrarPagosPendientes";
+import RegistrarPago from "../components/registro_pagos/RegistrarPago";
+import Becas from "../components/apoyos_economicos/asignarBeca";
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -65,6 +68,12 @@ const HomePage = () => {
       return <HistorialAcademicoEstudiante/>
     case 'gestion_historial_migratorio':
       return <GestionHistorialMigratorio/>
+    case "pagos":
+        return <MostrarPagosPendientes />;
+    case "registrar-pago":
+        return <RegistrarPago />;
+    case "becas":
+        return <Becas />;
     default:
       return <DefaultContent /> 
     }

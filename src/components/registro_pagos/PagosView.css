@@ -1,0 +1,48 @@
+.pagos-view {
+    padding: 20px;
+  }
+  
+  .summary-cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .summary-cards .p-card {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .p-button-danger {
+    background-color: #e74c3c;
+    border: none;
+  }
+  
+  .p-button-danger:hover {
+    background-color: #c0392b;
+  }
+  
+  .p-confirm-dialog .p-dialog-header {
+    background-color: #f56c6c;
+    color: white;
+    font-weight: bold;
+  }
+  .p-confirm-dialog .p-dialog-content {
+    font-size: 16px;
+  }
+  .p-confirm-dialog .p-button {
+    margin: 0 5px;
+  }
+
+  .export-buttons {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+  

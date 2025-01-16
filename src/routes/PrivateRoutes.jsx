@@ -26,4 +26,3 @@ export const PrivateRoutes = () => {
         </Routes>
     );
 };
->>>>>>> Stashed changes

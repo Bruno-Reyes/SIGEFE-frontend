@@ -68,6 +68,9 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         <li style={{ margin: '10px 0', width: '100%' }}>
             <Button label="Pagos Pendientes" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
         </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+            <Button label="Consultar Progreso de Capacitación" icon="pi pi-chart-line" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("consultar_progreso_capacitacion")} />
+        </li>
 
       </ul>
     )
@@ -75,10 +78,25 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
     items = (
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Asignación de LECs" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('asignar_LEC')} />
+          <Button label="Asignación de LECs" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('asignar_LEC')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Historial Asignaciones LECs" icon="pi pi-history" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('historial_asignacionesLEC')} />
+          <Button label="Historial Asignaciones LECs" icon="pi pi-calendar" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('historial_asignacionesLEC')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Registrar Plan de Capacitación" icon="pi pi-file-edit" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_plan_capacitacion')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Registrar Asistencia a Capacitaciones" icon="pi pi-check-square" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_asistencia_capacitaciones')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Evaluar desempeño en Capacitaciones" icon="pi pi-star" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('evaluar_desempeño_capacitaciones')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Generar Reportes de Capacitación" icon="pi pi-file-pdf" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('generar_reportes_capacitaciones')} />
+        </li>
+        <li style={{ margin: '10px 0', width: '100%' }}>
+          <Button label="Dashboard Nacional de Desempeño en Capacitación Continua" icon="pi pi-chart-line" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('dashboard_capacitaciones')} />
         </li>
       </ul>
     )

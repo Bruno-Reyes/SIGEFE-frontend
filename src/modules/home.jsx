@@ -25,6 +25,12 @@ import AsignarEquipoCentro from '../components/Logistica/AsignarEquipoCentro'
 import MostrarPagosPendientes from "../components/registro_pagos/MostrarPagosPendientes";
 import RegistrarPago from "../components/registro_pagos/RegistrarPago";
 import Becas from "../components/apoyos_economicos/asignarBeca";
+import RegistrarPlanCapacitacion from '../components/Capacitación/RegistrarPlanCapacitacion'
+import ConsultarProgresoCapacitacion from '../components/Capacitación/ConsultarProgresoCapacitacion';
+import RegistrarAsistenciaCapacitaciones from '../components/Capacitación/RegistrarAsistenciaCapacitaciones';
+import EvaluarDesempenoCapacitaciones from '../components/Capacitación/EvaluarDesempenoCapacitaciones';
+import GenerarReportesCapacitaciones from '../components/Capacitación/GenerarReportesCapacitaciones';
+import DashboardCapacitaciones from '../components/Capacitación/DashboardCapacitaciones';
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -74,6 +80,18 @@ const HomePage = () => {
         return <RegistrarPago />;
     case "becas":
         return <Becas />;
+    case 'consultar_progreso_capacitacion':
+      return <ConsultarProgresoCapacitacion/>
+    case 'registrar_plan_capacitacion':
+      return <RegistrarPlanCapacitacion/>
+    case 'registrar_asistencia_capacitaciones':
+      return <RegistrarAsistenciaCapacitaciones/>
+    case 'evaluar_desempeño_capacitaciones':
+      return <EvaluarDesempenoCapacitaciones/>
+    case 'generar_reportes_capacitaciones':
+      return <GenerarReportesCapacitaciones/>
+    case 'dashboard_capacitaciones':
+      return <DashboardCapacitaciones/>
     default:
       return <DefaultContent /> 
     }

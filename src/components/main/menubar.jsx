@@ -3,7 +3,7 @@ import { Menubar } from 'primereact/menubar'
 import { Button } from 'primereact/button'
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog'
 
-export default function Menu( {toggleSidebar} ) {
+export default function Menu({ toggleSidebar }) {
 
   const accept = () => {
     localStorage.clear() // Eliminar todo el contenido de localStorage
@@ -27,20 +27,24 @@ export default function Menu( {toggleSidebar} ) {
   }
 
   const itemRenderer = (item) => (
-    <a className="flex align-items-center p-menuitem-link">
-      <span className={item.icon} />
+    <button 
+      className="flex align-items-center p-menuitem-link"
+      onClick={item.command}
+      aria-label={item.label}
+    >
+      <span className={item.icon} role="img" aria-hidden="true" />
       <span className="mx-2">{item.label}</span>
-      {item.badge && <Badge className="ml-auto" value={item.badge} />}
+      {item.badge && <span className="ml-auto" aria-label={`${item.badge} items`}>{item.badge}</span>}
       {item.shortcut && <span className="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{item.shortcut}</span>}
-    </a>
+    </button>
   )
 
   const items = [
     {
       label: 'Home',
       icon: 'pi pi-home',
-      command : toggleSidebar
-    },
+      command: toggleSidebar
+    }
   ]
 
   const end = (
@@ -88,4 +92,4 @@ export default function Menu( {toggleSidebar} ) {
       />
     </div>
   )
-}   
+}

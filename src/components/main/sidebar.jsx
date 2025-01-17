@@ -87,10 +87,7 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
           <Button label="Registrar Plan de Capacitación" icon="pi pi-file-edit" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_plan_capacitacion')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Registrar Asistencia a Capacitaciones" icon="pi pi-check-square" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_asistencia_capacitaciones')} />
-        </li>
-        <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Evaluar desempeño en Capacitaciones" icon="pi pi-star" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('evaluar_desempeño_capacitaciones')} />
+          <Button label="Registrar Asistencia y evaluación de Capacitaciones" icon="pi pi-check-square" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('registrar_asistencia_capacitaciones')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Generar Reportes de Capacitación" icon="pi pi-file-pdf" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('generar_reportes_capacitaciones')} />

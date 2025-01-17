@@ -107,8 +107,54 @@ const RegistrarAsistenciaCapacitaciones = () => {
         }
     };
 
-    const handleGuardarRegistro = () => {
-        // Lógica para guardar el registro
+    const handleGuardarRegistro = async () => {
+        try {
+            let token = JSON.parse(localStorage.getItem("access-token"));
+            if (!token) {
+                token = await refreshToken();
+            }
+
+            // Preparar los datos para enviar
+            const lecsData = lecsPendientes.map(lec => {
+                const lecData = {
+                    id: lec.id
+                };
+                
+                // Agregar calificaciones y asistencias
+                for (let i = 1; i <= lec.numSesiones; i++) {
+                    lecData[`S${i}`] = lec[`S${i}`] || 0;
+                    lecData[`Asistencia${i}`] = lec[`Asistencia${i}`] || false;
+                }
+                
+                return lecData;
+            });
+
+            console.log("Datos enviados:", lecsData);
+
+            const response = await axios.post(`${apiUrl}/capacitacion/registrar-asistencia/`, {
+                lecs: lecsData,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            toast.current.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Asistencia registrada exitosamente.',
+                life: 3000,
+            });
+        } catch (error) {
+            console.error("Error al registrar la asistencia:", error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al registrar la asistencia. Por favor, intente nuevamente.',
+                life: 3000,
+            });
+        }
     };
 
     const renderDynamicColumns = () => {
@@ -132,8 +178,11 @@ const RegistrarAsistenciaCapacitaciones = () => {
                                 );
                                 setLecsPendientes(updatedLecs);
                             }}
-                            min={1}
+                            min={0}
                             max={10}
+                            placeholder='0'
+                            mode="decimal"
+                            inputStyle={{ width: "40px" }}
                         />
                     )}
                 />
@@ -143,6 +192,7 @@ const RegistrarAsistenciaCapacitaciones = () => {
                     key={`Asistencia${i}`}
                     field={`Asistencia${i}`}
                     header={`Asistencia ${i}`}
+                    style={{ width: "100px", minWidth: "100px" }}
                     body={(rowData) => (
                         <Checkbox
                             checked={rowData[`Asistencia${i}`]}
@@ -222,10 +272,21 @@ const RegistrarAsistenciaCapacitaciones = () => {
                 </div>
                 <div style={{ width: "65%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                     <Button label="Guardar Registro" onClick={handleGuardarRegistro} className="p-button-success" />
-                    <DataTable value={lecsPendientes} className="mt-4" responsiveLayout="scroll">
-                        <Column field="nombre" header="Nombre del LEC" />
-                        {renderDynamicColumns()}
-                    </DataTable>
+                    <div style={{ width: "100%", overflowX: "auto" }}> {/* Agregar contenedor con scroll */}
+                        <DataTable 
+                            value={lecsPendientes} 
+                            className="mt-4" 
+                            responsiveLayout="scroll"
+                            scrollable 
+                        >
+                            <Column 
+                                field="nombre" 
+                                header="Nombre del LEC" 
+                                frozen 
+                            />
+                            {renderDynamicColumns()}
+                        </DataTable>
+                    </div>
                 </div>
             </div>
         </div>

@@ -127,8 +127,58 @@ const RegistrarPlanCapacitacion = () => {
         setFechasSesiones(newFechas);
     };
 
-    const handleRegistrar = () => {
-        // Lógica para registrar el plan de capacitación
+    const handleRegistrar = async () => {
+        if (!selectedCentro || selectedLecs.length === 0 || !modalidad || fechasSesiones.includes(null)) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'Por favor complete todos los campos.',
+                life: 3000,
+            });
+            return;
+        }
+    
+        try {
+            let token = JSON.parse(localStorage.getItem("access-token"));
+            if (!token) {
+                token = await refreshToken();
+            }
+    
+            const response = await axios.post(`${apiUrl}/capacitacion/registrar-plan/`, {
+                centro_id: selectedCentro.id,
+                lecs_ids: selectedLecs.map(lec => lec.id),
+                num_sesiones: numSesiones,
+                modalidad: modalidad,
+                fechas_sesiones: fechasSesiones,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            toast.current.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Plan de capacitación registrado exitosamente.',
+                life: 3000,
+            });
+    
+            // Limpiar los campos después de registrar
+            setSelectedCentro(null);
+            setSelectedLecs([]);
+            setNumSesiones(1);
+            setFechasSesiones([]);
+            setModalidad(null);
+        } catch (error) {
+            console.error("Error al registrar el plan de capacitación:", error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al registrar el plan de capacitación. Por favor, intente nuevamente.',
+                life: 3000,
+            });
+        }
     };
 
     return (

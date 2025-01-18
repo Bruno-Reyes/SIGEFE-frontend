@@ -92,9 +92,6 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
         <li style={{ margin: '10px 0', width: '100%' }}>
           <Button label="Generar Reportes de Capacitación" icon="pi pi-file-pdf" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('generar_reportes_capacitaciones')} />
         </li>
-        <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Dashboard Nacional de Desempeño en Capacitación Continua" icon="pi pi-chart-line" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('dashboard_capacitaciones')} />
-        </li>
       </ul>
     )
   } else if (usuario === '"aux_operacion"') { 

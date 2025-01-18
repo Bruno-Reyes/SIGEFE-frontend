@@ -20,6 +20,7 @@ const RegistrarPlanCapacitacion = () => {
     const [fechasSesiones, setFechasSesiones] = useState([]);
     const [modalidad, setModalidad] = useState(null);
     const [selectedLecs, setSelectedLecs] = useState([]); // Agregar este estado
+    const [tipoCapacitacion, setTipoCapacitacion] = useState(null); // Nuevo estado para tipo de capacitación
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -128,7 +129,7 @@ const RegistrarPlanCapacitacion = () => {
     };
 
     const handleRegistrar = async () => {
-        if (!selectedCentro || selectedLecs.length === 0 || !modalidad || fechasSesiones.includes(null)) {
+        if (!selectedCentro || selectedLecs.length === 0 || !modalidad || fechasSesiones.includes(null) || !tipoCapacitacion) {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Advertencia',
@@ -150,6 +151,7 @@ const RegistrarPlanCapacitacion = () => {
                 num_sesiones: numSesiones,
                 modalidad: modalidad,
                 fechas_sesiones: fechasSesiones,
+                tipo_capacitacion: tipoCapacitacion, // Incluir tipo de capacitación
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -170,6 +172,7 @@ const RegistrarPlanCapacitacion = () => {
             setNumSesiones(1);
             setFechasSesiones([]);
             setModalidad(null);
+            setTipoCapacitacion(null); // Limpiar tipo de capacitación
         } catch (error) {
             console.error("Error al registrar el plan de capacitación:", error);
             toast.current.show({
@@ -287,6 +290,19 @@ const RegistrarPlanCapacitacion = () => {
                         ]}
                         onChange={(e) => setModalidad(e.value)}
                         placeholder="Seleccione la modalidad"
+                        className="w-full mt-1"
+                    />
+                </div>
+                <div style={{ marginTop: "1rem" }}>
+                    <label>Tipo de capacitación:</label>
+                    <Dropdown
+                        value={tipoCapacitacion}
+                        options={[
+                            { label: 'Inicial', value: 'Inicial' },
+                            { label: 'Permanente', value: 'Permanente' }
+                        ]}
+                        onChange={(e) => setTipoCapacitacion(e.value)}
+                        placeholder="Seleccione el tipo de capacitación"
                         className="w-full mt-1"
                     />
                 </div>

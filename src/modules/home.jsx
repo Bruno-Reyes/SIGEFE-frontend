@@ -28,8 +28,7 @@ import Becas from "../components/apoyos_economicos/asignarBeca";
 import RegistrarPlanCapacitacion from '../components/Capacitación/RegistrarPlanCapacitacion'
 import ConsultarProgresoCapacitacion from '../components/Capacitación/ConsultarProgresoCapacitacion';
 import RegistrarAsistenciaCapacitaciones from '../components/Capacitación/RegistrarAsistenciaCapacitaciones';
-import GenerarReportesCapacitaciones from '../components/Capacitación/GenerarReportesCapacitaciones';
-import DashboardCapacitaciones from '../components/Capacitación/DashboardCapacitaciones';
+import GenerarReportesCapacitacion from '../components/Capacitación/GenerarReportesCapacitaciones';
 // - Auxiliar de operacion
 // - Coordinador Nacional de Apoyo y Logistica
 // - Coordinador Operativo
@@ -86,9 +85,7 @@ const HomePage = () => {
     case 'registrar_asistencia_capacitaciones':
       return <RegistrarAsistenciaCapacitaciones/>
     case 'generar_reportes_capacitaciones':
-      return <GenerarReportesCapacitaciones/>
-    case 'dashboard_capacitaciones':
-      return <DashboardCapacitaciones/>
+      return <GenerarReportesCapacitacion/>
     default:
       return <DefaultContent /> 
     }

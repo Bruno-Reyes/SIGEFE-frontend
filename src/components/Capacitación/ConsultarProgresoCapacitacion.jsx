@@ -35,7 +35,7 @@ const ConsultarProgresoCapacitacion = () => {
             
             const email = localStorage.getItem('email');
             console.log(email);
-            const response = await axios.get(`${apiUrl}/capacitacion/progreso-lec/`, {
+            const response = await axios.get(`${apiUrl}/capacitacion/consultar_capacitacion_lec/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -54,7 +54,8 @@ const ConsultarProgresoCapacitacion = () => {
                 progreso: plan.progreso,
                 promedio: plan.promedio,
                 asistencias: Object.values(plan.asistencias).filter(Boolean).length,
-                calificaciones: Object.values(plan.calificaciones)
+                calificaciones: Object.values(plan.calificaciones),
+                tipo_capacitacion: `${plan.tipo_capacitacion}`
             }));
 
             setProgreso(progresoFormateado);
@@ -112,6 +113,10 @@ const ConsultarProgresoCapacitacion = () => {
                     scrollable 
                     scrollHeight="400px"
                 >
+                    <Column 
+                        field="tipo_capacitacion" 
+                        header="Tipo de Capacitación" 
+                    />
                     <Column 
                         field="nombreCapacitacion" 
                         header="Centro" 

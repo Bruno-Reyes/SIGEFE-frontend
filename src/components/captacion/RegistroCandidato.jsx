@@ -27,6 +27,7 @@ const RegistroCandidato = () => {
   const [municipios, setMunicipios] = useState([])
   const [localidades, setLocalidades] = useState([])
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false); // Nuevo estado para el loading
 
   const apiUrl = import.meta.env.VITE_API_URL
 
@@ -161,6 +162,7 @@ const RegistroCandidato = () => {
       convocatoria: Schemas.convocatoria,
     }),
     onSubmit: async (values) => {
+      setLoading(true); // Activar loading
       console.log('Values:', values)
 
       // Eliminar espacios en blanco de los valores
@@ -201,12 +203,21 @@ const RegistroCandidato = () => {
 
         console.log('Response:', response)
 
-        toast.current.show({
-          severity: 'success',
-          summary: 'Candidato registrado',
-          detail: 'El candidato ha sido registrado exitosamente',
-          life: 6000,
-        })
+        if (response.data.email_error) {
+          toast.current.show({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: 'El candidato ha sido registrado, pero hubo un problema al enviar el correo de confirmación.',
+            life: 6000,
+          })
+        } else {
+          toast.current.show({
+            severity: 'success',
+            summary: 'Candidato registrado',
+            detail: 'El candidato ha sido registrado exitosamente',
+            life: 6000,
+          })
+        }
 
         // Limpiar formulario
         formik.resetForm()
@@ -223,13 +234,15 @@ const RegistroCandidato = () => {
       } catch (error) {
         const errorMessage =
           error.response?.data?.detail ||
-          'Hubo un problema al cargar las convocatorias activas'
+          'Hubo un problema al registrar el candidato'
         toast.current.show({
           severity: 'error',
           summary: 'Error',
           detail: errorMessage,
           life: 6000,
         })
+      } finally {
+        setLoading(false); // Desactivar loading
       }
     },
   })
@@ -754,6 +767,8 @@ const RegistroCandidato = () => {
                       }`}
                       value={formik.values.peso}
                       onValueChange={formik.handleChange}
+                      min={0}
+                      max={200}
                       minFractionDigits={2}
                       maxFractionDigits={2}
                     />
@@ -787,8 +802,8 @@ const RegistroCandidato = () => {
                       }`}
                       value={formik.values.estatura}
                       onValueChange={formik.handleChange}
-                      min={3}
-                      max={220}
+                      min={0}
+                      max={300}
                     />
                   </div>
                   <span className="p-inputgroup-addon">cm</span>
@@ -1689,6 +1704,7 @@ const RegistroCandidato = () => {
               icon="pi pi-check"
               className="p-button-success"
               type="submit"
+              loading={loading} // Mostrar loading en el botón
             />
           </div>
         </form>

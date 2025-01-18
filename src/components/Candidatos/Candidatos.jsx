@@ -67,30 +67,45 @@ export const Candidatos = () => {
 
   const handleAction = async (id, action) => {
     try {
-      await fetch(`${API_URL}/captacion/cambiar-aceptacion/${id}/${action}/`, {
+      const response = await fetch(`${API_URL}/captacion/cambiar-aceptacion/${id}/${action}/`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`, // Incluir el token de acceso
           'Content-Type': 'application/json',
         },
-      })
-      setFlag(!flag)
-      toast.current.show({
-        severity: action === 'aceptar' ? 'success' : 'warn',
-        summary: `Candidato ${action === 'aceptar' ? 'Aceptado' : 'Rechazado'}`,
-        detail: `El candidato ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}.`,
-        life: 3000,
-      })
+      });
+
+      const responseData = await response.json();
+
+      if (response.status === 200) {
+        // Verificar si hubo error en el envío del correo
+        if (responseData.email_error) {
+          toast.current.show({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: `El candidato ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}, pero hubo un problema al enviar el correo de notificación.`,
+            life: 5000,
+          });
+        } else {
+          toast.current.show({
+            severity: action === 'aceptar' ? 'success' : 'warn',
+            summary: `Candidato ${action === 'aceptar' ? 'Aceptado' : 'Rechazado'}`,
+            detail: `El candidato ha sido ${action === 'aceptar' ? 'aceptado' : 'rechazado'}.`,
+            life: 3000,
+          });
+        }
+      }
+
       // Llamar a postData para actualizar la tabla
       postData();
     } catch (error) {
-      console.error(`Error al ${action} al candidato:`, error)
+      console.error(`Error al ${action} al candidato:`, error);
       toast.current.show({
         severity: 'error',
         summary: 'Error',
         detail: `Hubo un problema al ${action} al candidato.`,
         life: 3000,
-      })
+      });
     }
   }
 
@@ -139,7 +154,7 @@ export const Candidatos = () => {
       }}
     />
   )
-
+ 
   const onPageChange = (event) => {
     setFirst(event.first)
     setRows(event.rows)

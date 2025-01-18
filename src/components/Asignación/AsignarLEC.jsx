@@ -36,6 +36,8 @@ const AsignarLEC = () => {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  const [loading, setLoading] = useState(false); // Nuevo estado para el loading
+
   // Función para refrescar el token
   const refreshToken = async () => {
     try {
@@ -235,6 +237,7 @@ const handleAsignarLEC = async () => {
     return;
   }
 
+  setLoading(true); // Activar loading
   try {
     let token = JSON.parse(localStorage.getItem("access-token"));
     if (!token) {
@@ -259,6 +262,23 @@ const handleAsignarLEC = async () => {
     );
 
     if (response.status === 200) {
+      // Verificar si hubo error en el envío del correo
+      if (response.data.email_error) {
+        toast.current.show({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'La asignación se realizó correctamente, pero hubo un problema al enviar el correo de notificación.',
+          life: 5000,
+        });
+      } else {
+        toast.current.show({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'LEC asignado correctamente y notificación enviada.',
+          life: 3000,
+        });
+      }
+
       // Actualizar el estado con la información del LEC asignado
       setLecAsignado({
         lecNombre: `${selectedLEC.nombre} `,
@@ -278,15 +298,7 @@ const handleAsignarLEC = async () => {
       setSelectedLEC(null);
       setSelectedCentro(null);
 
-      toast.current.show({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'LEC asignado correctamente.',
-        life: 3000,
-      });
-
       // Actualizar el tipo de usuario a lider_lec
-      //REVISAR EL ID DE LA INSCRIPCIÓN NO ES EL CORRECTO
       const inscripcionId = selectedLEC.inscripcion_id; // Asegúrate de que tienes este campo
       console.log('SelectedLEC:', selectedLEC);
       console.log('Inscripción ID:', inscripcionId);
@@ -314,9 +326,11 @@ const handleAsignarLEC = async () => {
     toast.current.show({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error al asignar LEC. Por favor, intente nuevamente.',
-      life: 3000,
+      detail: error.response?.data?.error || 'Error al asignar LEC. Por favor, intente nuevamente.',
+      life: 5000,
     });
+  } finally {
+    setLoading(false); // Desactivar loading
   }
 
   setSelectedLEC(null);
@@ -529,7 +543,8 @@ const handleAsignarLEC = async () => {
         <Button
           label="Asignar"
           onClick={handleAsignarLEC}
-          disabled={!selectedLEC || !selectedCentro}
+          disabled={!selectedLEC || !selectedCentro || loading}
+          loading={loading}
           className="mb-4"
         />
 

@@ -192,7 +192,7 @@ const RegistrarAsistenciaCapacitaciones = () => {
                     key={`Asistencia${i}`}
                     field={`Asistencia${i}`}
                     header={`Asistencia ${i}`}
-                    style={{ width: "100px", minWidth: "100px" }}
+                    style={{ width: "100px", minWidth: "100px", textAlign: "center" }}
                     body={(rowData) => (
                         <Checkbox
                             checked={rowData[`Asistencia${i}`]}

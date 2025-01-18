@@ -20,6 +20,7 @@ export const ValidarAspirantes = () => {
     sortField: null,
     sortOrder: null
   })
+  const [loadingAceptar, setLoadingAceptar] = useState(false)
   const toast = useRef(null)
   const token = JSON.parse(localStorage.getItem('access-token'))
 
@@ -120,6 +121,7 @@ export const ValidarAspirantes = () => {
 
   // Funcion para aceptar o rechazar un candidato
   const validarCandidato = async (flag) => {
+    setLoadingAceptar(true)
     try {
       let action = flag ? 'aceptar' : 'rechazar';
       const response = await fetch(`${API_URL}/captacion/detalles_usuario/${candidatoSeleccionado.id}/${action}/`, {
@@ -128,13 +130,44 @@ export const ValidarAspirantes = () => {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      })
+      });
+
+      const responseData = await response.json();
+
+      if (response.status === 200) {
+        console.log('Validación exitosa:', response);
+        // Verificar si hubo error en el envío del correo
+        if (responseData.email_error) {
+          toast.current?.show({
+            severity: 'warn',
+            summary: 'Advertencia',
+            detail: 'La Validación se realizó correctamente, pero hubo un problema al enviar el correo de notificación.',
+            life: 5000,
+          });
+        } else {
+          toast.current?.show({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'LEC Validado correctamente y notificación enviada.',
+            life: 3000,
+          });
+        }
+      }
+
       // Refrescar la lista de candidatos
       setCandidatoSeleccionado(null)
       setActualizarDatos(!actualizarDatos)
+
     } catch (error) {
-      const errorMessage = error.response?.data?.detail || 'Error'
-      console.log(errorMessage)
+      console.error("Error al validar LEC:", error);
+      toast.current?.show({
+      severity: 'error',
+      summary: 'Error',
+      detail: error.message || 'Error al validar LEC. Por favor, intente nuevamente.',
+      life: 5000,
+      })
+    } finally {
+      setLoadingAceptar(false)
     }
   }
 
@@ -172,7 +205,7 @@ export const ValidarAspirantes = () => {
 
   return (
     <>
-      <Toast /> {/* Componente para notificaciones (en este caso, opcional si no se usa) */}
+      <Toast ref={toast} /> {/* Componente para notificaciones con referencia correcta */}
       <main style={{
         maxWidth: '1440px',
         margin: 'auto',
@@ -249,7 +282,7 @@ export const ValidarAspirantes = () => {
 
             <div style={{ display: 'flex', justifyContent: 'space-evenly', margin: '20px 0' }}>
               <Button label="❌ Rechazar" severity="danger" outlined onClick={() => validarCandidato(false)} />
-              <Button label="✅ Aceptar" severity="success" onClick={() => validarCandidato(true)} />
+              <Button label="✅ Aceptar" severity="success" onClick={() => validarCandidato(true)} loading={loadingAceptar} />
             </div>
           </section>
         }

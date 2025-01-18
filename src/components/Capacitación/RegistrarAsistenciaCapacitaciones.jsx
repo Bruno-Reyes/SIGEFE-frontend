@@ -95,7 +95,10 @@ const RegistrarAsistenciaCapacitaciones = () => {
                     centro_id: centro.id,
                 },
             });
-            setLecsPendientes(response.data);
+
+            const lecsPendientes_validation = response.data.filter(lec => lec.estado == true);
+            setLecsPendientes(lecsPendientes_validation);
+            
         } catch (error) {
             console.error("Error al obtener LECs pendientes:", error);
             toast.current.show({

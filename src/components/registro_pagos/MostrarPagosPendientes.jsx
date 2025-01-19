@@ -57,78 +57,6 @@ const MostrarPagosPendientes = () => {
     { label: "Continuación", value: "Continuación" }
   ];
 
-  // Función para actualizar el monto del pagoå
-  const fetchUsuariosConBecas = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem('access-token'));
-      const response = await axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Añadir console.log para depurar
-      console.log('Datos recibidos:', response.data);
-      setUsuariosConBecas(response.data);
-    } catch (error) {
-      console.error('Error al obtener usuarios con becas:', error);
-      toast.current.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudieron cargar los usuarios con becas',
-        life: 3000,
-      });
-    }
-  };
-  
-
-
-  const actualizarMonto = async (pagoId, nuevoMonto) => {
-    try {
-        // Convertir el monto a número y asegurarnos de que no sea NaN
-        const montoNumerico = parseFloat(nuevoMonto);
-        if (isNaN(montoNumerico)) {
-            toast.current.show({
-                severity: "warn",
-                summary: "Monto inválido",
-                detail: "Por favor ingrese un número válido.",
-                life: 3000,
-            });
-            return;
-        }
-
-        // Obtener el token de autenticación
-        const token = JSON.parse(localStorage.getItem("access-token"));
-
-        // Hacer la solicitud PATCH al backend
-        await axios.patch(`${apiUrl}/pagos/actualizar-monto/${pagoId}/`, 
-        { monto: montoNumerico }, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Actualizar el estado de los pagos en la tabla
-        setPagos((prevPagos) =>
-            prevPagos.map((pago) =>
-                pago.id === pagoId ? { ...pago, monto: montoNumerico } : pago
-            )
-        );
-
-        // Mostrar mensaje de éxito
-        toast.current.show({
-            severity: "success",
-            summary: "Monto Actualizado",
-            detail: "El monto del pago ha sido actualizado con éxito.",
-            life: 3000,
-        });
-    } catch (error) {
-        // Manejo de errores
-        toast.current.show({
-            severity: "error",
-            summary: "Error",
-            detail: "No se pudo actualizar el monto del pago.",
-            life: 3000,
-        });
-    }
-};
-
-
 const montoTemplate = (rowData) => {
   // Deshabilitar edición si la confirmación LEC es "recibido"
   if (rowData.confirmacion_lec === "recibido") {
@@ -210,49 +138,6 @@ const montoTemplate = (rowData) => {
     }
   };
 
-  // Función para renderizar los botones de acción
-  const actionTemplate = (rowData) => {
-    if (puedeEditar) {
-      return (
-        <Button
-          icon="pi pi-trash"
-          className="p-button-danger"
-          onClick={() => eliminarPago(rowData.id)}
-          tooltip="Eliminar"
-        />
-      );
-    }
-    return <span>Acción no permitida</span>;
-  };
-
-  // Función para confirmar la acción del usuario
-  const confirmarActualizacion = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem("access-token"));
-      const endpoint = selectedPago.confirmacion_lec === "recibido" ? `${apiUrl}/pagos/confirmar/${selectedPago.id}/` : `${apiUrl}/pagos/rechazar/${selectedPago.id}/`;
-
-      await axios.patch(endpoint, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      toast.current.show({
-        severity: "success",
-        summary: "Confirmación Actualizada",
-        detail: "La confirmación ha sido actualizada con éxito.",
-        life: 3000
-      });
-      obtenerPagosPendientes();
-      setShowConfirmDialog(false);
-    } catch (error) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "No se pudo actualizar la confirmación.",
-        life: 3000
-      });
-    }
-  };
-
   const confirmarActualizacionDirecta = async (pago, nuevaConfirmacion) => {
     try {
       const token = JSON.parse(localStorage.getItem("access-token"));
@@ -260,7 +145,7 @@ const montoTemplate = (rowData) => {
         ? `${apiUrl}/pagos/confirmar/${pago.id}/`
         : `${apiUrl}/pagos/rechazar/${pago.id}/`;
   
-      await axios.patch(endpoint, { confirmacion_lec: nuevaConfirmacion }, {
+      await axios.patch(endpoint, {}, {  // Enviamos un objeto vacío ya que el backend no necesita datos adicionales
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -273,10 +158,11 @@ const montoTemplate = (rowData) => {
   
       obtenerPagosPendientes();
     } catch (error) {
+      console.error('Error al actualizar confirmación:', error);
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "No se pudo actualizar la confirmación.",
+        detail: error.response?.data?.error || "No se pudo actualizar la confirmación.",
         life: 3000,
       });
     }

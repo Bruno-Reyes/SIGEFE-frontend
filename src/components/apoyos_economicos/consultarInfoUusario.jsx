@@ -89,6 +89,16 @@ const UserDetailView = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Obtener el ID del pago desde la respuesta anidada
+      const pagoId = response.data.data.id;
+      
+      if (pagoId) {
+        // Llamar a la API para confirmar el pago
+        await axios.patch(`${apiUrl}/pagos/confirmar/${pagoId}/`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
       toast.current.show({ severity: 'success', summary: 'Pago Creado', detail: 'Nuevo pago registrado con éxito', life: 3000 });
 
       await fetchUserPayments();
@@ -101,6 +111,7 @@ const UserDetailView = () => {
         estatus: 'pendiente',
       });
     } catch (error) {
+      console.error('Error al crear o confirmar el pago:', error);
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el pago', life: 3000 });
     }
   };

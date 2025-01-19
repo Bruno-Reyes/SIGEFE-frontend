@@ -244,7 +244,7 @@ const Becas = () => {
 
       for (const user of filteredUsers) {
         if (user.status === selectedScholarship) {
-          await axios.post(
+          const pagoResponse = await axios.post(
             `${apiUrl}/pagos/registrar/`,
             {
               usuario: user.detallesId,
@@ -256,6 +256,16 @@ const Becas = () => {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
+
+          // Obtener el ID del pago desde la respuesta anidada
+          const pagoId = pagoResponse.data.data.id;
+          
+          if (pagoId) {
+            // Llamar a la API para confirmar el pago
+            await axios.patch(`${apiUrl}/pagos/confirmar/${pagoId}/`, {}, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
         }
       }
 

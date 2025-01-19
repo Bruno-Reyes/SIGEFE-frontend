@@ -29,6 +29,7 @@ const Becas = () => {
   const [tiposBecas, setTiposBecas] = useState([]);
   const navigate = useNavigate();
   const toast = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -224,12 +225,14 @@ const Becas = () => {
   };
 
   const bulkAssignScholarships = async () => {
+    setLoading(true);
     try {
       const selectedScholarshipObj = tiposBecas.find((beca) => beca.tipo === selectedScholarship);
       const selectedScholarshipId = selectedScholarshipObj?.id;
 
       if (!selectedScholarshipId) {
         toast.current.show({ severity: 'error', summary: 'Error', detail: 'Seleccione un tipo de beca válido', life: 3000 });
+        setLoading(false);
         return;
       }
 
@@ -256,16 +259,6 @@ const Becas = () => {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-
-          // Obtener el ID del pago desde la respuesta anidada
-          const pagoId = pagoResponse.data.data.id;
-          
-          if (pagoId) {
-            // Llamar a la API para confirmar el pago
-            await axios.patch(`${apiUrl}/pagos/confirmar/${pagoId}/`, {}, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-          }
         }
       }
 
@@ -275,6 +268,8 @@ const Becas = () => {
     } catch (error) {
       console.error('Error al registrar pagos en grupo:', error);
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudieron registrar los pagos.' });
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -392,13 +387,15 @@ const Becas = () => {
                 label="Aceptar"
                 icon="pi pi-check"
                 onClick={bulkAssignScholarships}
-                disabled={!selectedScholarship}
+                disabled={!selectedScholarship || loading}
+                loading={loading}
               />
               <Button
                 label="Cancelar"
                 icon="pi pi-times"
                 onClick={() => setIsBulkDialogVisible(false)}
                 className="p-button-secondary"
+                disabled={loading}
               />
             </div>
           }

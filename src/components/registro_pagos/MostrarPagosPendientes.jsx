@@ -135,19 +135,6 @@ const montoTemplate = (rowData) => {
     return <span>${parseFloat(rowData.monto).toFixed(2)}</span>;
   }
 
-  // Permitir edición solo para usuarios autorizados
-  if (userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") {
-    return (
-      <InputNumber
-        value={rowData.monto}
-        onValueChange={(e) => actualizarMonto(rowData.id, e.value)}
-        mode="currency"
-        currency="USD"
-        locale="en-US"
-        minFractionDigits={2}
-      />
-    );
-  }
 
   return <span>${parseFloat(rowData.monto).toFixed(2)}</span>;
 };
@@ -390,7 +377,7 @@ const montoTemplate = (rowData) => {
   return (
     <div className="pagos-view">
       <Toast ref={toast} />
-      <h2>Pagos Pendientes</h2>
+      <h2>Historial de Pagos</h2>
 
       <div className="export-buttons">
             <Button
@@ -481,18 +468,17 @@ const montoTemplate = (rowData) => {
         </Card>
       </div>
 
-      {(userEmail === "coord_nac_rrhh@example.com" || userEmail === "dep_finanzas@example.com") && (
-        <Button
-          label="Agregar Pago"
-          icon="pi pi-plus"
-          onClick={() => {
-            fetchUsuariosConBecas();
-            setNewPaymentDialog(true);
-          }}
-        />
-      )}
-
-      <DataTable value={pagos} loading={loading} responsiveLayout="scroll" dataKey="id">
+      <DataTable 
+        value={pagos} 
+        loading={loading} 
+        responsiveLayout="scroll" 
+        dataKey="id"
+        paginator 
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      >
         <Column field="nombre_usuario" header="Usuario" sortable />
         <Column field="concepto" header="Concepto" sortable />
         <Column field="monto" header="Monto" body={montoTemplate} sortable />

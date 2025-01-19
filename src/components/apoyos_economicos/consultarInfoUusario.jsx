@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
@@ -14,6 +14,7 @@ import 'primeicons/primeicons.css';
 import './UserDetailView.css';
 
 const UserDetailView = () => {
+  const navigate = useNavigate();
   const id = localStorage.getItem('usuario-to-check-id');
   const email = localStorage.getItem('usuario-to-check-email');
   const nombre = localStorage.getItem('usuario-to-check-nombre');
@@ -66,7 +67,7 @@ const UserDetailView = () => {
   const fetchUserPayments = async () => {
     try {
       const token = JSON.parse(localStorage.getItem('access-token'));
-      const paymentsResponse = await axios.get(`${apiUrl}/pagos/usuario/${id}/`, {
+      const paymentsResponse = await axios.get(`${apiUrl}/pagos/usuario/${userDetails.id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -81,7 +82,10 @@ const UserDetailView = () => {
     try {
       const token = JSON.parse(localStorage.getItem('access-token'));
 
-      const response = await axios.post(`${apiUrl}/pagos/registrar/`, newPayment, {
+      const response = await axios.post(`${apiUrl}/pagos/registrar/`, {
+        ...newPayment,
+        usuario: userDetails.id  // Asegúrate de pasar el ID correcto del usuario receptor
+      }, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -136,8 +140,13 @@ const UserDetailView = () => {
 
   useEffect(() => {
     fetchUserDetails();
-    fetchUserPayments();
   }, [id]);
+
+  useEffect(() => {
+    if (userDetails) {
+      fetchUserPayments();
+    }
+  }, [userDetails]);
 
   if (!userDetails) {
     return <p>Cargando detalles del usuario...</p>;
@@ -146,6 +155,13 @@ const UserDetailView = () => {
   return (
     <div className="container mt-4 gov-mx-style">
       <header className="text-center mb-4">
+        <Button
+          label="Regresar"
+          icon="pi pi-arrow-left"
+          className="p-button-secondary"
+          onClick={() => navigate('/asignarBeca')}
+          style={{ position: 'absolute', top: '50px', left: '40px' }}
+        />
         <h1>{nombre}</h1>
       </header>
 

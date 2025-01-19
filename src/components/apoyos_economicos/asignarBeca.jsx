@@ -66,7 +66,7 @@ const Becas = () => {
 
       const combinedData = usersData.map((user) => {
         const userDetails = detailsData.find((detail) => detail.usuario === user.id) || {};
-        const userScholarship = scholarshipsData.find((scholarship) => scholarship.usuario === user.id) || null;
+        const userScholarship = scholarshipsData.find((scholarship) => scholarship.usuario === userDetails.id) || null;
 
         return {
           id: user.id,
@@ -183,7 +183,7 @@ const Becas = () => {
       if (currentScholarship && currentScholarship !== selectedScholarship && currentScholarship !== "Sin asignar") {
         // Editar beca existente
         await axios.patch(
-          `${apiUrl}/pagos/editar/${userDetailsId}/`,
+          `${apiUrl}/pagos/editar/${selectedUser.id}/`, // Cambiar a selectedUser.id
           {
             tipo_beca_id: selectedScholarshipId,
           },
@@ -225,16 +225,46 @@ const Becas = () => {
 
   const bulkAssignScholarships = async () => {
     try {
-      for (const user of filteredUsers) {
-        setSelectedUser(user);
-        await assignScholarship();
+      const selectedScholarshipObj = tiposBecas.find((beca) => beca.tipo === selectedScholarship);
+      const selectedScholarshipId = selectedScholarshipObj?.id;
+
+      if (!selectedScholarshipId) {
+        toast.current.show({ severity: 'error', summary: 'Error', detail: 'Seleccione un tipo de beca válido', life: 3000 });
+        return;
       }
-      toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Becas asignadas exitosamente' });
+
+      const token = JSON.parse(localStorage.getItem('access-token'));
+
+      // Obtener el monto de la beca seleccionada
+      const response = await axios.get(`${apiUrl}/pagos/tipos_becas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const becaSeleccionada = response.data.find((item) => item.id === selectedScholarshipId);
+      const montoBeca = becaSeleccionada ? becaSeleccionada.monto : 0;
+
+      for (const user of filteredUsers) {
+        if (user.status === selectedScholarship) {
+          await axios.post(
+            `${apiUrl}/pagos/registrar/`,
+            {
+              usuario: user.detallesId,
+              concepto: selectedScholarship,
+              monto: montoBeca,
+              estatus: 'pendiente',
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+        }
+      }
+
+      toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Pagos registrados exitosamente' });
       setIsBulkDialogVisible(false);
       fetchCombinedUsers();
     } catch (error) {
-      console.error('Error al asignar becas en grupo:', error);
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo asignar las becas.' });
+      console.error('Error al registrar pagos en grupo:', error);
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudieron registrar los pagos.' });
     }
   };
   
@@ -242,41 +272,23 @@ const Becas = () => {
     <div className="container mt-4 gov-mx-style">
       <Toast ref={toast} />
       <header className="text-center mb-4">
-        <h1>Gestión de Líderes Educativos</h1>
-        <p className="lead">Administración de becas para líderes de educación comunitaria</p>
+        <h1>Gestión de Becas para Líderes de Educación Comunitaria</h1>
       </header>
 
       <main>
-        <div className="mb-3">
+        <div className="mb-1">
+          <h3>Filtros</h3>
           <label htmlFor="curp-search" className="form-label">Buscar por CURP:</label>
           <InputText
             id="curp-search"
             value={curpSearch}
             onChange={(e) => setCurpSearch(e.target.value)}
             placeholder="Ingresa el CURP"
-            className="form-control mb-3"
+            className="form-control mb-1"
+            style={{ marginLeft: '1%' }}
           />
-
-          <label htmlFor="state-filter" className="form-label">Filtrar por Estado y Municipio:</label>
-          <div className="d-flex align-items-center gap-2">
-            <Dropdown
-              id="state-filter"
-              value={selectedState}
-              options={[...new Set(users.map((user) => user.state))].filter((state) => state !== 'N/A')}
-              onChange={(e) => setSelectedState(e.value)}
-              placeholder="Selecciona un estado"
-              className="w-100"
-            />
-            <Dropdown
-              id="municipality-filter"
-              value={selectedMunicipality}
-              options={[...new Set(users.map((user) => user.municipality))].filter((municipality) => municipality !== 'N/A')}
-              onChange={(e) => setSelectedMunicipality(e.value)}
-              placeholder="Selecciona un municipio"
-              className="w-100"
-            />
-          </div>
-
+        </div>
+        <div className="mb-1">
           <label htmlFor="scholarship-filter" className="form-label">Filtrar por Tipo de Beca:</label>
           <Dropdown
             id="scholarship-filter"
@@ -285,21 +297,28 @@ const Becas = () => {
             onChange={(e) => setSelectedScholarshipFilter(e.value)}
             placeholder="Selecciona un tipo de beca"
             className="w-100"
+            style={{ marginLeft: '1%' }}
           />
+        </div>
+        <div className="mb-1">
+          <button className="btn btn-secondary mt-3" onClick={clearFilter} style={{marginRight:'1%'}}>Limpiar Filtros</button>
 
-          <button className="btn btn-secondary mt-3" onClick={clearFilter}>Limpiar Filtros</button>
-          {filteredUsers.length > 0 && (
             <button className="btn btn-warning mt-3" onClick={openBulkAssignDialog}>
-              Asignar Beca a Grupo
+              Registrar Pago de Beca a Grupo
             </button>
-          )}
-          <div className="export-buttons">
+
+
+          <div className="export-buttons" style={{marginTop:'1%'}}>
             <Button icon="pi pi-file-excel" label="Exportar a Excel" className="p-button-success" onClick={exportExcel} />
             <Button icon="pi pi-file-pdf" label="Exportar a PDF" className="p-button-danger" onClick={exportPdf} />
           </div>
         </div>
 
-        <DataTable value={filteredUsers} className="p-datatable-striped" paginator rows={10}>
+        <DataTable value={filteredUsers} className="p-datatable-striped" paginator 
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
           <Column field="id" header="ID" sortable />
           <Column field="name" header="Nombre" sortable />
           <Column field="email" header="Email" sortable />
@@ -317,6 +336,7 @@ const Becas = () => {
               </div>
             )}
           />
+          
         </DataTable>
 
         <Dialog
@@ -352,7 +372,7 @@ const Becas = () => {
         </Dialog>
 
         <Dialog
-          header="Asignar Beca a Grupo"
+          header="Registrar Pago de Beca a Grupo"
           visible={isBulkDialogVisible}
           style={{ width: '30vw' }}
           onHide={() => setIsBulkDialogVisible(false)}
@@ -373,7 +393,7 @@ const Becas = () => {
             </div>
           }
         >
-          <p>Seleccione el tipo de beca para los usuarios filtrados:</p>
+          <p>Seleccione el tipo de beca para realizar el pago a los usuarios filtrados:</p>
           <Dropdown
             value={selectedScholarship}
             options={tiposBecas.map((beca) => beca.tipo)}

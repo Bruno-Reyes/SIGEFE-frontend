@@ -64,9 +64,17 @@ const MostrarPagosPendientes = () => {
       const response = await axios.get(`${apiUrl}/pagos/lideres-lec-con-becas`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Añadir console.log para depurar
+      console.log('Datos recibidos:', response.data);
       setUsuariosConBecas(response.data);
     } catch (error) {
       console.error('Error al obtener usuarios con becas:', error);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudieron cargar los usuarios con becas',
+        life: 3000,
+      });
     }
   };
   
@@ -410,12 +418,23 @@ const montoTemplate = (rowData) => {
       <Dropdown
         id="usuario"
         value={newPayment.usuario}
-        options={usuariosConBecas.map((u) => ({
-          label: `${u.nombre} - ${u.tipo_beca.tipo}`,
-          value: u.usuario,
-        }))}
-        onChange={(e) => setNewPayment({ ...newPayment, usuario: e.value, concepto: usuariosConBecas.find((u) => u.usuario === e.value)?.tipo_beca.tipo })}
+        options={usuariosConBecas
+          .filter(u => u.nombre_completo && u.nombre_completo.trim() !== '')
+          .map((u) => ({
+            label: `${u.nombre_completo} - ${u.tipo_beca?.tipo || 'Sin beca'}`,
+            value: u.usuario
+          }))}
+        onChange={(e) => {
+          const selectedUser = usuariosConBecas.find((u) => u.usuario === e.value);
+          setNewPayment({
+            ...newPayment,
+            usuario: e.value,
+            concepto: selectedUser?.tipo_beca?.tipo || ''
+          });
+        }}
         placeholder="Seleccionar Usuario"
+        filter={true}
+        filterBy="label"
       />
     </div>
     <div className="p-field">
@@ -458,7 +477,7 @@ const montoTemplate = (rowData) => {
       )}
 
       <DataTable value={pagos} loading={loading} responsiveLayout="scroll" dataKey="id">
-        <Column field="usuario" header="Usuario" sortable />
+        <Column field="nombre_usuario" header="Usuario" sortable />
         <Column field="concepto" header="Concepto" sortable />
         <Column field="monto" header="Monto" body={montoTemplate} sortable />
         <Column field="fecha_pago" header="Fecha de Pago" sortable />

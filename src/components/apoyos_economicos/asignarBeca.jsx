@@ -70,6 +70,7 @@ const Becas = () => {
 
         return {
           id: user.id,
+          detallesId: userDetails.id, // Agregamos el ID de DetallesUsuario
           name: `${userDetails.nombres || ''} ${userDetails.apellido_paterno || ''} ${userDetails.apellido_materno || ''}`.trim(),
           email: user.email,
           curp: userDetails.curp || 'N/A',
@@ -170,17 +171,19 @@ const Becas = () => {
 
   const assignScholarship = async () => {
     try {
-      // Verificar si el usuario ya tiene una beca asignada
       const currentScholarship = selectedUser.status;
-  
-      // Obtener el ID del tipo de beca seleccionado
-      const selectedScholarshipId = tiposBecas.find((beca) => beca.tipo === selectedScholarship)?.id;
-  
-      // Validar si ya tiene una beca asignada y si es diferente a la seleccionada
+      const selectedScholarshipObj = tiposBecas.find((beca) => beca.tipo === selectedScholarship);
+      const selectedScholarshipId = selectedScholarshipObj?.id;
+      const userDetailsId = selectedUser.detallesId;
+
+      if (!userDetailsId) {
+        throw new Error('No se encontró el ID de DetallesUsuario');
+      }
+
       if (currentScholarship && currentScholarship !== selectedScholarship && currentScholarship !== "Sin asignar") {
-        // Si tiene beca y se selecciona una diferente, editar el registro 
+        // Editar beca existente
         await axios.patch(
-          `${apiUrl}/pagos/editar/${selectedUser.id}/`,
+          `${apiUrl}/pagos/editar/${userDetailsId}/`,
           {
             tipo_beca_id: selectedScholarshipId,
           },
@@ -190,29 +193,33 @@ const Becas = () => {
         );
         toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Beca actualizada exitosamente' });
       } else if (currentScholarship === "Sin asignar") {
-        // Si no tiene beca asignada, crear un nuevo registro
+        // Asignar nueva beca - Corregir el formato de los datos enviados
         await axios.post(
           `${apiUrl}/pagos/asignar-beca/`,
           {
             tipo_beca: selectedScholarshipId,
-            usuario: selectedUser.id,
-            estatus: 1,
+            usuario: selectedUser.id, // Usar el ID del usuario en lugar del ID de detalles
+            estatus: 1
           },
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Beca asignada exitosamente' });
       } else {
-        // Si la beca seleccionada es la misma que la actual, no hacer nada
         toast.current.show({ severity: 'info', summary: 'Sin cambios', detail: 'La beca seleccionada ya está asignada.' });
       }
-  
+
       setIsDialogVisible(false);
       fetchCombinedUsers();
     } catch (error) {
       console.error('Error al asignar o editar la beca:', error);
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'No se pudo asignar la beca.' });
+      let errorMessage = 'No se pudo asignar la beca.';
+      if (error.response && error.response.data) {
+        errorMessage = error.response.data.error || errorMessage;
+      }
+      toast.current.show({ severity: 'error', summary: 'Error', detail: errorMessage });
     }
   };
 

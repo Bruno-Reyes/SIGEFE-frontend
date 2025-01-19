@@ -349,17 +349,33 @@ const montoTemplate = (rowData) => {
     // Función para exportar a PDF
     const exportarAPDF = () => {
         const doc = new jsPDF();
+        
+        // Configurar el título y estilo
+        doc.setFontSize(16);
+        doc.text('Reporte de Pagos Pendientes', 14, 20);
+        doc.setFontSize(12);
+        doc.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 14, 30);
 
         // Crear una tabla en el PDF con los datos de la tabla
         doc.autoTable({
-            head: [['Usuario', 'Concepto', 'Monto', 'Estatus', 'Fecha de Pago']],
+            startY: 40,
+            head: [['Usuario', 'Concepto', 'Monto', 'Estatus', 'Fecha de Pago', 'Confirmación']],
             body: pagos.map(pago => [
-                pago.usuario,
+                pago.nombre_usuario,  // Usar nombre_usuario en lugar de usuario
                 pago.concepto,
                 `$${parseFloat(pago.monto).toFixed(2)}`,
                 pago.estatus,
-                pago.fecha_pago
+                new Date(pago.fecha_pago).toLocaleDateString(),
+                pago.confirmacion_lec || 'Sin confirmar'
             ]),
+            styles: {
+                fontSize: 10,
+                cellPadding: 3,
+                halign: 'left'
+            },
+            headStyles: {
+                fillColor: [40, 84, 11]
+            }
         });
 
         // Guardar el archivo PDF

@@ -22,19 +22,19 @@ export default function UISidebar({ visible, onHide, setActiveComponent }) {
     items = (
       <ul style={{ listStyleType: 'none', padding: 0, textAlign: 'center', width: '100%' }}>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Convocatorias" icon="pi pi-user" className="p-button-text" style={{ width: '100%' }}  onClick={() => setActiveComponent('convocatorias')} />
+          <Button label="Convocatorias" icon="pi pi-calendar" className="p-button-text" style={{ width: '100%' }}  onClick={() => setActiveComponent('convocatorias')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Validar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('validar_aspirantes')}/>
+          <Button label="Validar Candidatos" icon="pi pi-check" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('validar_aspirantes')}/>
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-          <Button label="Aceptar Candidatos" icon="pi pi-users" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('candidatos')} />
+          <Button label="Aceptar Candidatos" icon="pi pi-thumbs-up" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent('candidatos')} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-            <Button label="Gestión de Pagos" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
+            <Button label="Historial de Pagos" icon="pi pi-file" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("pagos")} />
         </li>
         <li style={{ margin: '10px 0', width: '100%' }}>
-            <Button label="Asignar Becas" icon="pi pi-wallet" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("becas")} />
+        <Button label="Asignar Becas" icon="pi pi-money-bill" className="p-button-text" style={{ width: '100%' }} onClick={() => setActiveComponent("becas")} />
         </li>
       </ul>
     )

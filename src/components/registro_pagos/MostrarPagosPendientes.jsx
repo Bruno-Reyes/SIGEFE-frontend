@@ -263,7 +263,7 @@ const montoTemplate = (rowData) => {
   return (
     <div className="pagos-view">
       <Toast ref={toast} />
-      <h2>Pagos no recibidos</h2>
+      <h2>Historial de Pagos</h2>
 
       <div className="export-buttons">
             <Button
@@ -346,7 +346,7 @@ const montoTemplate = (rowData) => {
         <Card title="Total Pagos" className="p-shadow-2">
           <p>{pagos.length}</p>
         </Card>
-        <Card title="Pendientes" className="p-shadow-2">
+        <Card title="Pagos no recibidos" className="p-shadow-2">
           <p>{pagos.filter((pago) => pago.confirmacion_lec === "no_recibido").length}</p>
         </Card>
         <Card title="Confirmado" className="p-shadow-2">

@@ -526,7 +526,7 @@ const GestionHistorialMigratorio = () => {
                 }
                 onHide={handleCancel}
             >
-                <p>¿Está seguro de inscribir al alumno {apellido_paterno} {apellido_materno} {nombreAlumno} al centro {cct}?<br></br>NOTA: Al cambiar al alumno de centro, dejaras de tener control el registro del estudiante</p>
+                <p>¿Está seguro de inscribir al alumno {apellido_paterno} {apellido_materno} {nombreAlumno} al centro {cct}?<br></br>NOTA: Al cambiar al alumno de centro, dejaras de tener control sobre el registro del estudiante</p>
             </Dialog>
         </div>
     );

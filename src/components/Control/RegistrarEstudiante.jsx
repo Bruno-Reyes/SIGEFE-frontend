@@ -53,6 +53,7 @@ const RegistrarEstudiante = () => {
 
   const [gradoOptions, setGradoOptions] = useState([]);
   const [isGradoDisabled, setIsGradoDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleNivelEducativoChange = (e) => {
     const nivel = e.value;
@@ -101,6 +102,7 @@ const RegistrarEstudiante = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.nombre && formData.apellido_paterno && formData.apellido_materno && formData.edad && formData.grado && formData.grupo && formData.promedio && formData.procedencia && formData.contacto) {
+      setLoading(true); // Activar loading
       try {
         let token = JSON.parse(localStorage.getItem('access-token'));
         if (!token) {
@@ -189,6 +191,8 @@ const RegistrarEstudiante = () => {
             life: 3000,
           });
         }
+      } finally {
+        setLoading(false); // Desactivar loading al finalizar
       }
     } else {
       toast.current.show({
@@ -313,7 +317,14 @@ const RegistrarEstudiante = () => {
           />
         </div>
         
-        <Button type="submit" label="Registrar Estudiante" icon="pi pi-save" className="p-button-success" />
+        <Button 
+          type="submit" 
+          label="Registrar Estudiante" 
+          icon="pi pi-save" 
+          className="p-button-success"
+          loading={loading}
+          disabled={loading}
+        />
       </form>
     </div>
   );

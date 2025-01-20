@@ -35,6 +35,7 @@ const GestionHistorialMigratorio = () => {
     const [isSearchSuccessful, setIsSearchSuccessful] = useState(false); // Estado para habilitar el botón
     const [isDropdownsSelected, setIsDropdownsSelected] = useState(false); // Estado para habilitar el botón
     const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Estado para mostrar el popup
+    const [loading, setLoading] = useState(false); // Estado para manejar el loading
     const toast = useRef(null);
 
     const [showDropdowns, setShowDropdowns] = useState(false); // Estado para mostrar dropdowns
@@ -118,6 +119,7 @@ const GestionHistorialMigratorio = () => {
     }, [estado, municipio, localidad, cct]);
 
     const handleSearch = async () => {
+        setLoading(true);
         if (!nombreAlumno || !apellido_paterno || !apellido_materno) {
             toast.current.show({ severity: 'warn', summary: 'Advertencia', detail: 'Por favor, ingrese el nombre, apellido paterno y apellido materno del alumno.', life: 3000 });
             return;
@@ -201,17 +203,31 @@ const GestionHistorialMigratorio = () => {
                     if (lecResponse.status === 200 && lecResponse.data.length > 0) {
                         setCctCentroAsignado(lecResponse.data[0].cct_centro_asignado); // Guardar el CCT del LEC
                     }
+                    setLoading(false);
                 } else {
                     console.error("Error al obtener el historial migratorio:", historialResponse.data);
                     throw new Error('Error al obtener el historial migratorio');
                 }
             } else {
+                setLoading(false);
                 setData([]);
                 setIsSearchSuccessful(false); // Deshabilitar el botón
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'No se encontró el estudiante con los criterios proporcionados.',
+                    life: 3000,
+                });
             }
         } catch (error) {
             console.error('Error al buscar el historial migratorio:', error);
             setIsSearchSuccessful(false); // Deshabilitar el botón
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Hubo un problema al buscar el historial migratorio.',
+                life: 3000,
+            });
         }
     };
 
@@ -221,6 +237,7 @@ const GestionHistorialMigratorio = () => {
     };
 
     const handleInscribirClick = async () => {
+        setLoading(true); // Mostrar loading
         try {
             let token = JSON.parse(localStorage.getItem('access-token'));
             if (!token) {
@@ -261,6 +278,7 @@ const GestionHistorialMigratorio = () => {
                         detail: 'No se pudo obtener el CCT del LEC.',
                         life: 3000,
                     });
+                    setLoading(false); // Ocultar loading
                     return;
                 }
 
@@ -277,6 +295,7 @@ const GestionHistorialMigratorio = () => {
                         detail: 'El LEC no tiene control sobre este estudiante.',
                         life: 3000,
                     });
+                    setLoading(false); // Ocultar loading
                     return;
                 }
 
@@ -288,6 +307,7 @@ const GestionHistorialMigratorio = () => {
                     detail: 'No se encontró el estudiante.',
                     life: 3000,
                 });
+                setLoading(false); // Ocultar loading
             }
         } catch (error) {
             console.error('Error al verificar el control del LEC sobre el estudiante:', error);
@@ -297,6 +317,7 @@ const GestionHistorialMigratorio = () => {
                 detail: 'Hubo un problema al verificar el control del LEC sobre el estudiante.',
                 life: 3000,
             });
+            setLoading(false); // Ocultar loading
         }
     };
 
@@ -378,11 +399,14 @@ const GestionHistorialMigratorio = () => {
                 detail: 'Hubo un problema al inscribir al alumno en el nuevo centro.',
                 life: 3000,
             });
+        } finally {
+            setLoading(false); // Ocultar loading
         }
     };
 
     const handleCancel = () => {
         setShowConfirmDialog(false);
+        setLoading(false); // Ocultar loading
     };
 
     const formatDate = (dateString) => {
@@ -420,6 +444,7 @@ const GestionHistorialMigratorio = () => {
                     label="Buscar" 
                     icon="pi pi-search" 
                     className="p-button-success" 
+                    loading={loading}
                     style={{ marginLeft: '10px' }} 
                     onClick={handleSearch}
                 />
@@ -429,14 +454,16 @@ const GestionHistorialMigratorio = () => {
                     style={{ marginLeft: '10px' }} 
                     icon="pi pi-arrow-right-arrow-left"
                     onClick={handleRegisterChange}
+                    loading={loading}
                     disabled={!isSearchSuccessful || cctCentroAsignado !== cctEstudiante} // Deshabilitar botón
                 />
                 <Button 
                     label="Inscribir a nuevo centro" 
                     className="p-button-info" 
                     style={{ marginLeft: '10px' }} 
+                    loading={loading}
                     icon="pi pi-pencil" // Agrega el icono de lápiz
-                    disabled={!isDropdownsSelected} // Deshabilitar botón
+                    disabled={!isDropdownsSelected || loading} // Deshabilitar botón si está cargando
                     onClick={handleInscribirClick} // Mostrar popup
                 />
             </div>
@@ -499,7 +526,7 @@ const GestionHistorialMigratorio = () => {
                 }
                 onHide={handleCancel}
             >
-                <p>¿Está seguro de inscribir al alumno {apellido_paterno} {apellido_materno} {nombreAlumno} al centro {cct}?</p>
+                <p>¿Está seguro de inscribir al alumno {apellido_paterno} {apellido_materno} {nombreAlumno} al centro {cct}?<br></br>NOTA: Al cambiar al alumno de centro, dejaras de tener control el registro del estudiante</p>
             </Dialog>
         </div>
     );

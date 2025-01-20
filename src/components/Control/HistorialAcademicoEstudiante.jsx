@@ -58,18 +58,30 @@ const HistorialAcademicoEstudiante = () => {
       const id_estudiante = estudiante.map(est => est.id).join(',');
 
       if (estudiante.length > 0) {
-
         let estudiante_data = [];
         estudiante_data.push(estudiante[0]);
 
-        const reinscripciones = await axios.get(`${apiUrl}/control_escolar/reinscribir_estudiante/${id_estudiante}/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        try {
+          const reinscripciones = await axios.get(`${apiUrl}/control_escolar/reinscribir_estudiante/${id_estudiante}/`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
 
-        estudiante_data = [...estudiante_data, ...reinscripciones.data.reinscripciones];
+          estudiante_data = [...estudiante_data, ...reinscripciones.data.reinscripciones];
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            toast.current.show({
+              severity: 'info',
+              summary: 'Información',
+              detail: 'El estudiante no tiene reinscripciones pasadas.',
+              life: 3000,
+            });
+          } else {
+            console.error('Error al obtener reinscripciones:', error);
+          }
+        }
 
         const datosPorNivel = estudiante_data.reduce((acc, estudiante) => {
           const nivel = estudiante.nivel_educativo;
@@ -85,23 +97,33 @@ const HistorialAcademicoEstudiante = () => {
         setData(estudiante_data);
 
         const calificacionesPromises = estudiante_data.map(async (est) => {
-
-          const response = await axios.get(`${apiUrl}/control_escolar/calificaciones/`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            params: {
-              id_estudiante__in: id_estudiante,
-              grado: est.grado,
-              grupo: est.grupo,
-            },
-          }); {
-
+          try {
+            const response = await axios.get(`${apiUrl}/control_escolar/calificaciones/`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              params: {
+                id_estudiante__in: id_estudiante,
+                grado: est.grado,
+                grupo: est.grupo,
+              },
+            });
+            return response.data;
+          } catch (error) {
+            if (error.response && error.response.status === 404) {
+              toast.current.show({
+                severity: 'info',
+                summary: 'Información',
+                detail: 'El estudiante no tiene calificaciones registradas.',
+                life: 3000,
+              });
+              return [];
+            } else {
+              console.error('Error al obtener calificaciones:', error);
+              return [];
+            }
           }
-
-          return response.data;
-
         });
 
         const calificacionesResponse = await Promise.all(calificacionesPromises);
@@ -125,10 +147,21 @@ const HistorialAcademicoEstudiante = () => {
 
       } else {
         setData([]);
-        console.warn('No se encontraron estudiantes con los criterios de búsqueda proporcionados.');
+        toast.current.show({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'No se encontraron estudiantes con los criterios de búsqueda proporcionados.',
+          life: 3000,
+        });
       }
     } catch (error) {
       console.error('Error al buscar estudiantes:', error);
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Hubo un problema al buscar estudiantes.',
+        life: 3000,
+      });
     }
   };
 

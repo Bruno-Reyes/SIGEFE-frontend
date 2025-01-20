@@ -118,16 +118,30 @@ const ReinscribirEstudiante = () => {
                 setData(estudiantes);
                 setSelectedEstudiante(estudiantes[0]);
 
-                // Obtener inscripciones pasadas
-                const historialResponse = await axios.get(`${apiUrl}/control_escolar/reinscribir_estudiante/${estudiantes[0].id}/`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    }
-                });
+                try {
+                    // Obtener inscripciones pasadas
+                    const historialResponse = await axios.get(`${apiUrl}/control_escolar/reinscribir_estudiante/${estudiantes[0].id}/`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    });
 
-                if (historialResponse.data.reinscripciones) {
-                    setInscripcionesPasadas(historialResponse.data.reinscripciones);
+                    if (historialResponse.data.reinscripciones) {
+                        setInscripcionesPasadas(historialResponse.data.reinscripciones);
+                    }
+                } catch (error) {
+                    if (error.response && error.response.status === 404) {
+                        toast.current.show({
+                            severity: 'info',
+                            summary: 'Información',
+                            detail: 'El estudiante no tiene reinscripciones pasadas.',
+                            life: 3000,
+                        });
+                        setInscripcionesPasadas([]);
+                    } else {
+                        console.error('Error al obtener inscripciones pasadas:', error);
+                    }
                 }
 
                 const calificacionesResponse = await axios.get(`${apiUrl}/control_escolar/calificaciones/`, {
@@ -162,10 +176,21 @@ const ReinscribirEstudiante = () => {
                 }
             } else {
                 setData([]);
-                console.warn('No se encontraron estudiantes con los criterios de búsqueda proporcionados.');
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'No se encontraron estudiantes con los criterios de búsqueda proporcionados.',
+                    life: 3000,
+                });
             }
         } catch (error) {
             console.error('Error al buscar estudiantes:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Hubo un problema al buscar estudiantes.',
+                life: 3000,
+            });
         }
     };
 

@@ -63,6 +63,7 @@ const RegistrarCalificaciones = () => {
     const [data, setData] = useState([]);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [calificaciones, setCalificaciones] = useState({});
+    const [loading, setLoading] = useState(false);
     const toast = useRef(null);
 
     const handleGrupoChange = (e) => {
@@ -80,6 +81,7 @@ const RegistrarCalificaciones = () => {
             return;
         }
         try {
+            setLoading(true); // Activar loading
             let token = JSON.parse(localStorage.getItem('access-token'));
             if (!token) {
                 token = await refreshToken();
@@ -159,6 +161,8 @@ const RegistrarCalificaciones = () => {
             setCalificaciones(calificacionesData);
         } catch (error) {
             console.error('Error al obtener los detalles de los estudiantes y calificaciones:', error);
+        } finally {
+            setLoading(false); // Desactivar loading
         }
     };
 
@@ -220,6 +224,7 @@ const RegistrarCalificaciones = () => {
     const handleConfirm = async () => {
         setShowConfirmDialog(false);
         try {
+            setLoading(true); // Activar loading
             let token = JSON.parse(localStorage.getItem('access-token'));
             if (!token) {
                 token = await refreshToken();
@@ -298,6 +303,8 @@ const RegistrarCalificaciones = () => {
                     life: 3000,
                 });
             }
+        } finally {
+            setLoading(false); // Desactivar loading
         }
     };
 
@@ -393,7 +400,8 @@ const RegistrarCalificaciones = () => {
                     className="p-button-success"
                     style={{ marginLeft: '1%' }}
                     onClick={handleSearch}
-                    disabled={!grupo}
+                    loading={loading}
+                    disabled={!grupo || loading}
                 />
                 <Button
                     label="Registrar Calificaciones"
@@ -401,7 +409,8 @@ const RegistrarCalificaciones = () => {
                     className="p-button-info" 
                     style={{ marginLeft: '1%'}}
                     onClick={handleRegisterClick}
-                    disabled={!grupo}
+                    loading={loading}
+                    disabled={!grupo || loading}
                 />
             </div>
 

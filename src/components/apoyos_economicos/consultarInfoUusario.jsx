@@ -91,13 +91,6 @@ const UserDetailView = () => {
 
       // Obtener el ID del pago desde la respuesta anidada
       const pagoId = response.data.data.id;
-      
-      if (pagoId) {
-        // Llamar a la API para confirmar el pago
-        await axios.patch(`${apiUrl}/pagos/confirmar/${pagoId}/`, {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
 
       toast.current.show({ severity: 'success', summary: 'Pago Creado', detail: 'Nuevo pago registrado con éxito', life: 3000 });
 

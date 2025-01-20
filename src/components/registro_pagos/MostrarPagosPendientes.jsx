@@ -263,7 +263,7 @@ const montoTemplate = (rowData) => {
   return (
     <div className="pagos-view">
       <Toast ref={toast} />
-      <h2>Historial de Pagos</h2>
+      <h2>Pagos no recibidos</h2>
 
       <div className="export-buttons">
             <Button
